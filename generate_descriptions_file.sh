@@ -3,7 +3,7 @@
 # This script reads all the DESCRIPTION files in all package directories, and
 # puts this output into the docs/components_descriptions_marketing.txt file.
 
-exec > docs/components_descriptions_marketing.txt
+exec > docs/website/components_descriptions_marketing.txt
 
 for i in packages/*; do
 	packagename=`echo $i | sed 's/packages\///'`
