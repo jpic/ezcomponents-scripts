@@ -34,4 +34,9 @@ grep -nr "[^[:space:](]);" * | grep -v svn-base | grep -v tests | grep "\.php"
 echo "Checking for wrong opening bracket:"
 grep -nr "([^[:space:]C)]" * | grep -v svn-base | grep -v tests | grep -v "(string)" | grep -v "(int)" | grep -v "(float)" | grep -v "*" | grep "\.php:"
 
+for i in `find . -name \*.php`; do
+    php -r "\$f = file( '$i' ); \$o = fopen( '/tmp/temp.php', 'w' ); \$ca = \$la = 1; foreach( \$f as \$l ) { \$s = 1; if ( preg_match( '|@copyright|', \$l ) ) { if ( \$ca ) { \$ca--; } else { \$s = 0; } }; if ( preg_match( '|@license|', \$l ) ) { if ( \$la ) { \$la--; } else { \$s = 0; } }; if ( \$s) fwrite( \$o, \$l ); }"
+    cp /tmp/temp.php $i
+done
+
 for i in `find . -name \*.php`; do php -l $i | grep -v "No syntax errors"; done
