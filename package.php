@@ -19,20 +19,27 @@ $packageDir = "/tmp/ezcTemp";
 $packageList = array();
 
 mkdir( $packageDir );
-$definition = file( $fileName );
-foreach ( $definition as $defLine )
-{
-    if ( preg_match( '@([A-Za-z]+):\s+([A-Za-z0-9.]+)@', $defLine, $matches ) )
-    {
-        addPackage( $packageDir, $matches[1], $matches[2] );
-    }
-}
+addPackages( $fileName, $packageDir );
 setupAutoload( $packageDir, $packageList );
 addAditionalFiles( $packageDir, $packageList );
+setBaseNonDevel( $packageDir );
+
+function addPackages( $fileName, $packageDir )
+{
+    echo "Exporting packages from SVN: \n";
+    $definition = file( $fileName );
+    foreach ( $definition as $defLine )
+    {
+        if ( preg_match( '@([A-Za-z]+):\s+([A-Za-z0-9.]+)@', $defLine, $matches ) )
+        {
+            addPackage( $packageDir, $matches[1], $matches[2] );
+        }
+    }
+}
 
 function addPackage( $packageDir, $name, $version )
 {
-    echo sprintf( '%-20s %-8s: ', $name, $version );
+    echo sprintf( '* %-20s %-8s: ', $name, $version );
     
     $dirName = "packages/$name/releases/$version";
     if ( !is_dir( $dirName ) )
@@ -91,5 +98,12 @@ function addAditionalFiles( $packageDir, $packageList )
     fclose( $f );
 
     echo "\n";
+}
+
+function setBaseNonDevel( $packageDir )
+{
+    echo "Configuring Base package in release mode: ";
+    file_put_contents( "$packageDir/Base/src/base.php", str_replace( "developmentMode = true", "developmentMode = false", file_get_contents( "$packageDir/Base/src/base.php" ) ) );
+    echo "Done\n";
 }
 ?>
