@@ -40,6 +40,11 @@ function __autoload( $class_name )
 
 class ezcPackageManager {
 
+    protected $pathes = array( 
+        'package' => '',
+        'install' => '',
+    );
+
     // {{{ CHANNEL
 
     /**
@@ -138,6 +143,8 @@ class ezcPackageManager {
         $this->output->outputText( "0.1.0\n\n", 'version' );
         
         $paramValues = $this->parameter->getParams();
+
+        
         switch ( true )
         {
             case count( $paramValues ) === 0 || isset( $paramValues['h'] ):
@@ -149,6 +156,8 @@ class ezcPackageManager {
                 {
                     $this->raiseError( 'Invalid version number <'.$version.'>, must be in format <x.y.z>.');
                 }
+                $this->pathes['package'] = realpath( $this->parameter->getParam( '-p' ) );
+                $this->pathes['install'] = realpath( DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) );
                 $this->createLinkMess( $version );
                 $this->processPackage( $version );
                 break;
@@ -260,9 +269,9 @@ The package name must reflect the directory structure and you must be in the <pa
      * @param string $path Path to package base directory.
      * @return array Array with package descriptions (0=>short, 1=>long).
      */
-    protected function grabReadme( $path )
+    protected function grabReadme()
     {
-        $readmePath = $path . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'DESCRIPTION';
+        $readmePath = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'DESCRIPTION';
         if ( !is_file( $readmePath ) || !is_readable( $readmePath ) )
         {
             $this->raiseError( 'Could not find README file <'.$readmePath.'>.' );
@@ -285,13 +294,13 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function grabChangelog( $path, $version )
     {
-        $changelogPath = $path . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version . DIRECTORY_SEPARATOR . 'ChangeLog';
+        $changelogPath = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version . DIRECTORY_SEPARATOR . 'ChangeLog';
         if ( !is_file( $changelogPath ) || !is_readable( $changelogPath ) )
         {
             $this->raiseError( 'Could not find ChangeLog file <'.$changelogPath.'>.' );
         }
-        $changelog = file( $changelogPath );
         $data = array();
+        $data = file( $changelogPath );
         unset( $data[0] );
         unset( $data[0] );
         return implode( '', $data );
@@ -360,24 +369,27 @@ The package name must reflect the directory structure and you must be in the <pa
     protected function createLinkMess( $version )
     {
         // prepare mess of links and dirs to create
-        $packageDir = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) . DIRECTORY_SEPARATOR . 'trunk';
-        $baseDir = realpath( '.' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version );
+        $installDir = $this->pathes['install'];
+        $packageDir = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version;
 
-        $realPaths = array();
-        $realPaths['install'] = $packageDir . DIRECTORY_SEPARATOR . 'install';
-        $realPaths['ezc'] = $realPaths['install'] . DIRECTORY_SEPARATOR . 'ezc';
-        $realPaths['autoload'] = $realPaths['ezc'] . DIRECTORY_SEPARATOR . 'autoload';
+        // directory pathes which have to be really created
+        $realPaths              = array();
+        $realPaths['install']   = $installDir . DIRECTORY_SEPARATOR . 'install';
+        $realPaths['ezc']       = $realPaths['install'] . DIRECTORY_SEPARATOR . 'ezc';
+        $realPaths['autoload']  = $realPaths['ezc'] . DIRECTORY_SEPARATOR . 'autoload';
 
+        // pathes which have to be linked from their original source
         $linkPaths = array(
-            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) => $baseDir . DIRECTORY_SEPARATOR . 'src',
+            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) 
+            => $packageDir . DIRECTORY_SEPARATOR . 'src',
         );
-        if ( is_dir ( $realPaths['install'] . DIRECTORY_SEPARATOR . 'docs' ) )
+        if ( is_dir( $realPaths['install'] . DIRECTORY_SEPARATOR . 'docs' ) )
         {
-            $linkPaths[$realPaths['install'] . DIRECTORY_SEPARATOR . 'docs'] = $baseDir . DIRECTORY_SEPARATOR . 'docs';
+            $linkPaths[$realPaths['install'] . DIRECTORY_SEPARATOR . 'docs'] = $packageDir . DIRECTORY_SEPARATOR . 'docs';
         }
 
-
-        foreach( glob( $baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . '*autoload*' ) as $autoloadFile ) 
+        // autoload files must be linked
+        foreach( glob( $packageDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . '*autoload*' ) as $autoloadFile ) 
         {
             $linkPaths[$realPaths['autoload'] . DIRECTORY_SEPARATOR . basename( $autoloadFile )]
                 = $autoloadFile;
@@ -425,18 +437,19 @@ The package name must reflect the directory structure and you must be in the <pa
     protected function processPackage( $version )
     {
         $packageName = $this->parameter->getParam( '-p' );
-        $packageDir = realpath( '.' . DIRECTORY_SEPARATOR . $packageName );
+        $packageDir  = $this->pathes['package'];
+        var_dump( $this->pathes);
+        
         if ( !is_dir( $packageDir ) )
-        {
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
-        }
+        
         $state = $this->parameter->getParam( '-s' ) !== false ? $this->parameter->getParam( '-s' ) : 'devel';
+        
         if ( !in_array( $state, $this->validStates ) )
-        {
             $this->raiseError( 'Invalid package state: <'.$state.'>.' );
-        }
         
         $info = $this->grabReadme( $packageDir );
+
         $descShort = $info[0];
         $descLong  = $info[1];
 
