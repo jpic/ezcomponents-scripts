@@ -485,44 +485,78 @@ The package name must reflect the directory structure and you must be in the <pa
         );
 
         if ( PEAR::isError( $e ) )
-        {
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
-        }
 
-        $pkg->setPackage( $name );
-        $pkg->setSummary( $short );
-        $pkg->setDescription( $long );
-        $pkg->setChannel( self::CHANNEL );
+        $e = $pkg->setPackage( $name );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setSummary( $short );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setDescription( $long );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setChannel( self::CHANNEL );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         
-        $pkg->setReleaseStability( $state );
-        $pkg->setAPIStability( 'stable' );
-        $pkg->setReleaseVersion( $version );
-        $pkg->setAPIVersion( $version );
+        $e = $pkg->setReleaseStability( $state );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setAPIStability( 'stable' );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setReleaseVersion( $version );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setAPIVersion( $version );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $pkg->setLicense( self::LICENSE );
-        $pkg->setNotes( $changelog );
+        $e = $pkg->setLicense( self::LICENSE );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setNotes( $changelog );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $pkg->setPackageType( 'php' );
+        $e = $pkg->setPackageType( 'php' );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $pkg->setPhpDep( '5.1.0RC6' );
-        $pkg->setPearinstallerDep( '1.4.2' );
+        $e = $pkg->setPhpDep( '5.1.0RC6' );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        $e = $pkg->setPearinstallerDep( '1.4.2' );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
  //       $pkg->addGlobalReplacement( 'pear-config', '@php_dir@', 'php_dir' );
 
-        $pkg->addRelease();
+        $e = $pkg->addRelease();
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $pkg->addMaintainer( 'lead', 'ez', 'eZ systems', 'ezc@ez.no' );
+        $e = $pkg->addMaintainer( 'lead', 'ez', 'eZ systems', 'ezc@ez.no' );
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $pkg->generateContents();
+        $e = $pkg->generateContents();
+        if ( PEAR::isError( $e ) )
+            $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         
         $debug = $this->parameter->getParam( '-d' ) !== false ? true : false;
         if ( $debug )
         {
-            $pkg->debugPackageFile();
+            $e = $pkg->debugPackageFile();
+            if ( PEAR::isError( $e ) )
+                $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
         else 
         {
-            $pkg->writePackageFile();
+            $e = $pkg->writePackageFile();
+            if ( PEAR::isError( $e ) )
+                $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
     }
 
