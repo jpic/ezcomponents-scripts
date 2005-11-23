@@ -157,7 +157,14 @@ class ezcPackageManager {
                     $this->raiseError( 'Invalid version number <'.$version.'>, must be in format <x.y.z>.');
                 }
                 $this->pathes['package'] = realpath( $this->parameter->getParam( '-p' ) );
-                $this->pathes['install'] = realpath( DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) );
+                $this->pathes['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' );
+                if ( !is_dir( $this->pathes['install'] ) )
+                {
+                    if ( mkdir( $this->pathes['install'], 0700, true ) === false )
+                    {
+                        $this->raiseError( "Could not create installation directory <".$this->pathes['install'].">.");
+                    }
+                }
                 $this->createLinkMess( $version );
                 $this->processPackage( $version );
                 break;
@@ -374,8 +381,7 @@ The package name must reflect the directory structure and you must be in the <pa
 
         // directory pathes which have to be really created
         $realPaths              = array();
-        $realPaths['install']   = $installDir . DIRECTORY_SEPARATOR . 'install';
-        $realPaths['ezc']       = $realPaths['install'] . DIRECTORY_SEPARATOR . 'ezc';
+        $realPaths['ezc']       = $installDir . DIRECTORY_SEPARATOR . 'ezc';
         $realPaths['autoload']  = $realPaths['ezc'] . DIRECTORY_SEPARATOR . 'autoload';
 
         // pathes which have to be linked from their original source
@@ -383,9 +389,9 @@ The package name must reflect the directory structure and you must be in the <pa
             $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) 
             => $packageDir . DIRECTORY_SEPARATOR . 'src',
         );
-        if ( is_dir( $realPaths['install'] . DIRECTORY_SEPARATOR . 'docs' ) )
+        if ( is_dir( $packageDir . DIRECTORY_SEPARATOR . 'docs' ) )
         {
-            $linkPaths[$realPaths['install'] . DIRECTORY_SEPARATOR . 'docs'] = $packageDir . DIRECTORY_SEPARATOR . 'docs';
+            $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs'] = $packageDir . DIRECTORY_SEPARATOR . 'docs';
         }
 
         // autoload files must be linked
@@ -437,7 +443,7 @@ The package name must reflect the directory structure and you must be in the <pa
     protected function processPackage( $version )
     {
         $packageName = $this->parameter->getParam( '-p' );
-        $packageDir  = $this->pathes['package'];
+        $packageDir  = $this->pathes['install'];
         
         if ( !is_dir( $packageDir ) )
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
@@ -454,9 +460,9 @@ The package name must reflect the directory structure and you must be in the <pa
 
         $changelog = $this->grabChangelog( $packageDir, $version );
 
-        $installDir = $packageDir . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'install';
+        $installDir = $packageDir . DIRECTORY_SEPARATOR . 'install';
 
-        $this->generatePackageXml( $packageName, "/tmp/ezc/$packageName/trunk/install", $state, $version, $descShort, $descLong, $changelog );
+        $this->generatePackageXml( $packageName, $packageDir, $state, $version, $descShort, $descLong, $changelog );
     }
 
     // }}}
@@ -475,7 +481,7 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog )
     {
-        $autoloadDir = $path . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
+        $autoloadDir = $this->pathes['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
         if ( !is_dir( $path ) )
         {
             $this->raiseError( 'Package source directory <'.$path.'> invalid.' );
