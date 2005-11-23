@@ -1,8 +1,7 @@
 #!/usr/bin/php
 <?php
 
-define( 'CHANNEL_URI',          'pear.schlitt.info' );
-// define( 'CHANNEL_URI',          'components.ez.no' );
+define( 'CHANNEL_URI',          'components.ez.no' );
 define( 'PACKAGE_NAME',         'eZComponents' );
 define( 'PACKAGE_SUMMARY',      'Super package to install a complete release of eZ Enterprise Components.' );
 define( 'PACKAGE_DESCRIPTION',  'This super package provides dependencies to every other eZ Enterprise Component to install those all at once. To perform this, simply do <$ pear install -a ' . PACKAGE_NAME . '>.');
@@ -116,8 +115,8 @@ if ( ( $releaseDef = file( $releasePath ) ) === false )
 }
 
 // Create release dir, if not exists
-$packagePath = '.' . DIRECTORY_SEPARATOR . 'Components';
-if ( !is_dir( $packagePath ) && mkdir( $packagePath, 0700 ) === false )
+$packagePath = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'Components';
+if ( !is_dir( $packagePath ) && mkdir( $packagePath, 0700, true ) === false )
 {
     die( $output->styleText( "Error creating packaging directory <$packagePath>.", 'failure' ) );
 }
@@ -192,7 +191,7 @@ $e = $pkg->setPackageType( 'php' );
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->setPhpDep( '5.0.0' );
+$e = $pkg->setPhpDep( '5.1.0RC6' );
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setPearinstallerDep( '1.4.2' );
@@ -207,7 +206,7 @@ $e = $pkg->addRelease();
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->addMaintainer( 'lead', 'ez', 'eZ Systems', 'ezc@ez.no' );
+$e = $pkg->addMaintainer( 'lead', 'ezc', 'eZ components team', 'ezc@ez.no' );
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
