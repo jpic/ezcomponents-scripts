@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/php -derror_reporting=E_ALL
 <?php
 /**
  * Script for generating package.xml files for eZ Enterprise Components.
@@ -50,10 +50,7 @@ class ezcPackageManager {
     /**
      * Channel name to use in pakage.xml files
      */
-    // DEBUG VAL!
-    // const CHANNEL = 'pear.schlitt.info';
-    //const CHANNEL = 'components.ez.no';
-    const CHANNEL = 'pear.php.net';
+    const CHANNEL = 'components.ez.no';
 
     // }}}
     // {{{ LICENSE
@@ -98,6 +95,7 @@ class ezcPackageManager {
         'alpha',
         'beta',
         'stable',
+        'guess',
     );
 
     // }}}
@@ -211,7 +209,7 @@ class ezcPackageManager {
                 'shorthelp' => 'Package name.',
                 'longhelp'  => 'Name of the package to generate the package.xml files for.
 The package name must reflect the directory structure and you must be in the <packages/> directory of your SVN checkout.',
-                'depends'   => array( 'v', 's' ),
+                'depends'   => array( 'v' ),
             ) 
         );
         $this->parameter->registerParam( 
@@ -221,7 +219,7 @@ The package name must reflect the directory structure and you must be in the <pa
                 'type'      => ezcConsoleParameter::TYPE_STRING,
                 'shorthelp' => 'Package version.',
                 'longhelp'  => 'Version of the release to generate a package.xml files for.',
-                'depends'   => array( 's', 'p' ),
+                'depends'   => array( 'p' ),
             ) 
         );
         $this->parameter->registerParam( 
@@ -230,8 +228,8 @@ The package name must reflect the directory structure and you must be in the <pa
             array(
                 'type'      => ezcConsoleParameter::TYPE_STRING,
                 'shorthelp' => 'Stability of the package.',
-                'longhelp'  => 'Stability status of the release to package: devel, alpha, beta, or stable (default is devel).',
-                'default'   => 'devel',
+                'longhelp'  => 'Stability status of the release to package: devel, alpha, beta, or stable (default is guess from version string).',
+                'default'   => 'guess',
                 'depends'   => array( 'v', 'p' ),
             ) 
         );
@@ -434,6 +432,15 @@ The package name must reflect the directory structure and you must be in the <pa
     }
 
     // }}}
+
+    private function guessFromVersion( $version )
+    {
+        if ( preg_match( '@beta@', $version ) )
+        {
+            return 'beta';
+        }
+        return 'stable';
+    }
     // {{{ processPackage()
 
     /**
@@ -448,7 +455,11 @@ The package name must reflect the directory structure and you must be in the <pa
         if ( !is_dir( $packageDir ) )
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
         
-        $state = $this->parameter->getParam( '-s' ) !== false ? $this->parameter->getParam( '-s' ) : 'devel';
+        $state = $this->parameter->getParam( '-s' ) !== false ? $this->parameter->getParam( '-s' ) : $this->guessFromVersion( $version );
+        if ( $state == 'guess' )
+        {
+            $state = $this->guessFromVersion( $version );
+        }
         
         if ( !in_array( $state, $this->validStates ) )
             $this->raiseError( 'Invalid package state: <'.$state.'>.' );
@@ -541,7 +552,7 @@ The package name must reflect the directory structure and you must be in the <pa
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $e = $pkg->setPhpDep( '5.1.0RC6' );
+        $e = $pkg->setPhpDep( '5.1.0' );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         $e = $pkg->setPearinstallerDep( '1.4.2' );
@@ -554,7 +565,7 @@ The package name must reflect the directory structure and you must be in the <pa
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $e = $pkg->addMaintainer( 'lead', 'ez', 'eZ systems', 'ezc@ez.no' );
+        $e = $pkg->addMaintainer( 'lead', 'ezc', 'eZ systems', 'ezc@ez.no' );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 

@@ -191,7 +191,7 @@ $e = $pkg->setPackageType( 'php' );
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->setPhpDep( '5.1.0RC6' );
+$e = $pkg->setPhpDep( '5.1.0' );
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setPearinstallerDep( '1.4.2' );
