@@ -5,24 +5,27 @@ if ( $argc != 2 )
     echo "Usage:\n\tscripts/package.php <version>\n\tscripts/package.php 1.0beta1\n\n";
     die();
 }
-$fileName = "releases/{$argv[1]}";
+$version = $argv[1];
+$fileName = "releases/$version";
 if ( !file_exists( "$fileName" ) )
 {
     echo "The releases file <$fileName> does not exist!\n\n";
     die();
 }
 
-//$packageDir = "/tmp/ezc". md5( time() );
 
-`rm -rf /tmp/ezcTemp`;
-$packageDir = "/tmp/ezcTemp";
+$basePackageDir = "/tmp/ezc". md5( time() );
+$packageDir = $basePackageDir . "/ezcomponents-$version";
 $packageList = array();
 
-mkdir( $packageDir );
+mkdir( $packageDir, 0777, true );
 addPackages( $fileName, $packageDir );
 setupAutoload( $packageDir, $packageList );
 addAditionalFiles( $packageDir, $packageList );
 setBaseNonDevel( $packageDir );
+
+`cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version.tar.bz2 .`;
+`rm -rf $basePackageDir`;
 
 function addPackages( $fileName, $packageDir )
 {
