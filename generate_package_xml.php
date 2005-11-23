@@ -438,7 +438,6 @@ The package name must reflect the directory structure and you must be in the <pa
     {
         $packageName = $this->parameter->getParam( '-p' );
         $packageDir  = $this->pathes['package'];
-        var_dump( $this->pathes);
         
         if ( !is_dir( $packageDir ) )
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
@@ -476,7 +475,6 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog )
     {
-        $this->output->outputText( "Now processing: $path" );
         $autoloadDir = $path . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
         if ( !is_dir( $path ) )
         {
@@ -571,6 +569,8 @@ The package name must reflect the directory structure and you must be in the <pa
             if ( PEAR::isError( $e ) )
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
+
+        $this->output->outputText( "\nFinished processing. You can now do <$ pear package " . $path . DIRECTORY_SEPARATOR . "package.xml>. \n\n", 'success' );
     }
 
     // }}}
