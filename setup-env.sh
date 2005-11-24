@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd packages
+
 if test -d autoload; then
 	echo "Autoload directory exists."
 else

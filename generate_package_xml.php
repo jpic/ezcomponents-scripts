@@ -40,7 +40,7 @@ function __autoload( $class_name )
 
 class ezcPackageManager {
 
-    protected $pathes = array( 
+    protected $paths = array( 
         'package' => '',
         'install' => '',
     );
@@ -154,14 +154,15 @@ class ezcPackageManager {
                 {
                     $this->raiseError( 'Invalid version number <'.$version.'>, must be in format <x.y.z>.');
                 }
-                $this->pathes['package'] = realpath( $this->parameter->getParam( '-p' ) );
-                $this->pathes['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' );
-                if ( !is_dir( $this->pathes['install'] ) )
+                $this->paths['package'] = realpath( $this->parameter->getParam( '-p' ) );
+                $this->paths['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' );
+                if ( is_dir( $this->paths['install'] ) )
                 {
-                    if ( mkdir( $this->pathes['install'], 0700, true ) === false )
-                    {
-                        $this->raiseError( "Could not create installation directory <".$this->pathes['install'].">.");
-                    }
+                    `rm -rf {$this->paths['install']}`;
+                }
+                if ( mkdir( $this->paths['install'], 0700, true ) === false )
+                {
+                    $this->raiseError( "Could not create installation directory <".$this->paths['install'].">.");
                 }
                 $this->createLinkMess( $version );
                 $this->processPackage( $version );
@@ -276,7 +277,7 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function grabReadme()
     {
-        $readmePath = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'DESCRIPTION';
+        $readmePath = $this->paths['package'] . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'DESCRIPTION';
         if ( !is_file( $readmePath ) || !is_readable( $readmePath ) )
         {
             $this->raiseError( 'Could not find README file <'.$readmePath.'>.' );
@@ -299,7 +300,7 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function grabChangelog( $path, $version )
     {
-        $changelogPath = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version . DIRECTORY_SEPARATOR . 'ChangeLog';
+        $changelogPath = $this->paths['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version . DIRECTORY_SEPARATOR . 'ChangeLog';
         if ( !is_file( $changelogPath ) || !is_readable( $changelogPath ) )
         {
             $this->raiseError( 'Could not find ChangeLog file <'.$changelogPath.'>.' );
@@ -374,15 +375,15 @@ The package name must reflect the directory structure and you must be in the <pa
     protected function createLinkMess( $version )
     {
         // prepare mess of links and dirs to create
-        $installDir = $this->pathes['install'];
-        $packageDir = $this->pathes['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version;
+        $installDir = $this->paths['install'];
+        $packageDir = $this->paths['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version;
 
-        // directory pathes which have to be really created
+        // directory paths which have to be really created
         $realPaths              = array();
         $realPaths['ezc']       = $installDir . DIRECTORY_SEPARATOR . 'ezc';
         $realPaths['autoload']  = $realPaths['ezc'] . DIRECTORY_SEPARATOR . 'autoload';
 
-        // pathes which have to be linked from their original source
+        // paths which have to be linked from their original source
         $linkPaths = array(
             $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) 
             => $packageDir . DIRECTORY_SEPARATOR . 'src',
@@ -395,9 +396,11 @@ The package name must reflect the directory structure and you must be in the <pa
         // autoload files must be linked
         foreach( glob( $packageDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . '*autoload*' ) as $autoloadFile ) 
         {
-            $linkPaths[$realPaths['autoload'] . DIRECTORY_SEPARATOR . basename( $autoloadFile )]
-                = $autoloadFile;
+            $linkPaths[$realPaths['autoload'] . DIRECTORY_SEPARATOR . basename( $autoloadFile )] = $autoloadFile;
         }
+
+        // add license file
+        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'LICENSE'] = $packageDir . '/../../../../LICENSE';
         
         // create real dir structure
         foreach ( $realPaths as $path ) 
@@ -423,10 +426,19 @@ The package name must reflect the directory structure and you must be in the <pa
         {
             if( !is_link( $link ) ) 
             {
+                // unfortunately we have to copy here, as we need to modify files sometimes :S
+                `cp -vfR $target $link`;
+                $basePhp = $link . DIRECTORY_SEPARATOR . 'base.php';
+                if ( file_exists( $basePhp ) )
+                {
+                    file_put_contents( "$basePhp", str_replace( "libraryMode = \"devel\"", "libraryMode = \"pear\"", file_get_contents( $basePhp ) ) );
+                }
+                /*
                 if( symlink( $target, $link ) === false ) 
                 {
                     $this->raiseError( 'Could not create basic install link infrastructure <' . $link . '> to <' . $target . '>.' );
                 }
+                */
             }
         }
     }
@@ -450,7 +462,7 @@ The package name must reflect the directory structure and you must be in the <pa
     protected function processPackage( $version )
     {
         $packageName = $this->parameter->getParam( '-p' );
-        $packageDir  = $this->pathes['install'];
+        $packageDir  = $this->paths['install'];
         
         if ( !is_dir( $packageDir ) )
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
@@ -492,7 +504,7 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog )
     {
-        $autoloadDir = $this->pathes['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
+        $autoloadDir = $this->paths['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
         if ( !is_dir( $path ) )
         {
             $this->raiseError( 'Package source directory <'.$path.'> invalid.' );
@@ -559,7 +571,7 @@ The package name must reflect the directory structure and you must be in the <pa
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
- //       $pkg->addGlobalReplacement( 'pear-config', '@php_dir@', 'php_dir' );
+        $pkg->addGlobalReplacement( 'php-const', 'libraryMode = "devel"', 'libraryMode = "pear"' );
 
         $e = $pkg->addRelease();
         if ( PEAR::isError( $e ) )
@@ -587,7 +599,7 @@ The package name must reflect the directory structure and you must be in the <pa
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
 
-        $this->output->outputText( "\nFinished processing. You can now do <$ pear package " . $path . DIRECTORY_SEPARATOR . "package.xml>. \n\n", 'success' );
+        $this->output->outputText( "\nFinished processing. You can now do <$ cd /tmp; pear package {$path}/package.xml; cd - >. \n\n", 'success' );
     }
 
     // }}}

@@ -106,7 +106,7 @@ function addAditionalFiles( $packageDir, $packageList )
 function setBaseNonDevel( $packageDir )
 {
     echo "Configuring Base package in release mode: ";
-    file_put_contents( "$packageDir/Base/src/base.php", str_replace( "developmentMode = true", "developmentMode = false", file_get_contents( "$packageDir/Base/src/base.php" ) ) );
+    file_put_contents( "$packageDir/Base/src/base.php", str_replace( "libraryMode = \"devel\"", "libraryMode = \"tarball\"", file_get_contents( "$packageDir/Base/src/base.php" ) ) );
     echo "Done\n";
 }
 ?>
