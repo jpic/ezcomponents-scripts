@@ -57,8 +57,12 @@ function addPackage( $packageDir, $name, $version )
     `svn export http://svn.ez.no/svn/ezcomponents/packages/$name/releases/$version $packageDir/$name`;
 
     /* remove crappy files */
-    echo "R ";
+    echo "RR ";
     @unlink( "$packageDir/$name/review.txt" );
+
+    /* remove design directory */
+    echo "RD ";
+    `rm -rf "$packageDir/$name/design"`;
     
     echo "Done\n";
 }
