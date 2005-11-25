@@ -137,16 +137,28 @@ $e = $pkg->setOptions(
 if ( PEAR::isError( $e ) )
     die( $output->styleText( "Error creating file manager: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
+$foundPackageTag = false;
 foreach ( $releaseDef as $release )
 {
     if ( substr( $release, 0, 1 ) === '#' ) 
     {
         continue;    
     }
-    $releaseData = array_map( 'trim', explode( ': ', $release ) );
-    $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $releaseData[1], false, $releaseData[1] );
-    if ( PEAR::isError( $e ) )
-        die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    if ( trim( $release ) == '' )
+    {
+        continue;
+    }
+    if ( $foundPackageTag )
+    {
+        $releaseData = array_map( 'trim', explode( ': ', $release ) );
+        $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $releaseData[1], false, $releaseData[1] );
+        if ( PEAR::isError( $e ) )
+            die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    }
+    if ( substr( $release, 0, 8 ) === 'PACKAGES' )
+    {
+        $foundPackageTag = true;
+    }
 }
 
 

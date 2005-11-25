@@ -25,6 +25,7 @@ addAditionalFiles( $packageDir, $packageList );
 setBaseNonDevel( $packageDir );
 
 `cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version.tar.bz2 .`;
+`cd $basePackageDir; zip -r /tmp/ezcomponents-$version.zip ezcomponents-$version`;
 `rm -rf $basePackageDir`;
 
 function addPackages( $fileName, $packageDir )
