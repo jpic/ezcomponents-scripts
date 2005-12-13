@@ -328,7 +328,7 @@ The package name must reflect the directory structure and you must be in the <pa
         $this->output->outputText( "Usage: $ generate_package_xml.php -p <PackageName> -v <PackageVersion> -s <PackageStatus>\n", 'help' );
         $this->output->outputText( "Must be run from within /your/svn/co/ezcomponents/packages .\n", 'help' );
         
-        if( $helpTopic !== '' && $helpTopic !== false )
+        if ( $helpTopic !== '' && $helpTopic !== false )
         {
             try
             {
