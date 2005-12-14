@@ -182,7 +182,7 @@ function cloneFile( $file, $targetDir )
 				}
 			}
 		}
-		echo " );\n";
+		echo " ) { }\n";
 	}
 	
 	echo "}\n?>\n";
