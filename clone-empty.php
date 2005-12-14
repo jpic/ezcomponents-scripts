@@ -4,6 +4,7 @@
  * 
  * @param string $class_name 
  */
+
 function __autoload( $className )
 {
 	require_once("packages/Base/trunk/src/base.php");
@@ -43,6 +44,16 @@ function fetchDirectoryName()
 
 	$directory = $parameters->getParam( '-d' );
 */
+    echo "\n";
+    echo <<<AAA
+Update this description when the console tools are finished.
+
+To let this script work, you should have performed the following steps:
+- Install PEAR (Or compile PHP with PEAR support).
+- Make sure that the PHP executables are in the PATH.
+- Make sure that autoconf (preferable version 2.13) is installed.
+- pecl install docblock-alpha
+AAA;
 	if ( !$directory )
 	{
 		$directory = '/tmp/ezc-clone';
@@ -90,7 +101,7 @@ function cloneFile( $file, $targetDir )
 	{
 		mkdir ( $targetDir . "/" . $dir, 0777, true );
 	}
-	$f = fopen( $targetDir . "/" . $file, "w" );
+	$f = fopen( $targetDir . "/" . str_replace(".php", ".java", $file ), "w" );
 	ob_start();
 	$found = false;
 	$lines = file( $file );
@@ -107,8 +118,16 @@ function cloneFile( $file, $targetDir )
 	{
 		return;
 	}
-	echo "<?php\n";
 	$rc = new ReflectionClass( $class );
+    
+    $classTags = getTags( $rc );
+    
+    // Create the namespace
+    echo "package ".( isset( $classTags["@package"] ) ? $classTags["@package"][0] : "PACKAGE_NOT_SET" ).";\n\n";
+
+    // Set the access type of the class.
+    echo ( isset( $classTags[ "@access" ] ) ? $classTags["@access"][0] : "public" ) ." ";
+
 	echo
 		$rc->isAbstract() ? 'abstract ' : '',
 		$rc->isFinal() ? 'final ' : '',
@@ -119,16 +138,35 @@ function cloneFile( $file, $targetDir )
 	{
 		echo "\t";
 
-		echo
-			$property->isPublic() ? 'public ' : '',
-			$property->isPrivate() ? 'private ' : '',
-			$property->isProtected() ? 'protected ' : '',
-			$property->isStatic() ? 'static ' : '';
+        $propertyTags = getTags( $property );
 
-		$propertyType = getPropertyType( $property );
-		echo $propertyType ? $propertyType : "PROPERTY_TYPE_MISSING", " ";
+        if( isset( $propertyTag["@access"] ) )
+        {
+            echo ( $propertyTag["@access"] );
+        }
+        else
+        {
+            echo
+                $property->isPublic() ? 'public ' : '',
+                $property->isPrivate() ? 'private ' : '',
+                $property->isProtected() ? 'protected ' : '',
+                $property->isStatic() ? 'static ' : '';
+        }
+
+        if( isset( $propertyTags["@var"][0] ) )
+        {
+            $var = fixType( $propertyTags["@var"][0] );
+            echo $var . " "; 
+        }
+        else
+        {
+            echo "PROPERTY_TYPE_MISSING ";
+        }
+
+		//$propertyType = getPropertyType( $property );
+		//echo $propertyType ? $propertyType : "PROPERTY_TYPE_MISSING", " ";
 		
-		echo "$", $property->getName();
+		echo $property->getName();
 		echo ";\n";
 	}
 	echo "\n";
@@ -146,9 +184,19 @@ function cloneFile( $file, $targetDir )
 			$method->isStatic() ? 'static ' : '';
 		
 		$returnType = getReturnValue( $method );
-		echo $returnType ? $returnType . ' ' : 'RETURN_TYPE_MISSING ';
 
-		echo "function {$method->name}( ";
+        if( strcmp( $method->name, "__construct" ) == 0 )
+        {
+            // Constructor has no return type.
+            // Replace the method name.
+            echo "$class ( ";
+        }
+        else
+        {
+		    echo $returnType ? fixType($returnType) . ' ' : 'RETURN_TYPE_MISSING ';
+            echo "{$method->name}( ";
+        }
+
 
 		$parameterTypes = getParameterTypes( $method );
 		foreach ($method->getParameters() as $i => $param)
@@ -158,14 +206,15 @@ function cloneFile( $file, $targetDir )
 				echo ", ";
 			}
 			if ( isset( $parameterTypes[$param->getName()] ) )
-			{
-				echo $parameterTypes[$param->getName()], " ";
+			{ 
+                echo fixType( $parameterTypes[$param->getName()] ), " ";
 			}
 			else
 			{
 				echo "PARAM_TYPE_MISSING ";
 			}
-			echo '$', $param->getName();
+			echo $param->getName();
+            /*
 			if ( $param->isDefaultValueAvailable() )
 			{
 				echo ' = ';
@@ -181,15 +230,16 @@ function cloneFile( $file, $targetDir )
 						echo $param->getDefaultValue();
 				}
 			}
+            */
 		}
-		echo " ) { }\n";
+        echo " )" . ($method->isAbstract() ? ";" : "{}" ) . "\n";
 	}
 	
-	echo "}\n?>\n";
+	echo "}\n";
 	fwrite( $f, ob_get_contents() );
 	ob_end_clean();
 }
-
+/*
 function getPropertyType( $method )
 {
 	$types = array();
@@ -219,6 +269,7 @@ function getPropertyType( $method )
 	}
 	return false;
 }
+*/
 
 function getParameterTypes( $method )
 {
@@ -278,6 +329,46 @@ function getReturnValue( $method )
 		}
 	}
 	return false;
+}
+
+function fixType( $type )
+{
+    // Pick the first type if it can have multiple values: int|bool.
+    if( ( $pos = strpos( $type, "|" ) ) !== false )
+    {
+        $type = substr( $type, 0, $pos );
+    }
+
+    if( strncmp( $type, "array(", 6 ) == 0 )
+    {
+        $type = substr( $type, 6, -1) . "[]";
+        $type = str_replace( "=>", "_", $type );
+    }
+
+    return $type;
+}
+
+/** 
+ * Returns an array with tags and value.
+ */
+function getTags( $reflectionItem )
+{
+    $result = array();
+	$dc = $reflectionItem->getDocComment();
+    
+    // Go through the comment block.
+    $tokens = docblock_tokenize( $dc );
+
+    for( $i = 0; $i < sizeof( $tokens ); $i++ )
+    {
+        // Found a tag?
+        if ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_TAG' )
+        {
+           $result[ $tokens[$i][1] ][] = trim( $tokens[$i + 1][1] );
+
+        }
+    }
+    return $result;
 }
 
 $targetDir = fetchDirectoryName();
