@@ -6,16 +6,16 @@
  */
 function __autoload( $className )
 {
-    require_once("packages/Base/trunk/src/base.php");
-    if ( strpos( $className, "_" ) !== false )
-    {
-        $file = str_replace( "_", "/", $className ) . ".php";
-        $val = require_once( $file );
-        if ( $val == 0 )
-            return true;
-        return false;
-    }
-    ezcBase::autoload( $className );
+	require_once("packages/Base/trunk/src/base.php");
+	if ( strpos( $className, "_" ) !== false )
+	{
+		$file = str_replace( "_", "/", $className ) . ".php";
+		$val = require_once( $file );
+		if ( $val == 0 )
+			return true;
+		return false;
+	}
+	ezcBase::autoload( $className );
 }
 
 // Parse options
@@ -84,6 +84,14 @@ function findRecursive( $sourceDir, $filters )
 
 function cloneFile( $file, $targetDir )
 {
+	echo $file, "\n";
+	$dir = dirname( $file );
+	if ( !is_dir( $targetDir . "/" . $dir ) )
+	{
+		mkdir ( $targetDir . "/" . $dir, 0777, true );
+	}
+	$f = fopen( $targetDir . "/" . $file, "w" );
+	ob_start();
 	$found = false;
 	$lines = file( $file );
 	foreach ( $lines as $line )
@@ -99,6 +107,7 @@ function cloneFile( $file, $targetDir )
 	{
 		return;
 	}
+	echo "<?php\n";
 	$rc = new ReflectionClass( $class );
 	echo
 		$rc->isAbstract() ? 'abstract ' : '',
@@ -176,7 +185,9 @@ function cloneFile( $file, $targetDir )
 		echo " );\n";
 	}
 	
-	echo "}\n\n";
+	echo "}\n?>\n";
+	fwrite( $f, ob_get_contents() );
+	ob_end_clean();
 }
 
 function getPropertyType( $method )
