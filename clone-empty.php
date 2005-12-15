@@ -132,7 +132,15 @@ function cloneFile( $file, $targetDir )
 		$rc->isAbstract() ? 'abstract ' : '',
 		$rc->isFinal() ? 'final ' : '',
 		$rc->isInterface() ? 'interface ' : 'class ';
-	echo "$class\n{\n";
+	echo "$class";
+
+    $c = $rc->getParentClass();
+    if( is_object( $c ) )
+    {
+      echo " extends " . $c->getName();
+    }
+
+    echo "\n{\n";
 
 	foreach ( $rc->getProperties() as $property )
 	{
@@ -173,103 +181,76 @@ function cloneFile( $file, $targetDir )
 
 	foreach ( $rc->getMethods() as $method )
 	{
-		echo "\t";
-
-		echo
-			$method->isAbstract() ? 'abstract ' : '',
-			$method->isFinal() ? 'final ' : '',
-			$method->isPublic() ? 'public ' : '',
-			$method->isPrivate() ? 'private ' : '',
-			$method->isProtected() ? 'protected ' : '',
-			$method->isStatic() ? 'static ' : '';
-		
-		$returnType = getReturnValue( $method );
-
-        if ( strcmp( $method->name, "__construct" ) == 0 )
+        // Don't show the parent class methods.
+        if( $method->getDeclaringClass()->getName() ==  $class )
         {
-            // Constructor has no return type.
-            // Replace the method name.
-            echo "$class ( ";
-        }
-        else
-        {
-		    echo $returnType ? fixType( $returnType ) . ' ' : 'RETURN_TYPE_MISSING ';
-            echo "{$method->name}( ";
-        }
+            echo "\t";
+
+            echo
+                $method->isAbstract() ? 'abstract ' : '',
+                $method->isFinal() ? 'final ' : '',
+                $method->isPublic() ? 'public ' : '',
+                $method->isPrivate() ? 'private ' : '',
+                $method->isProtected() ? 'protected ' : '',
+                $method->isStatic() ? 'static ' : '';
+            
+            $returnType = getReturnValue( $method );
+
+            if ( strcmp( $method->name, "__construct" ) == 0 )
+            {
+                // Constructor has no return type.
+                // Replace the method name.
+                echo "$class ( ";
+            }
+            else
+            {
+                echo $returnType ? fixType( $returnType ) . ' ' : 'RETURN_TYPE_MISSING ';
+                echo "{$method->name}( ";
+            }
 
 
-		$parameterTypes = getParameterTypes( $method );
-		foreach ( $method->getParameters() as $i => $param )
-		{
-			if ( $i != 0 )
-			{
-				echo ", ";
-			}
-			if ( isset( $parameterTypes[$param->getName()] ) )
-			{ 
-                echo fixType( $parameterTypes[$param->getName()] ), " ";
-			}
-			else
-			{
-				echo "PARAM_TYPE_MISSING ";
-			}
-			echo $param->getName();
-            /*
-			if ( $param->isDefaultValueAvailable() )
-			{
-				echo ' = ';
-				switch( strtolower( gettype( $param->getDefaultValue() ) ) )
-				{
-					case 'boolean':
-						echo $param->getDefaultValue() ? 'true' : 'false';
-						break;
-					case 'null':
-						echo 'null';
-						break;
-					default:
-						echo $param->getDefaultValue();
-				}
-			}
-            */
-		}
-        echo " )" . ($method->isAbstract() ? ";" : "{}" ) . "\n";
+            $parameterTypes = getParameterTypes( $method );
+            foreach ( $method->getParameters() as $i => $param )
+            {
+                if ( $i != 0 )
+                {
+                    echo ", ";
+                }
+                if ( isset( $parameterTypes[$param->getName()] ) )
+                { 
+                    echo fixType( $parameterTypes[$param->getName()] ), " ";
+                }
+                else
+                {
+                    echo "PARAM_TYPE_MISSING ";
+                }
+                echo $param->getName();
+                /*
+                if ( $param->isDefaultValueAvailable() )
+                {
+                    echo ' = ';
+                    switch( strtolower( gettype( $param->getDefaultValue() ) ) )
+                    {
+                        case 'boolean':
+                            echo $param->getDefaultValue() ? 'true' : 'false';
+                            break;
+                        case 'null':
+                            echo 'null';
+                            break;
+                        default:
+                            echo $param->getDefaultValue();
+                    }
+                }
+                */
+            }
+            echo " )" . ($method->isAbstract() ? ";" : "{}" ) . "\n";
+        }
 	}
 	
 	echo "}\n";
 	fwrite( $f, ob_get_contents() );
 	ob_end_clean();
 }
-/*
-function getPropertyType( $method )
-{
-	$types = array();
-	$db = $method->getDocComment();
-	$nextTextParamType = false;
-	foreach ( docblock_tokenize( $db ) as $docItem )
-	{
-		if ( $nextTextParamType )
-		{
-			if ( docblock_token_name( $docItem[0] ) == 'DOCBLOCK_TEXT' )
-			{
-				if ( preg_match( '@\s([^\s]+)@', $docItem[1], $match ) )
-				{
-					return trim( $match[1] );
-				}
-			}
-			$nextTextParamType = false;
-		}
-		if ( docblock_token_name( $docItem[0] ) == 'DOCBLOCK_TAG' && $docItem[1] == '@var' )
-		{
-			$nextTextParamType = true;
-		}
-		else
-		{
-			$nextTextParamType = false;
-		}
-	}
-	return false;
-}
-*/
 
 function getParameterTypes( $method )
 {
@@ -333,6 +314,14 @@ function getReturnValue( $method )
 
 function fixType( $type )
 {
+    $type = trim( $type );
+
+    // Only one word allowed.
+    if ( strpos( $type, " " ) !== false )
+    {
+        $type = substr( $type, 0, strpos( $type,  " " ) );
+    }
+   
     // Pick the first type if it can have multiple values: int|bool.
     if ( ( $pos = strpos( $type, "|" ) ) !== false )
     {
