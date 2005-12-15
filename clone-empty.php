@@ -266,7 +266,7 @@ function cloneFile( $file, $targetDir )
             echo ( isset( $methodTags["@throws"] ) ? getThrowsString( $methodTags["@throws"] ) : "" );
             
             
-            echo ($method->isAbstract() ? ";" : "{}" ) . "\n";
+            echo ($method->isAbstract() ? ";" : " {}" ) . "\n";
         }
 	}
 	
@@ -395,6 +395,12 @@ function getThrowsString(  $tags )
 
                 // Only one word allowed.
                 if ( ( $pos = strpos( $tags[$i], " " ) ) !== false )
+                {
+                    $tags[$i] = substr( $tags[$i], 0, $pos );
+                }
+
+                // Sometimes: myException::MyConstType is used. Remove the second part.
+                if( ( $pos = strpos( $tags[$i], ":" ) ) !== false )
                 {
                     $tags[$i] = substr( $tags[$i], 0, $pos );
                 }
