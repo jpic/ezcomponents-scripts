@@ -107,7 +107,7 @@ function cloneFile( $file, $targetDir )
 	$lines = file( $file );
 	foreach ( $lines as $line )
 	{
-		if ( preg_match( '@(class|interface)(\s+)(ezc[a-z_0-9]+)@i', $line, $match ) )
+		if ( preg_match( '@(class|interface)(\s+)(ezc[a-z_0-9]+)(\s+(extends)\s+(\w+))?(\s+(implements)\s+(\w+(\s*,\s*\w+)*))?@i', $line, $match ) )
 		{
 			$class = $match[3];
 			$found = true;
@@ -118,6 +118,17 @@ function cloneFile( $file, $targetDir )
 	{
 		return;
 	}
+
+    if ( isset( $match[8] ) && ( $match[8] == "implements" ) )
+    {
+        $implements = "implements " . $match[9];
+    }
+    else
+    {
+        $implements = "";
+    }
+
+
 	$rc = new ReflectionClass( $class );
     
     $classTags = getTags( $rc );
@@ -140,42 +151,48 @@ function cloneFile( $file, $targetDir )
       echo " extends " . $c->getName();
     }
 
+    echo " " . $implements;
+
     echo "\n{\n";
 
 	foreach ( $rc->getProperties() as $property )
 	{
-		echo "\t";
-
-        $propertyTags = getTags( $property );
-
-        if ( isset( $propertyTag["@access"] ) )
+        // Don't show the parent property methods.
+        if( $property->getDeclaringClass()->getName() ==  $class )
         {
-            echo ( $propertyTag["@access"] );
-        }
-        else
-        {
-            echo
-                $property->isPublic() ? 'public ' : '',
-                $property->isPrivate() ? 'private ' : '',
-                $property->isProtected() ? 'protected ' : '',
-                $property->isStatic() ? 'static ' : '';
-        }
+            echo "\t";
 
-        if ( isset( $propertyTags["@var"][0] ) )
-        {
-            $var = fixType( $propertyTags["@var"][0] );
-            echo $var . " "; 
-        }
-        else
-        {
-            echo "PROPERTY_TYPE_MISSING ";
-        }
+            $propertyTags = getTags( $property );
 
-		//$propertyType = getPropertyType( $property );
-		//echo $propertyType ? $propertyType : "PROPERTY_TYPE_MISSING", " ";
-		
-		echo $property->getName();
-		echo ";\n";
+            if ( isset( $propertyTag["@access"] ) )
+            {
+                echo ( $propertyTag["@access"] );
+            }
+            else
+            {
+                echo
+                    $property->isPublic() ? 'public ' : '',
+                    $property->isPrivate() ? 'private ' : '',
+                    $property->isProtected() ? 'protected ' : '',
+                    $property->isStatic() ? 'static ' : '';
+            }
+
+            if ( isset( $propertyTags["@var"][0] ) )
+            {
+                $var = fixType( $propertyTags["@var"][0] );
+                echo $var . " "; 
+            }
+            else
+            {
+                echo "PROPERTY_TYPE_MISSING ";
+            }
+
+            //$propertyType = getPropertyType( $property );
+            //echo $propertyType ? $propertyType : "PROPERTY_TYPE_MISSING", " ";
+            
+            echo $property->getName();
+            echo ";\n";
+        }
 	}
 	echo "\n";
 
@@ -185,7 +202,7 @@ function cloneFile( $file, $targetDir )
         if( $method->getDeclaringClass()->getName() ==  $class )
         {
             echo "\t";
-
+            $methodTags = getTags( $method );
             echo
                 $method->isAbstract() ? 'abstract ' : '',
                 $method->isFinal() ? 'final ' : '',
@@ -243,7 +260,13 @@ function cloneFile( $file, $targetDir )
                 }
                 */
             }
-            echo " )" . ($method->isAbstract() ? ";" : "{}" ) . "\n";
+
+            echo " ) ";  
+
+            echo ( isset( $methodTags["@throws"] ) ? getThrowsString( $methodTags["@throws"] ) : "" );
+            
+            
+            echo ($method->isAbstract() ? ";" : "{}" ) . "\n";
         }
 	}
 	
@@ -358,6 +381,31 @@ function getTags( $reflectionItem )
         }
     }
     return $result;
+}
+
+function getThrowsString(  $tags )
+{
+        if ( isset( $tags ) )
+        {
+            $str = "throws ";
+
+            for( $i = 0; $i < sizeof( $tags ); $i++ )
+            {
+                $tags[$i] = trim( $tags[$i] );
+
+                // Only one word allowed.
+                if ( ( $pos = strpos( $tags[$i], " " ) ) !== false )
+                {
+                    $tags[$i] = substr( $tags[$i], 0, $pos );
+                }
+            }
+
+            $str .= implode( $tags, ", " );
+
+            return $str;
+        }
+
+        return false;
 }
 
 $targetDir = fetchDirectoryName();
