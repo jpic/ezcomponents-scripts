@@ -140,7 +140,7 @@ function cloneFile( $file, $targetDir )
 
         $propertyTags = getTags( $property );
 
-        if( isset( $propertyTag["@access"] ) )
+        if ( isset( $propertyTag["@access"] ) )
         {
             echo ( $propertyTag["@access"] );
         }
@@ -153,7 +153,7 @@ function cloneFile( $file, $targetDir )
                 $property->isStatic() ? 'static ' : '';
         }
 
-        if( isset( $propertyTags["@var"][0] ) )
+        if ( isset( $propertyTags["@var"][0] ) )
         {
             $var = fixType( $propertyTags["@var"][0] );
             echo $var . " "; 
@@ -185,7 +185,7 @@ function cloneFile( $file, $targetDir )
 		
 		$returnType = getReturnValue( $method );
 
-        if( strcmp( $method->name, "__construct" ) == 0 )
+        if ( strcmp( $method->name, "__construct" ) == 0 )
         {
             // Constructor has no return type.
             // Replace the method name.
@@ -193,13 +193,13 @@ function cloneFile( $file, $targetDir )
         }
         else
         {
-		    echo $returnType ? fixType($returnType) . ' ' : 'RETURN_TYPE_MISSING ';
+		    echo $returnType ? fixType( $returnType ) . ' ' : 'RETURN_TYPE_MISSING ';
             echo "{$method->name}( ";
         }
 
 
 		$parameterTypes = getParameterTypes( $method );
-		foreach ($method->getParameters() as $i => $param)
+		foreach ( $method->getParameters() as $i => $param )
 		{
 			if ( $i != 0 )
 			{
@@ -334,12 +334,12 @@ function getReturnValue( $method )
 function fixType( $type )
 {
     // Pick the first type if it can have multiple values: int|bool.
-    if( ( $pos = strpos( $type, "|" ) ) !== false )
+    if ( ( $pos = strpos( $type, "|" ) ) !== false )
     {
         $type = substr( $type, 0, $pos );
     }
 
-    if( strncmp( $type, "array(", 6 ) == 0 )
+    if ( strncmp( $type, "array(", 6 ) == 0 )
     {
         $type = substr( $type, 6, -1) . "[]";
         $type = str_replace( "=>", "_", $type );
@@ -359,12 +359,12 @@ function getTags( $reflectionItem )
     // Go through the comment block.
     $tokens = docblock_tokenize( $dc );
 
-    for( $i = 0; $i < sizeof( $tokens ); $i++ )
+    for ( $i = 0; $i < sizeof( $tokens ); $i++ )
     {
         // Found a tag?
         if ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_TAG' )
         {
-           $result[ $tokens[$i][1] ][] = trim( $tokens[$i + 1][1] );
+           $result[$tokens[$i][1]][] = trim( $tokens[$i + 1][1] );
 
         }
     }
