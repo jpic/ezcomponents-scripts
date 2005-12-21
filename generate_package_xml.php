@@ -72,14 +72,14 @@ class ezcPackageManager {
     protected $output;
 
     // }}}
-    // {{{ $parameter
+    // {{{ $input
 
     /**
-     * ezcConsoleParameter object. 
+     * ezcConsoleInput object. 
      * 
-     * @var object(ezcConsoleParameter)
+     * @var object(ezcConsoleInput)
      */
-    protected $parameter;
+    protected $input;
 
     // }}}
     // {{{ $validStates
@@ -108,23 +108,13 @@ class ezcPackageManager {
     public function __construct()
     {
         // Init
-        $this->output = new ezcConsoleOutput(
-            array( 
-                'format' => array( 
-                    'help' => array( 
-                        'color' => 'magenta',
-                    ),
-                    'info' => array( 
-                        'color' => 'blue',
-                        'style' => 'bold',
-                    ),
-                    'version' => array( 
-                        'color' => 'red',
-                    ),
-                ),
-            )
-        );
-        $this->processParameter();
+        $this->output = new ezcConsoleOutput();
+        $this->output->formats->help->color = 'magenta';
+        $this->output->formats->info->color = 'blue';
+        $this->output->formats->info->style = 'bold';
+        $this->output->formats->version->color = 'red';
+
+        $this->processOptions();
     }
 
     // }}}
@@ -136,26 +126,25 @@ class ezcPackageManager {
     public function run()
     {
         // General info output
-        $this->output->outputText( "\neZ Enterprise Components package manager.\n", 'info' );
+        $this->output->outputLine();
+        $this->output->outputLine( "eZ Enterprise Components package manager.", 'info' );
         $this->output->outputText( "Version: ", 'info' );
-        $this->output->outputText( "0.1.0\n\n", 'version' );
-        
-        $paramValues = $this->parameter->getParams();
-
+        $this->output->outputLine( "0.1.0\n", 'version' );
+        $this->output->outputLine();
         
         switch ( true )
         {
-            case count( $paramValues ) === 0 || isset( $paramValues['h'] ):
+            case count( $this->input->getValues() ) === 0 || $this->input->getOption( 'h' ) !== false:
                 $this->showHelp();
                 break;
             default:
-                $version = $this->parameter->getParam( '-v' );
-                if ( !preg_match( '/[0-9]+\.[0-9]+(\.|beta)[0-9]+/', $version ) )
+                $version = $this->input->getOption( 'v' );
+                if ( !preg_match( '/[0-9]+\.[0-9]+(\.|beta)[0-9]+/', $version->value ) )
                 {
-                    $this->raiseError( 'Invalid version number <'.$version.'>, must be in format <x.y.z>.');
+                    $this->raiseError( 'Invalid version number <'.$version->value.'>, must be in format <x.y[state[z]]>.');
                 }
-                $this->paths['package'] = realpath( $this->parameter->getParam( '-p' ) );
-                $this->paths['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' );
+                $this->paths['package'] = realpath( $this->input->getOption( 'p' )->value );
+                $this->paths['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->input->getOption( 'p' )->value;
                 if ( is_dir( $this->paths['install'] ) )
                 {
                     `rm -rf {$this->paths['install']}`;
@@ -168,8 +157,9 @@ class ezcPackageManager {
                 $this->processPackage( $version );
                 break;
         }
-
-        $this->output->outputText( "\nOperation successfully performed.\n", 'success' );
+        
+        $this->output->outputLine();
+        $this->output->outputLine( "Operation successfully performed.", 'success' );
     }
 
     // }}}
@@ -194,71 +184,81 @@ class ezcPackageManager {
     }
 
     // }}}
-    // {{{ processParameter()
+    // {{{ processOption()
 
     /**
      * Process expected parameters. 
      */
-    protected function processParameter()
+    protected function processOptions()
     {
-        $this->parameter = new ezcConsoleParameter();
-        $this->parameter->registerParam( 
-            'p', 
-            'package', 
-            array(
-                'type'      => ezcConsoleParameter::TYPE_STRING,
-                'shorthelp' => 'Package name.',
-                'longhelp'  => 'Name of the package to generate the package.xml files for.
-The package name must reflect the directory structure and you must be in the <packages/> directory of your SVN checkout.',
-                'depends'   => array( 'v' ),
+        $this->input = new ezcConsoleInput();
+
+        $this->input->registerOption( 
+            new ezcConsoleOption( 
+                'p', 
+                'package', 
+                ezcConsoleInput::TYPE_STRING,
+                null,
+                null,
+                'Package name.',
+                'Name of the package to generate the package.xml files for. The package name must reflect the directory structure and you must be in the <packages/> directory of your SVN checkout.'
+            )
+        );
+        
+        $this->input->registerOption( 
+            new ezcConsoleOption( 
+                'v', 
+                'version', 
+                ezcConsoleInput::TYPE_STRING,
+                null,
+                null,
+                'Package version.',
+                'Version of the release to generate a package.xml files for.',
+                array( new ezcConsoleOptionRule( $this->input->getOption( 'p' ) ) )
+            )
+        );
+
+        $this->input->registerOption( 
+            new ezcConsoleOption( 
+                's', 
+                'stability', 
+                ezcConsoleInput::TYPE_STRING,
+                'guess',
+                null,
+                'Stability of the package.',
+                'Stability status of the release to package: devel, alpha, beta, or stable (default is guess from version string).',
+                array( new ezcConsoleOptionRule( $this->input->getOption( 'v' ) ), new ezcConsoleOptionRule( $this->input->getOption( 'p' ) ) )
             ) 
         );
-        $this->parameter->registerParam( 
-            'v', 
-            'version', 
-            array(
-                'type'      => ezcConsoleParameter::TYPE_STRING,
-                'shorthelp' => 'Package version.',
-                'longhelp'  => 'Version of the release to generate a package.xml files for.',
-                'depends'   => array( 'p' ),
+        $this->input->registerOption( 
+            new ezcConsoleOption( 
+                'h', 
+                'help', 
+                ezcConsoleInput::TYPE_STRING,
+                null,
+                null,
+                'Display help. Use "-h <OptionName>" to display detailed info on a parameter.',
+                'Display help information in general or for a specific parameter. Use as "-h <OptionName> to receive help for a specific parameter".'
             ) 
         );
-        $this->parameter->registerParam( 
-            's', 
-            'stability', 
-            array(
-                'type'      => ezcConsoleParameter::TYPE_STRING,
-                'shorthelp' => 'Stability of the package.',
-                'longhelp'  => 'Stability status of the release to package: devel, alpha, beta, or stable (default is guess from version string).',
-                'default'   => 'guess',
-                'depends'   => array( 'v', 'p' ),
-            ) 
-        );
-        $this->parameter->registerParam( 
-            'h', 
-            'help', 
-            array(
-                'type'      => ezcConsoleParameter::TYPE_STRING,
-                'shorthelp' => 'Display help. Use "-h <ParameterName>" to display detailed info on a parameter.',
-                'longhelp'  => 'Display help information in general or for a specific parameter. Use as "-h <ParameterName> to receive help for a specific parameter".',
-                'default'   => '',
-            ) 
-        );
-        $this->parameter->registerParam( 
-            'd', 
-            'debug', 
-            array(
-                'shorthelp' => 'Display debugging output.',
-                'longhelp'  => 'Display debugging output on the console instead of writing it to the package file. The installation infrastructure will be created anyway.',
+        $this->input->registerOption( 
+            new ezcConsoleOption( 
+                'd', 
+                'debug', 
+                null,
+                null,
+                null,
+                'Display debugging output.',
+                'Display debugging output on the console instead of writing it to the package file. The installation infrastructure will be created anyway.'
             ) 
         );
         
         // Process parameters
         try 
         {
-            $this->parameter->process();
+            $this->input->process();
         }
-        catch ( ezcConsoleParameterException $e )
+        catch ( ezcConsoleInputException $e )
         {
             $this->raiseError( $e );
         }
@@ -323,36 +323,47 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function showHelp()
     {
-        $helpTopic = $this->parameter->getParam( '-h' );
+        $helpTopic = $this->input->getOption( 'h' )->value;
         
-        $this->output->outputText( "Usage: $ generate_package_xml.php -p <PackageName> -v <PackageVersion> -s <PackageStatus>\n", 'help' );
-        $this->output->outputText( "Must be run from within /your/svn/co/ezcomponents/packages .\n", 'help' );
+        $this->output->outputLine( "Usage: $ generate_package_xml.php -p <PackageName> -v <PackageVersion> -s <PackageStatus>", 'help' );
+        $this->output->outputLine( "Must be run from within /your/svn/co/ezcomponents/packages .", 'help' );
         
         if ( $helpTopic !== '' && $helpTopic !== false )
         {
             try
             {
-                $options = $this->parameter->getParamDef( $helpTopic );
+                $options = $this->input->getOption( $helpTopic );
             }
-            catch ( ezcConsoleParameterException $e )
+            catch ( ezcConsoleOptionException $e )
             {
                 $this->raiseError( 'Invalid help topic: <' . $helpTopic . '>.' );
             }
-            $this->output->outputText( "\nUsage of $ generate_package_xml.php parameter $helpTopic:", 'help' );
-            $this->output->outputText( "\n" . $options['longhelp'], 'help' );
-            if( is_array( $options['depends'] ) && count( $options['depends'] ) > 0 ) 
+            $this->output->outputLine();
+            $this->output->outputLine( "Usage of $ generate_package_xml.php parameter $helpTopic:", 'help' );
+            $this->output->outputText( $options->longhelp, 'help' );
+            if( is_array( $options->depends ) && count( $options->depends ) > 0 ) 
             {
-                $this->output->outputText( "\nMust be used together with parameters: ", 'help' );
-                foreach( $options['depends'] as $dependency )
+                $this->output->outputLine();
+                $this->output->outputText( "Must be used together with parameters: ", 'help' );
+                foreach( $options->depends as $dependency )
                 {
-                    $this->output->outputText( "-$dependency, ", 'help' );
+                    $this->output->outputText( "-{$dependency->option}, ", 'help' );
                 }
-                $this->output->outputText( "...", 'help' );
+                $this->output->outputLine( "...", 'help' );
             }
         }
         else
         {
-            $table = ezcConsoleTable::create( $this->parameter->getHelp(),  $this->output, array( 'width' => 77, 'cols' => 2 ), array( 'lineFormat' => 'help' ) );
+            $help = $this->input->getHelp();
+            $table = new ezcConsoleTable( $this->output, 77, 2 );
+            $table->options->defaultFormat = 'help';
+            foreach ( $help as $rowId => $row )
+            {
+                foreach ( $row as $cellId => $cell )
+                {
+                    $table[$rowId][$cellId]->content = $cell;
+                }
+            }
             $table->outputTable();
         }
         $this->output->outputText( "\n", 'help' );
@@ -385,7 +396,7 @@ The package name must reflect the directory structure and you must be in the <pa
 
         // paths which have to be linked from their original source
         $linkPaths = array(
-            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->parameter->getParam( '-p' ) 
+            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->input->getOption( '-p' ) 
             => $packageDir . DIRECTORY_SEPARATOR . 'src',
         );
         if ( is_dir( $packageDir . DIRECTORY_SEPARATOR . 'docs' ) )
@@ -461,13 +472,13 @@ The package name must reflect the directory structure and you must be in the <pa
      */
     protected function processPackage( $version )
     {
-        $packageName = $this->parameter->getParam( '-p' );
+        $packageName = $this->input->getOption( 'p' )->value;
         $packageDir  = $this->paths['install'];
         
         if ( !is_dir( $packageDir ) )
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
         
-        $state = $this->parameter->getParam( '-s' ) !== false ? $this->parameter->getParam( '-s' ) : $this->guessFromVersion( $version );
+        $state = $this->input->getOption( 's' )->value !== false ? $this->input->getOption( 's' )->value : $this->guessFromVersion( $version );
         if ( $state == 'guess' )
         {
             $state = $this->guessFromVersion( $version );
@@ -585,7 +596,7 @@ The package name must reflect the directory structure and you must be in the <pa
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         
-        $debug = $this->parameter->getParam( '-d' ) !== false ? true : false;
+        $debug = $this->input->getOption( '-d' ) !== false ? true : false;
         if ( $debug )
         {
             $e = $pkg->debugPackageFile();
@@ -599,7 +610,10 @@ The package name must reflect the directory structure and you must be in the <pa
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
 
-        $this->output->outputText( "\nFinished processing. You can now do <$ cd /tmp; pear package {$path}/package.xml; cd - >. \n\n", 'success' );
+        $this->output->outputLine();
+        $this->output->outputLine( "Finished processing. You can now do <$ cd /tmp; pear package {$path}/package.xml; cd - >.", 'success' );
+        $this->output->outputLine();
+        $this->output->outputLine();
     }
 
     // }}}
