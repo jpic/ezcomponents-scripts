@@ -134,7 +134,7 @@ class ezcPackageManager {
         
         switch ( true )
         {
-            case count( $this->input->getValues() ) === 0 || $this->input->getOption( 'h' ) !== false:
+            case count( $this->input->getOptionValues() ) === 0 || $this->input->getOption( 'h' )->value !== false:
                 $this->showHelp();
                 break;
             default:
@@ -153,8 +153,8 @@ class ezcPackageManager {
                 {
                     $this->raiseError( "Could not create installation directory <".$this->paths['install'].">.");
                 }
-                $this->createLinkMess( $version );
-                $this->processPackage( $version );
+                $this->createLinkMess( $version->value );
+                $this->processPackage( $version->value );
                 break;
         }
         
@@ -184,7 +184,7 @@ class ezcPackageManager {
     }
 
     // }}}
-    // {{{ processOption()
+    // {{{ processOptions()
 
     /**
      * Process expected parameters. 
@@ -193,7 +193,7 @@ class ezcPackageManager {
     {
         $this->input = new ezcConsoleInput();
 
-        $this->input->registerOption( 
+        $p = $this->input->registerOption( 
             new ezcConsoleOption( 
                 'p', 
                 'package', 
@@ -205,7 +205,7 @@ class ezcPackageManager {
             )
         );
         
-        $this->input->registerOption( 
+        $v = $this->input->registerOption( 
             new ezcConsoleOption( 
                 'v', 
                 'version', 
@@ -214,9 +214,11 @@ class ezcPackageManager {
                 null,
                 'Package version.',
                 'Version of the release to generate a package.xml files for.',
-                array( new ezcConsoleOptionRule( $this->input->getOption( 'p' ) ) )
+                array( new ezcConsoleOptionRule( $p ) )
             )
         );
+
+        $p->addDependency( new ezcConsoleOptionRule( $v ) );
 
         $this->input->registerOption( 
             new ezcConsoleOption( 
@@ -227,7 +229,7 @@ class ezcPackageManager {
                 null,
                 'Stability of the package.',
                 'Stability status of the release to package: devel, alpha, beta, or stable (default is guess from version string).',
-                array( new ezcConsoleOptionRule( $this->input->getOption( 'v' ) ), new ezcConsoleOptionRule( $this->input->getOption( 'p' ) ) )
+                array( new ezcConsoleOptionRule( $v ), new ezcConsoleOptionRule( $p ) )
             ) 
         );
         $this->input->registerOption( 
@@ -332,7 +334,7 @@ class ezcPackageManager {
         {
             try
             {
-                $options = $this->input->getOption( $helpTopic );
+                $option = $this->input->getOption( $helpTopic );
             }
             catch ( ezcConsoleOptionException $e )
             {
@@ -340,12 +342,12 @@ class ezcPackageManager {
             }
             $this->output->outputLine();
             $this->output->outputLine( "Usage of $ generate_package_xml.php parameter $helpTopic:", 'help' );
-            $this->output->outputText( $options->longhelp, 'help' );
-            if( is_array( $options->depends ) && count( $options->depends ) > 0 ) 
+            $this->output->outputText( $option->longhelp, 'help' );
+            if( is_array( $option->depends ) && count( $option->depends ) > 0 ) 
             {
                 $this->output->outputLine();
                 $this->output->outputText( "Must be used together with parameters: ", 'help' );
-                foreach( $options->depends as $dependency )
+                foreach( $option->depends as $dependency )
                 {
                     $this->output->outputText( "-{$dependency->option}, ", 'help' );
                 }
@@ -396,7 +398,7 @@ class ezcPackageManager {
 
         // paths which have to be linked from their original source
         $linkPaths = array(
-            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->input->getOption( '-p' ) 
+            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->input->getOption( 'p' )->value 
             => $packageDir . DIRECTORY_SEPARATOR . 'src',
         );
         if ( is_dir( $packageDir . DIRECTORY_SEPARATOR . 'docs' ) )
@@ -479,6 +481,7 @@ class ezcPackageManager {
             $this->raiseError( "Package dir <' . $packageDir . '> is invalid.");
         
         $state = $this->input->getOption( 's' )->value !== false ? $this->input->getOption( 's' )->value : $this->guessFromVersion( $version );
+        
         if ( $state == 'guess' )
         {
             $state = $this->guessFromVersion( $version );
@@ -596,7 +599,7 @@ class ezcPackageManager {
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         
-        $debug = $this->input->getOption( '-d' ) !== false ? true : false;
+        $debug = $this->input->getOption( 'd' )->value !== false ? true : false;
         if ( $debug )
         {
             $e = $pkg->debugPackageFile();
