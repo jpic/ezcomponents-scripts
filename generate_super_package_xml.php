@@ -33,92 +33,106 @@ function __autoload( $class_name )
     ezcBase::autoload( $class_name );
 }
 
-// Output handler
-$output = new ezcConsoleOutput(
-    array( 
-        'format' => array( 
-            'help' => array( 
-                'color' => 'magenta',
-            ),
-            'info' => array( 
-                'color' => 'blue',
-                'style' => 'bold',
-            ),
-            'version' => array( 
-                'color' => 'red',
-            ),
-        ),
-    )
-);
+$output = new ezcConsoleOutput();
+$output->formats->help->color = 'magenta';
+$output->formats->info->color = 'blue';
+$output->formats->info->style = 'bold';
+$output->formats->version->color = 'red';
 
 // Standard text
-$output->outputText( "\neZ Enterprise Components super-package creator\n", 'info' );
+$output->outputLine();
+$output->outputLine( "eZ Enterprise Components super-package creator", 'info' );
 $output->outputText( "Version: ", 'info' );
-$output->outputText( "0.1.0\n\n", 'version' );
+$output->outputLine( "0.1.0\n", 'version' );
+$output->outputLine();
 
-// Parameter handling
-$parameter = new ezcConsoleParameter();
-$parameter->registerParam('v', 'version', 
-    array( 
-        'type'      => ezcConsoleParameter::TYPE_STRING,
-        'shorthelp' => 'Version number of the release version to create.',
-        'longhelp'  => 'Version number of the release version to create. The number must reflect a release file with the named version number below <svn/releases/>.',
+// Input handling
+$input = new ezcConsoleInput();
+$input->registerOption(
+    new ezcConsoleOption(
+        'v', 
+        'version', 
+        ezcConsoleInput::TYPE_STRING,
+        null,
+        null,
+        'Version number of the release version to create.',
+        'Version number of the release version to create. The number must reflect a release file with the named version number below <svn/releases/>.'
     )
 );
-$parameter->registerParam('h', 'help', 
-    array( 
-        'type'      => ezcConsoleParameter::TYPE_NONE,
-        'shorthelp' => 'Create a super-package package.xml file for the given version number.',
-        'longhelp'  => 'This tool can reate a super-package package.xml file that has dependencies to every other component package. Provide the current releases version number to the -v parameter to run the script.',
+$input->registerOption(
+    new ezcConsoleOption(
+        'h', 
+        'help', 
+        ezcConsoleInput::TYPE_NONE,
+        null,
+        null,
+        'Create a super-package package.xml file for the given version number.',
+        'This tool can reate a super-package package.xml file that has dependencies to every other component package. Provide the current releases version number to the -v parameter to run the script.'
     )
 );
-$parameter->registerParam('d', 'debug', 
-    array( 
-        'type'      => ezcConsoleParameter::TYPE_NONE,
-        'shorthelp' => 'Switch tool into debugging mode.',
-        'longhelp'  => 'Sets the tool to debugging mode. Instead of writing the package.xml file it will be dumped to stdout.',
+$input->registerOption(
+    new ezcConsoleOption(
+        'd',
+        'debug', 
+        ezcConsoleInput::TYPE_NONE,
+        null,
+        null,
+        'Switch tool into debugging mode.',
+        'Sets the tool to debugging mode. Instead of writing the package.xml file it will be dumped to stdout.'
     )
 );
 
 // Attempt to process parameters
 try
 {
-    $parameter->process();
+    $input->process();
 }
-catch ( ezcConsoleParameterException $e )
+catch ( ezcConsoleInputException $e )
 {
-    die( $options->styleText( $e->getMessage(), 'failure' ) );
+    die( $options->formatText( $e->getMessage(), 'failure' ) );
 }
 
 // Output help
-if ($parameter->getParam( '-h' ) !== false || $parameter->getParam( '-v' ) === false ) 
+if ($input->getOption( 'h' )->value !== false || $input->getOption( 'v' )->value === false ) 
 {
-    $output->outputText( "Usage:\n\n", 'help' );
-    $output->outputText( "$ " . __FILE__ . " -v <version> -s <state>\n", 'help' );
-    $output->outputText( "Creates a super-package package file for the named release version and stability.\n\n", 'help' );
-    $table = ezcConsoleTable::create( $parameter->getHelp( true ), $output, array( 'width' => 80, 'cols' => 2), array( 'lineFormat' => 'help' ) );
+    $output->outputLine( "Usage:", 'help' );
+    $output->outputLine();
+    $output->outputLine( "$ " . __FILE__ . " -v <version> -s <state>", 'help' );
+    $output->outputLine( "Creates a super-package package file for the named release version and stability.", 'help' );
+    $output->outputLine();
+    $help = $input->getHelp( true );
+    $table = new ezcConsoleTable( $output, 80,  2 );
+    $table->options->defaultFormat = 'help';
+    $table->options->defaultBorderFormat = 'help';
+    foreach ( $help as $rowId => $row)
+    {
+        foreach ( $row as $cellId => $cell )
+        {
+            $table[$rowId][$cellId]->content = $cell;
+        }
+    }
     $table->outputTable();
     die( "\n\n" );
 }
 
 // Grab releases info
-$releasePath = $releasesPath . DIRECTORY_SEPARATOR . $parameter->getParam( '-v' );
+$releasePath = $releasesPath . DIRECTORY_SEPARATOR . $input->getOption( 'v' )->value;
 
 if ( !file_exists( $releasePath ) || !is_readable( $releasePath ) )
 {
-    die( $output->styleText( "Release file <$releasePath> is not readable or does not exist.\n", 'failure' ) );
+    die( $output->formatText( "Release file <$releasePath> is not readable or does not exist.\n", 'failure' ) );
 }
 
 if ( ( $releaseDef = file( $releasePath ) ) === false )
 {
-    die( $output->styleText( "Release file <$releasePath> could not be read.", 'failure' ) );
+    die( $output->formatText( "Release file <$releasePath> could not be read.", 'failure' ) );
 }
 
 // Create release dir, if not exists
 $packagePath = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'Components';
 if ( !is_dir( $packagePath ) && mkdir( $packagePath, 0700, true ) === false )
 {
-    die( $output->styleText( "Error creating packaging directory <$packagePath>.", 'failure' ) );
+    die( $output->formatText( "Error creating packaging directory <$packagePath>.", 'failure' ) );
 }
 $packagePath = realpath( $packagePath );
 // Add dummy file
@@ -135,7 +149,7 @@ $e = $pkg->setOptions(
     )
 );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error creating file manager: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error creating file manager: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $foundPackageTag = false;
 foreach ( $releaseDef as $release )
@@ -153,7 +167,7 @@ foreach ( $releaseDef as $release )
         $releaseData = array_map( 'trim', explode( ': ', $release ) );
         $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $releaseData[1], false, $releaseData[1] );
         if ( PEAR::isError( $e ) )
-            die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+            die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
     }
     if ( substr( $release, 0, 8 ) === 'PACKAGES' )
     {
@@ -164,80 +178,80 @@ foreach ( $releaseDef as $release )
 
 $e = $pkg->setPackage( PACKAGE_NAME );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setSummary( PACKAGE_SUMMARY );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setDescription( PACKAGE_DESCRIPTION );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setChannel( CHANNEL_URI );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$version   = $parameter->getParam( '-v' );
+$version   = $input->getOption( 'v' )->value;
 $stability = ( strpos( $version, 'beta' ) !== false ) ? 'beta' : 'stable';
 
 $e = $pkg->setReleaseStability( $stability );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setAPIStability( $stability );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setReleaseVersion( $version );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setAPIVersion( $version );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->setLicense( PACKAGE_LICENSE );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->setNotes( 'Meta package to install all eZ Enterprise Components at once.' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->setPackageType( 'php' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->setPhpDep( '5.1.0' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setPearinstallerDep( '1.4.2' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->addGlobalReplacement( 'pear-config', '@php_dir@', 'php_dir' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->addRelease();
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->addMaintainer( 'lead', 'ezc', 'eZ components team', 'ezc@ez.no' );
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $e = $pkg->generateContents();
 if ( PEAR::isError( $e ) )
-    die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+    die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$debug = $parameter->getParam( '-d' ) !== false ? true : false;
+$debug = $input->getOption( 'd' )->value !== false ? true : false;
 if ( $debug )
 {
     $e = $pkg->debugPackageFile();
     if ( PEAR::isError( $e ) )
-        die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+        die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 }
 else 
 {
     $e = $pkg->writePackageFile();
     if ( PEAR::isError( $e ) )
-        die( $output->styleText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
+        die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 }
 
 // Output success
