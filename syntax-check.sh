@@ -12,6 +12,15 @@ for i in `find . -name \*.php`; do
 	cp /tmp/temporary.php $i
 done
 
+echo "Checking for boolean/integer"
+for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@param boolean/@param bool/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
+for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@param integer/@param int/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
+for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@return boolean/@return bool/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
+for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@return integer/@return int/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
+
+echo "Fixing return"
+for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@returns/@return/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
+
 echo "Checking for wrong braces placement for functions"
 grep -rn "function" * | grep "{" | grep -v svn | grep "\.php:"
 grep -rn "class" * | grep "{" | grep -v svn | grep "\.php:"
