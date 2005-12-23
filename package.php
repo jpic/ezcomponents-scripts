@@ -30,15 +30,23 @@ setBaseNonDevel( $packageDir );
 
 function addPackages( $fileName, $packageDir )
 {
+    // Open ChangeLog file
+    $fp = fopen( "$packageDir/ChangeLog", "w" );
     echo "Exporting packages from SVN: \n";
     $definition = file( $fileName );
     foreach ( $definition as $defLine )
     {
         if ( preg_match( '@([A-Za-z]+):\s+([A-Za-z0-9.]+)@', $defLine, $matches ) )
         {
-            addPackage( $packageDir, $matches[1], $matches[2] );
+            $changeLog = addPackage( $packageDir, $matches[1], $matches[2] );
+            $title = "Component: {$matches[1]}";
+            $titleHeader = str_repeat( '=', strlen( $title ) );
+            fwrite( $fp, "$titleHeader\n$title\n$titleHeader\n" );
+            fwrite( $fp, $changeLog );
+            fwrite( $fp, "\n\n" );
         }
     }
+    fclose( $fp );
 }
 
 function addPackage( $packageDir, $name, $version )
@@ -61,11 +69,16 @@ function addPackage( $packageDir, $name, $version )
     echo "RR ";
     @unlink( "$packageDir/$name/review.txt" );
 
+    /* grab changelog */
+    echo "C ";
+    $changelog = grabChangelog( "$packageDir/$name/ChangeLog", $version );
+
     /* remove design directory */
     echo "RD ";
     `rm -rf "$packageDir/$name/design"`;
     
     echo "Done\n";
+    return $changelog;
 }
 
 function setupAutoload( $packageDir, $packageList )
@@ -113,5 +126,32 @@ function setBaseNonDevel( $packageDir )
     echo "Configuring Base package in release mode: ";
     file_put_contents( "$packageDir/Base/src/base.php", str_replace( "libraryMode = \"devel\"", "libraryMode = \"tarball\"", file_get_contents( "$packageDir/Base/src/base.php" ) ) );
     echo "Done\n";
+}
+
+function grabChangelog( $path, $version )
+{
+    $data = array();
+    $data = file( $path );
+    $changelogData = array();
+    $versionFound = false;
+    foreach ( $data as $line )
+    {
+        $versionString = preg_quote( $version );
+        if ( $versionFound && preg_match( "@^[012]\.[0-9](.+)\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line ) )
+        {
+            $versionFound = false;
+        }
+        if ( preg_match( "@^$versionString\s-\s@", $line ) )
+        {
+            $versionFound = true;
+        }
+        if ( $versionFound )
+        {
+            $changelogData[] = $line;
+        }
+    }
+    // Remove version string from text itself
+    unset( $changelogData[0] );
+    return "\n" . trim( implode( '', $changelogData ) ) . "\n";
 }
 ?>
