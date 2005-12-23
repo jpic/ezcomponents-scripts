@@ -152,17 +152,14 @@ if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error creating file manager: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
 $foundPackageTag = false;
+$notes = array();
 foreach ( $releaseDef as $release )
 {
     if ( substr( $release, 0, 1 ) === '#' ) 
     {
         continue;    
     }
-    if ( trim( $release ) == '' )
-    {
-        continue;
-    }
-    if ( $foundPackageTag )
+    if ( !trim( $release ) == '' &&  $foundPackageTag )
     {
         $releaseData = array_map( 'trim', explode( ': ', $release ) );
         $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $releaseData[1], false, $releaseData[1] );
@@ -173,8 +170,11 @@ foreach ( $releaseDef as $release )
     {
         $foundPackageTag = true;
     }
+    if ( !$foundPackageTag && trim( $release ) !== 'NOTES' )
+    {
+        $notes[] = $release;
+    }
 }
-
 
 $e = $pkg->setPackage( PACKAGE_NAME );
 if ( PEAR::isError( $e ) )
@@ -209,7 +209,7 @@ $e = $pkg->setLicense( PACKAGE_LICENSE );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->setNotes( 'Meta package to install all eZ Enterprise Components at once.' );
+$e = $pkg->setNotes( trim( join( '', $notes ) ) . "\n" );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
@@ -217,7 +217,7 @@ $e = $pkg->setPackageType( 'php' );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->setPhpDep( '5.1.0' );
+$e = $pkg->setPhpDep( '5.1.1' );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setPearinstallerDep( '1.4.2' );

@@ -1,4 +1,4 @@
-#!/usr/bin/php -derror_reporting=E_ALL
+#!/usr/bin/env php
 <?php
 /**
  * Script for generating package.xml files for eZ Enterprise Components.
@@ -9,6 +9,9 @@
  * @license LGPL {@link http://www.gnu.org/copyleft/lesser.html}
  * @filesource
  */
+
+// Disable notices as PEAR is not PHP 5 compatible
+error_reporting( 2039 );
 
 /**
  * Package file manager for package.xml 2.
@@ -309,9 +312,27 @@ class ezcPackageManager {
         }
         $data = array();
         $data = file( $changelogPath );
-        unset( $data[0] );
-        unset( $data[0] );
-        return implode( '', $data );
+        $changelogData = array();
+        $versionFound = false;
+        foreach ( $data as $line )
+        {
+            $versionString = preg_quote( $version );
+            if ( $versionFound && preg_match( "@^[012]\.[0-9](.+)\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line ) )
+            {
+                $versionFound = false;
+            }
+            if ( preg_match( "@^$versionString\s-\s@", $line ) )
+            {
+                $versionFound = true;
+            }
+            if ( $versionFound )
+            {
+                $changelogData[] = $line;
+            }
+        }
+        // Remove version string from text itself
+        unset( $changelogData[0] );
+        return "\n" . trim( implode( '', $changelogData ) ) . "\n";
     }
 
     // }}}
@@ -578,7 +599,7 @@ class ezcPackageManager {
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $e = $pkg->setPhpDep( '5.1.0' );
+        $e = $pkg->setPhpDep( '5.1.1' );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         $e = $pkg->setPearinstallerDep( '1.4.2' );
