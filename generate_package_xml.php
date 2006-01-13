@@ -129,7 +129,7 @@ class ezcPackageManager {
     public function run()
     {
         // General info output
-        $this->output->outputLine();
+        $this->output->outputLine( $this->input->getSynopsis() );
         $this->output->outputLine( "eZ Enterprise Components package manager.", 'info' );
         $this->output->outputText( "Version: ", 'info' );
         $this->output->outputLine( "0.1.0\n", 'version' );
@@ -239,7 +239,7 @@ class ezcPackageManager {
             new ezcConsoleOption( 
                 'h', 
                 'help', 
-                ezcConsoleInput::TYPE_STRING,
+                ezcConsoleInput::TYPE_NONE,
                 null,
                 null,
                 'Display help. Use "-h <OptionName>" to display detailed info on a parameter.',
@@ -351,7 +351,7 @@ class ezcPackageManager {
         $this->output->outputLine( "Usage: $ generate_package_xml.php -p <PackageName> -v <PackageVersion> -s <PackageStatus>", 'help' );
         $this->output->outputLine( "Must be run from within /your/svn/co/ezcomponents/packages .", 'help' );
         
-        if ( $helpTopic !== '' && $helpTopic !== false )
+        if ( $helpTopic !== '' && !is_bool( $helpTopic ) )
         {
             try
             {
