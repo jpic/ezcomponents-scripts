@@ -18,6 +18,11 @@ error_reporting( 2039 );
  */
 require_once 'PEAR/PackageFileManager2.php';
 
+/**
+ * Load the base package to boot strap the autoloading
+ */
+require_once 'Base/trunk/src/base.php';
+
 // {{{ __autoload()
 
 /**
@@ -27,22 +32,21 @@ require_once 'PEAR/PackageFileManager2.php';
  */
 function __autoload( $class_name )
 {
-    require_once("Base/trunk/src/base.php");
-    if ( strpos( $class_name, "_" ) !== false )
+    if ( ezcBase::autoload( $class_name ) )
     {
-        $file = str_replace( "_", "/", $class_name ) . ".php";
-        $val = require_once( $file );
-        if ( $val == 0 )
-            return true;
-        return false;
+        return;
     }
-    ezcBase::autoload( $class_name );
+    if ( strpos( $class_name, '_' ) !== false )
+    {
+        $file = str_replace( '_', '/', $class_name ) . '.php';
+        require_once( $file );
+    }
 }
 
 // }}}
 
-class ezcPackageManager {
-
+class ezcPackageManager
+{
     protected $paths = array( 
         'package' => '',
         'install' => '',
