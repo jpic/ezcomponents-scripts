@@ -103,6 +103,8 @@ function addAditionalFiles( $packageDir, $packageList )
     echo "Adding additional files: ";
     echo "LICENSE ";
     copy( "LICENSE", "$packageDir/LICENSE" );
+    echo "CREDITS ";
+    copy( "CREDITS", "$packageDir/CREDITS" );
 
     echo "descriptions.txt ";
     $f = fopen( "$packageDir/descriptions.txt", "w" );

@@ -211,7 +211,7 @@ class ezcPackageManager
                 'Name of the package to generate the package.xml files for. The package name must reflect the directory structure and you must be in the <packages/> directory of your SVN checkout.'
             )
         );
-        
+
         $v = $this->input->registerOption( 
             new ezcConsoleOption( 
                 'v', 
@@ -224,7 +224,20 @@ class ezcPackageManager
                 array( new ezcConsoleOptionRule( $p ) )
             )
         );
+        $p->addDependency( new ezcConsoleOptionRule( $v ) );
 
+        $b = $this->input->registerOption( 
+            new ezcConsoleOption( 
+                'b', 
+                'base-version', 
+                ezcConsoleInput::TYPE_STRING,
+                null,
+                null,
+                'Base version dependency.',
+                'Base version this package depends on.',
+                array( new ezcConsoleOptionRule( $p ) )
+            )
+        );
         $p->addDependency( new ezcConsoleOptionRule( $v ) );
 
         $this->input->registerOption( 
@@ -437,8 +450,9 @@ class ezcPackageManager
             $linkPaths[$realPaths['autoload'] . DIRECTORY_SEPARATOR . basename( $autoloadFile )] = $autoloadFile;
         }
 
-        // add license file
+        // add license and CREDITS files
         $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'LICENSE'] = $packageDir . '/../../../../LICENSE';
+        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'CREDITS'] = $packageDir . '/../../../../CREDITS';
         
         // create real dir structure
         foreach ( $realPaths as $path ) 
@@ -499,6 +513,8 @@ class ezcPackageManager
      */
     protected function processPackage( $version )
     {
+        $baseVersion = $this->input->getOption( 'b' )->value;
+
         $packageName = $this->input->getOption( 'p' )->value;
         $packageDir  = $this->paths['install'];
         
@@ -524,7 +540,7 @@ class ezcPackageManager
 
         $installDir = $packageDir . DIRECTORY_SEPARATOR . 'install';
 
-        $this->generatePackageXml( $packageName, $packageDir, $state, $version, $descShort, $descLong, $changelog );
+        $this->generatePackageXml( $packageName, $packageDir, $state, $version, $descShort, $descLong, $changelog, $baseVersion );
     }
 
     // }}}
@@ -541,7 +557,7 @@ class ezcPackageManager
      * @param string $long      Long description.
      * @param string $changelog Changelog information 
      */
-    protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog )
+    protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog, $baseVersion )
     {
         $autoloadDir = $this->paths['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
         if ( !is_dir( $path ) )
@@ -609,6 +625,12 @@ class ezcPackageManager
         $e = $pkg->setPearinstallerDep( '1.4.2' );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        if ( $name !== 'Base' )
+        {
+            $e = $pkg->setPackageDepWithChannel( 'required', 'Base', self::CHANNEL, $baseVersion );
+            if ( PEAR::isError( $e ) )
+                $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        }
 
         $pkg->addGlobalReplacement( 'php-const', 'libraryMode = "devel"', 'libraryMode = "pear"' );
 
