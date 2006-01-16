@@ -395,7 +395,7 @@ class ezcPackageManager
         else
         {
             $help = $this->input->getHelp();
-            $table = new ezcConsoleTable( $this->output, 77, 2 );
+            $table = new ezcConsoleTable( $this->output, 78 );
             $table->options->defaultFormat = 'help';
             foreach ( $help as $rowId => $row )
             {
