@@ -162,7 +162,8 @@ foreach ( $releaseDef as $release )
     if ( !trim( $release ) == '' &&  $foundPackageTag )
     {
         $releaseData = array_map( 'trim', explode( ': ', $release ) );
-        $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $releaseData[1] );
+        $version = str_replace( 'rc', 'RC', $releaseData[1] );
+        $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $version );
         if ( PEAR::isError( $e ) )
             die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
     }
@@ -191,7 +192,7 @@ if ( PEAR::isError( $e ) )
 
 $version   = $input->getOption( 'v' )->value;
 $version   = str_replace( 'rc', 'RC', $version );
-$stability = ( strpos( $version, 'beta' ) !== false || strpos( $version, 'RC' ) !== false ) ) ? 'beta' : 'stable';
+$stability = ( strpos( $version, 'beta' ) !== false || strpos( $version, 'RC' ) !== false ) ? 'beta' : 'stable';
 
 $e = $pkg->setReleaseStability( $stability );
 if ( PEAR::isError( $e ) )

@@ -133,7 +133,6 @@ class ezcPackageManager
     public function run()
     {
         // General info output
-        $this->output->outputLine( $this->input->getSynopsis() );
         $this->output->outputLine( "eZ Enterprise Components package manager.", 'info' );
         $this->output->outputText( "Version: ", 'info' );
         $this->output->outputLine( "0.1.0\n", 'version' );
@@ -141,14 +140,14 @@ class ezcPackageManager
         
         switch ( true )
         {
-            case count( $this->input->getOptionValues() ) === 0 || $this->input->getOption( 'h' )->value !== false:
+            case count( $this->input->getOptionValues() ) === 0 || $this->input->getOption( 'h' )->value === true:
                 $this->showHelp();
                 break;
             default:
-                $version = $this->input->getOption( 'v' );
-                if ( !preg_match( '/[0-9]+\.[0-9]+(\.|beta)[0-9]+/', $version->value ) )
+                $version = $this->input->getOption( 'v' )->value;
+                if ( !preg_match( '/[0-9]+\.[0-9]+(\.|beta|rc)[0-9]+/', $version ) )
                 {
-                    $this->raiseError( 'Invalid version number <'.$version->value.'>, must be in format <x.y[state[z]]>.');
+                    $this->raiseError( "Invalid version number <{$version}>, must be in format <x.y[state[z]]>." );
                 }
                 $this->paths['package'] = realpath( $this->input->getOption( 'p' )->value );
                 $this->paths['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->input->getOption( 'p' )->value;
@@ -160,8 +159,8 @@ class ezcPackageManager
                 {
                     $this->raiseError( "Could not create installation directory <".$this->paths['install'].">.");
                 }
-                $this->createLinkMess( $version->value );
-                $this->processPackage( $version->value );
+                $this->createLinkMess( $version );
+                $this->processPackage( $version );
                 break;
         }
         
@@ -238,7 +237,7 @@ class ezcPackageManager
                 array( new ezcConsoleOptionRule( $p ) )
             )
         );
-        $p->addDependency( new ezcConsoleOptionRule( $v ) );
+        $p->addDependency( new ezcConsoleOptionRule( $b ) );
 
         $this->input->registerOption( 
             new ezcConsoleOption( 
@@ -280,7 +279,7 @@ class ezcPackageManager
         {
             $this->input->process();
         }
-        catch ( ezcConsoleInputException $e )
+        catch ( ezcConsoleOptionException $e )
         {
             $this->raiseError( $e );
         }
@@ -365,6 +364,7 @@ class ezcPackageManager
     {
         $helpTopic = $this->input->getOption( 'h' )->value;
         
+        $this->output->outputLine( $this->input->getSynopsis() );
         $this->output->outputLine( "Usage: $ generate_package_xml.php -p <PackageName> -v <PackageVersion> -s <PackageStatus>", 'help' );
         $this->output->outputLine( "Must be run from within /your/svn/co/ezcomponents/packages .", 'help' );
         
@@ -452,7 +452,7 @@ class ezcPackageManager
 
         // add license and CREDITS files
         $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'LICENSE'] = $packageDir . '/../../../../LICENSE';
-        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'CREDITS'] = $packageDir . '/../../../../CREDITS';
+        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'CREDITS'] = $packageDir . '/CREDITS';
         
         // create real dir structure
         foreach ( $realPaths as $path ) 
@@ -559,6 +559,8 @@ class ezcPackageManager
      */
     protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog, $baseVersion )
     {
+        $version = str_replace( 'rc', 'RC', $version );
+        $baseVersion = str_replace( 'rc', 'RC', $baseVersion );
         $autoloadDir = $this->paths['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
         if ( !is_dir( $path ) )
         {
@@ -627,7 +629,7 @@ class ezcPackageManager
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         if ( $name !== 'Base' )
         {
-            $e = $pkg->setPackageDepWithChannel( 'required', 'Base', self::CHANNEL, $baseVersion );
+            $e = $pkg->addPackageDepWithChannel( 'required', 'Base', self::CHANNEL, $baseVersion );
             if ( PEAR::isError( $e ) )
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }

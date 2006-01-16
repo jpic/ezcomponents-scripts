@@ -24,9 +24,13 @@ setupAutoload( $packageDir, $packageList );
 addAditionalFiles( $packageDir, $packageList );
 setBaseNonDevel( $packageDir );
 
+echo "Creating Archives: ";
 `cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version.tar.bz2 .`;
+echo "tar.bz2 ";
 `cd $basePackageDir; zip -r /tmp/ezcomponents-$version.zip ezcomponents-$version`;
+echo "zip ";
 `rm -rf $basePackageDir`;
+echo "Done\n\n";
 
 function addPackages( $fileName, $packageDir )
 {
@@ -103,8 +107,6 @@ function addAditionalFiles( $packageDir, $packageList )
     echo "Adding additional files: ";
     echo "LICENSE ";
     copy( "LICENSE", "$packageDir/LICENSE" );
-    echo "CREDITS ";
-    copy( "CREDITS", "$packageDir/CREDITS" );
 
     echo "descriptions.txt ";
     $f = fopen( "$packageDir/descriptions.txt", "w" );
