@@ -29,8 +29,16 @@ echo "Creating Archives: ";
 echo "tar.bz2 ";
 `cd $basePackageDir; zip -r /tmp/ezcomponents-$version.zip ezcomponents-$version`;
 echo "zip ";
-`rm -rf $basePackageDir`;
+echo "Done\n";
+
+echo "Generating HTML version of changelog: ";
+`cd $basePackageDir; rst2html.py ezcomponents-$version/ChangeLog > /tmp/ezcomponents-$version.changelog.html`;
+echo "Done\n";
+
+echo "scp-ing to tequila: ";
+`scp /tmp/ezcomponents-$version* tequila:/home/httpd/html/components/downloads`;
 echo "Done\n\n";
+`rm -rf $basePackageDir`;
 
 function addPackages( $fileName, $packageDir )
 {
