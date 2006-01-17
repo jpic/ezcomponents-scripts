@@ -499,7 +499,7 @@ class ezcPackageManager
 
     private function guessFromVersion( $version )
     {
-        if ( preg_match( '@beta@', $version ) )
+        if ( preg_match( '@beta|rc@', $version ) )
         {
             return 'beta';
         }

@@ -156,6 +156,7 @@ function grabChangelog( $path, $version )
     }
     // Remove version string from text itself
     unset( $changelogData[0] );
+    unset( $changelogData[1] );
     return "\n" . trim( implode( '', $changelogData ) ) . "\n";
 }
 ?>
