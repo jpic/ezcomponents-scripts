@@ -19,6 +19,11 @@ function __autoload( $class_name )
     }
 }
 
+ini_set( 'highlight.string', '#335533' );
+ini_set( 'highlight.keyword', '#0000FF' );
+ini_set( 'highlight.default', '#000000' );
+ini_set( 'highlight.comment', '#007700' );
+
 // Setup console parameters
 $params = new ezcConsoleInput();
 $componentOption = new ezcConsoleOption( 'c', 'component', ezcConsoleInput::TYPE_STRING );
@@ -32,11 +37,11 @@ $params->registerOption( $targetOption );
 // Process console parameters
 try
 {
-	$params->process();
+    $params->process();
 }
 catch ( ezcConsoleOptionException $e )
 {
-	die( $e->getMessage(). "\n" );
+    die( $e->getMessage(). "\n" );
 }
 
 $component = $params->getOption( 'component' )->value;
@@ -55,9 +60,9 @@ file_put_contents( "$targetDir/introduction_$component.html", $output );
 
 function getRstOutput( $component )
 {
-	$fileName = "$component/trunk/docs/tutorial.txt";
-	$output = shell_exec( "rst2html $fileName" );
-	return $output;
+    $fileName = "$component/trunk/docs/tutorial.txt";
+    $output = shell_exec( "rst2html $fileName" );
+    return $output;
 }
 
 function removeHeaderFooter( $output )
@@ -85,15 +90,16 @@ FOO;
 
 function addLinks( $component, $output )
 {
-	$base = "http://ez.no/doc/components/view/(file)/1.0rc1/$component/";
+    $base = "http://ez.no/doc/components/view/(file)/1.0rc1/$component/";
 
-	$output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
-	$output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
-	$output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-	$output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)->([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-	$output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
+    $output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)->([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
 
-	return $output;
+    return $output;
 }
 
 function addExampleLineNumbers( $output )
@@ -103,9 +109,16 @@ function addExampleLineNumbers( $output )
 
 function callbackAddLineNumbers( $args )
 {
-    $listing = '<div class="listing"><pre><ol>';
-    $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
-    $listing .= preg_replace( '@(.*?)<br />@ms', "<li>\\1</li>\n", $highlighted );
-    $listing .= '</ol></pre></div>';
-    return $listing;
+    if ( strstr( $args[1], '&lt;?php' ) !== false )
+    {
+        $listing = '<div class="listing"><pre><ol>';
+        $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
+        $highlighted = preg_replace( '@^<code><span style="color: #000000">.<br />@ms', '<code>', $highlighted );
+        $highlighted = preg_replace( '@<br /></span>.</code>$@ms', "</code>", $highlighted );
+        $listing .= preg_replace( '@(.*?)<br />@ms', "<li>\\1</li>\n", $highlighted );
+        $listing .= '</ol></pre></div>';
+        return $listing;
+    } else {
+        return $args[0];
+    }
 }
