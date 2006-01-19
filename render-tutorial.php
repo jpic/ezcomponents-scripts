@@ -2,7 +2,7 @@
 /**
  * Load the base package to boot strap the autoloading
  */
-require_once 'packages/Base/trunk/src/base.php';
+require_once 'Base/trunk/src/base.php';
 
 // {{{ __autoload()
 
@@ -25,6 +25,10 @@ $componentOption = new ezcConsoleOption( 'c', 'component', ezcConsoleInput::TYPE
 $componentOption->mandatory = true;
 $params->registerOption( $componentOption );
 
+$targetOption = new ezcConsoleOption( 't', 'target', ezcConsoleInput::TYPE_STRING );
+$targetOption->mandatory = true;
+$params->registerOption( $targetOption );
+
 // Process console parameters
 try
 {
@@ -37,15 +41,42 @@ catch ( ezcConsoleOptionException $e )
 
 $component = $params->getOption( 'component' )->value;
 $output = getRstOutput( $component );
+$output = removeHeaderFooter( $output );
+$output = addNewHeader( $component, $output );
 $output = addLinks( $component, $output );
 
-file_put_contents( "/tmp/test.html", $output );
+$targetDir = $params->getOption( 'target' )->value;
+file_put_contents( "$targetDir/introduction_$component.html", $output );
 
 function getRstOutput( $component )
 {
-	$fileName = "packages/$component/trunk/docs/tutorial.txt";
-	$output = shell_exec( "rst2html.py $fileName" );
+	$fileName = "$component/trunk/docs/tutorial.txt";
+	$output = shell_exec( "rst2html $fileName" );
 	return $output;
+}
+
+function removeHeaderFooter( $output )
+{
+    $output = preg_replace( '@.*?<body>@ms', '', $output );
+    $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@', '', $output );
+    $output = preg_replace( '@<\/body>.*@ms', '', $output );
+    return $output;
+}
+
+function addNewHeader( $component, $output )
+{
+    $outputHeader = <<<FOO
+<div class="attribute-heading"><h1>$component</h1></div>
+
+
+<b>[ <a href="introduction_$component.html" class="menu">Introduction</a> ]</b>
+<b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
+<b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
+<b>[ <a href="elementindex.html" class="menu">All elements</a> ]</b>
+<h2>Introduction for Component $component</h2>
+<hr class="separator" />
+FOO;
+    return $outputHeader . $output;
 }
 
 function addLinks( $component, $output )
