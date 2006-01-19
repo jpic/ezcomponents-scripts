@@ -43,6 +43,7 @@ $component = $params->getOption( 'component' )->value;
 $output = getRstOutput( $component );
 $output = removeHeaderFooter( $output );
 $output = addNewHeader( $component, $output );
+$output = addExampleLineNumbers( $output );
 $output = addLinks( $component, $output );
 
 $targetDir = $params->getOption( 'target' )->value;
@@ -93,4 +94,18 @@ function addLinks( $component, $output )
 	$output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
 
 	return $output;
+}
+
+function addExampleLineNumbers( $output )
+{
+    return preg_replace_callback( '@<pre class=\"literal-block\">(.+?)<\/pre>@ms', 'callbackAddLineNumbers', $output );
+}
+
+function callbackAddLineNumbers( $args )
+{
+    $listing = '<div class="listing"><pre><ol>';
+    $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
+    $listing .= preg_replace( '@(.*?)<br />@ms', "<li>\\1</li>\n", $highlighted );
+    $listing .= '</ol></pre></div>';
+    return $listing;
 }

@@ -17,7 +17,11 @@ for i in *; do
 		echo "* $i"
 		php ../scripts/render-tutorial.php -c $i -t /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1
 	else
-		echo "<h1>No introduction available for $i</h1>" > /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
+		echo '<div class="attribute-heading"><h1>'$i'</h1></div>' > /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
+		echo '<b>[ <a href="introduction_'$i'.html" class="menu">Introduction</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
+		echo '<b>[ <a href="classtrees_'$i'.html" class="menu">Class tree</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
+		echo '<b>[ <a href="elementindex_'$i'.html" class="menu">Element index</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
+		echo "<h1>No introduction available for $i</h1>" >> /home/httpd/html/components/phpdoc_gen/ezcomponents/1.0rc1/introduction_$i.html
 	fi
 done
 cd ..
