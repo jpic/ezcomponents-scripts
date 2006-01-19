@@ -48,6 +48,10 @@ $output = addLinks( $component, $output );
 $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
 
+// Copying images
+`mkdir -p $targetDir/img`;
+`cp $component/trunk/docs/img/*.png $targetDir/img/`;
+
 function getRstOutput( $component )
 {
 	$fileName = "$component/trunk/docs/tutorial.txt";
@@ -72,7 +76,6 @@ function addNewHeader( $component, $output )
 <b>[ <a href="introduction_$component.html" class="menu">Introduction</a> ]</b>
 <b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
 <b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
-<b>[ <a href="elementindex.html" class="menu">All elements</a> ]</b>
 <h2>Introduction for Component $component</h2>
 <hr class="separator" />
 FOO;
