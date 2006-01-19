@@ -11,9 +11,7 @@
 	{
 		if ( strstr( $line, 'function' ) !== false && strstr( $line, ' array ' ) !== false && strstr( $line, '*') == false )
 		{
-			echo "BEFORE: $line";
 			$line = str_replace( ' array ', ' ', $line );
-			echo "AFTER:  $line\n";
 		}
 		$lines .= $line;
 	}
