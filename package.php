@@ -1,5 +1,7 @@
 #!/usr/local/bin/php
 <?php
+include 'scripts/get-packages-for-version.php';
+
 if ( $argc != 2 )
 {
     echo "Usage:\n\tscripts/package.php <version>\n\tscripts/package.php 1.0beta1\n\n";
@@ -32,7 +34,7 @@ echo "zip ";
 echo "Done\n";
 
 echo "Generating HTML version of changelog: ";
-`cd $basePackageDir; rst2html.py ezcomponents-$version/ChangeLog > /tmp/ezcomponents-$version.changelog.html`;
+`cd $basePackageDir; rst2html ezcomponents-$version/ChangeLog > /tmp/ezcomponents-$version.changelog.html`;
 echo "Done\n";
 
 echo "scp-ing to tequila: ";
@@ -45,18 +47,16 @@ function addPackages( $fileName, $packageDir )
     // Open ChangeLog file
     $fp = fopen( "$packageDir/ChangeLog", "w" );
     echo "Exporting packages from SVN: \n";
-    $definition = file( $fileName );
-    foreach ( $definition as $defLine )
+
+    $elements = fetchVersionsFromReleaseFile( $fileName );
+    foreach ( $elements as $component => $versionNr )
     {
-        if ( preg_match( '@([A-Za-z]+):\s+([A-Za-z0-9.]+)@', $defLine, $matches ) )
-        {
-            $changeLog = addPackage( $packageDir, $matches[1], $matches[2] );
-            $title = "Component: {$matches[1]}";
-            $titleHeader = str_repeat( '=', strlen( $title ) );
-            fwrite( $fp, "$titleHeader\n$title\n$titleHeader\n" );
-            fwrite( $fp, $changeLog );
-            fwrite( $fp, "\n\n" );
-        }
+        $changeLog = addPackage( $packageDir, $component, $versionNr );
+        $title = "Component: {$component}";
+        $titleHeader = str_repeat( '=', strlen( $title ) );
+        fwrite( $fp, "$titleHeader\n$title\n$titleHeader\n" );
+        fwrite( $fp, $changeLog );
+        fwrite( $fp, "\n\n" );
     }
     fclose( $fp );
 }
