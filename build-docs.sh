@@ -35,7 +35,7 @@ for i in $j; do
 	if test -f $i/docs/tutorial.txt; then
 		comp=`echo $i | cut -d / -f 1`
 		echo "* $comp"
-		php ../scripts/render-tutorial.php -c $comp -t /home/httpd/html/components/phpdoc_gen/ezcomponents/$1
+		php ../scripts/render-tutorial.php -c $comp -t /home/httpd/html/components/phpdoc_gen/ezcomponents/$1 -v $1
 	else
 		echo '<div class="attribute-heading"><h1>'$i'</h1></div>' > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 		echo '<b>[ <a href="introduction_'$i'.html" class="menu">Introduction</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html

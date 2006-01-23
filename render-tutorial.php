@@ -34,6 +34,10 @@ $targetOption = new ezcConsoleOption( 't', 'target', ezcConsoleInput::TYPE_STRIN
 $targetOption->mandatory = true;
 $params->registerOption( $targetOption );
 
+$versionOption = new ezcConsoleOption( 'v', 'version', ezcConsoleInput::TYPE_STRING );
+$versionOption->mandatory = true;
+$params->registerOption( $versionOption );
+
 // Process console parameters
 try
 {
@@ -45,11 +49,12 @@ catch ( ezcConsoleOptionException $e )
 }
 
 $component = $params->getOption( 'component' )->value;
+$version = $params->getOption( 'version' )->value;
 $output = getRstOutput( $component );
 $output = removeHeaderFooter( $output );
 $output = addNewHeader( $component, $output );
 $output = addExampleLineNumbers( $output );
-$output = addLinks( $component, $output );
+$output = addLinks( $component, $output, $version );
 
 $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
@@ -88,17 +93,20 @@ FOO;
     return $outputHeader . $output;
 }
 
-function addLinks( $component, $output )
+function addLinks( $component, $output, $version )
 {
-    $base = "http://ez.no/doc/components/view/(file)/1.0rc1/$component/";
+    $base = "http://ez.no/doc/components/view/(file)/$version/$component/";
 
     $output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)->([A-Za-z0-9]+)\(\)@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)->([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)\\b@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
     $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
     $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
-
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Z_]+)@", "<a href='{$base}\\1.html#const\\3'>\\1::\\3</a>", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</li>)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-Z]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Za-z]+)(</span>)@", "\\1<a href='{$base}\\2.html#\\4'>\\2::\\4</a>\\5", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+Exception)(\&nbsp;\\$)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
     return $output;
 }
 
