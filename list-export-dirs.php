@@ -18,9 +18,13 @@ $directories = '';
 
 $elements = fetchVersionsFromReleaseFile( $fileName );
 
-foreach ( $elements as $component => $version)
+foreach ( $elements as $component => $componentVersion )
 {
-	echo "$component/releases/$version\n";
+    if ( $componentVersion != 'trunk' )
+    {
+        $componentVersion = "releases/$componentVersion";
+    }
+    echo "$component/$componentVersion\n";
 }
 
 ?>

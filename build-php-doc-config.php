@@ -18,9 +18,13 @@ $directories = '';
 
 $elements = fetchVersionsFromReleaseFile( $fileName );
 
-foreach ( $elements as $component => $version)
+foreach ( $elements as $component => $componentVersion )
 {
-	$directories .= "/home/httpd/ezcomponents.docfix/packages/$component/releases/$version,";
+    if ( $componentVersion != 'trunk' )
+    {
+        $componentVersion = "releases/$componentVersion";
+    }
+    $directories .= "/home/httpd/ezcomponents.docfix/packages/$component/$componentVersion,";
 }
 
 // strip last ,
