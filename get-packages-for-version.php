@@ -2,6 +2,10 @@
 function fetchVersionsFromReleaseFile( $fileName )
 {
     $versions = array();
+    if ( !file_exists( $fileName ) )
+    {
+        return $versions;
+    }
     $definition = file( $fileName );
     foreach ( $definition as $defLine )
     {

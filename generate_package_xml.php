@@ -23,6 +23,11 @@ require_once 'PEAR/PackageFileManager2.php';
  */
 require_once 'Base/trunk/src/base.php';
 
+/**
+ * Helper file for revision files
+ */
+require_once '../scripts/get-packages-for-version.php';
+
 // {{{ __autoload()
 
 /**
@@ -145,12 +150,12 @@ class ezcPackageManager
                 break;
             default:
                 $version = $this->input->getOption( 'v' )->value;
-                if ( !preg_match( '/[0-9]+\.[0-9]+(\.|beta|rc)[0-9]+/', $version ) )
+                if ( !preg_match( '/([0-9]+\.[0-9]+(\.|beta|rc)[0-9]+)|trunk/', $version ) )
                 {
-                    $this->raiseError( "Invalid version number <{$version}>, must be in format <x.y[state[z]]>." );
+                    $this->raiseError( "Invalid version number <{$version}>, must be in format <x.y[state[z]]> or <trunk>." );
                 }
                 $this->paths['package'] = realpath( $this->input->getOption( 'p' )->value );
-                $this->paths['install'] = DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . $this->input->getOption( 'p' )->value;
+                $this->paths['install'] = '/tmp/ezc/' . $this->input->getOption( 'p' )->value;
                 if ( is_dir( $this->paths['install'] ) )
                 {
                     `rm -rf {$this->paths['install']}`;
@@ -298,7 +303,7 @@ class ezcPackageManager
      */
     protected function grabReadme()
     {
-        $readmePath = $this->paths['package'] . DIRECTORY_SEPARATOR . 'trunk' . DIRECTORY_SEPARATOR . 'DESCRIPTION';
+        $readmePath = $this->paths['package'] . '/trunk/DESCRIPTION';
         if ( !is_file( $readmePath ) || !is_readable( $readmePath ) )
         {
             $this->raiseError( 'Could not find README file <'.$readmePath.'>.' );
@@ -319,9 +324,18 @@ class ezcPackageManager
      * @param string $path Package path.
      * @return string Latest changes.
      */
-    protected function grabChangelog( $path, $version )
+    protected function grabChangelog( $path, $version, &$preVersion )
     {
-        $changelogPath = $this->paths['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version . DIRECTORY_SEPARATOR . 'ChangeLog';
+        if ( $version == 'trunk' )
+        {
+            $changelogPath = $this->paths['package'] . '/trunk/ChangeLog';
+            $versionString = "[012]\.[0-9](.*)";
+        }
+        else
+        {
+            $changelogPath = $this->paths['package'] . '/releases/' . $version . '/ChangeLog';
+            $versionString = preg_quote( $version );
+        }
         if ( !is_file( $changelogPath ) || !is_readable( $changelogPath ) )
         {
             $this->raiseError( 'Could not find ChangeLog file <'.$changelogPath.'>.' );
@@ -332,8 +346,7 @@ class ezcPackageManager
         $versionFound = false;
         foreach ( $data as $line )
         {
-            $versionString = preg_quote( $version );
-            if ( $versionFound && preg_match( "@^[012]\.[0-9](.+)\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line ) )
+            if ( $versionFound && preg_match( "@^[012]\.[0-9](.*)\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line ) )
             {
                 $versionFound = false;
             }
@@ -346,8 +359,29 @@ class ezcPackageManager
                 $changelogData[] = $line;
             }
         }
+        // Find previous version number, we need this for unstable packages (from trunk)
+        $preVersion = false;
+        $found = 0;
+        if ( $version == 'trunk' )
+        {
+            $preVersion = "0.9.9";
+            foreach ( $data as $line )
+            {
+                if ( preg_match( "@^([012]\.[0-9](.*))\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line, $matches ) )
+                {
+                    $found++;
+                }
+                if ( $found == 2 )
+                {
+                    $preVersion = $matches[1];
+                    $found++;
+                }
+            }
+            $preVersion = $preVersion . '.' . date( "YmdHi" );
+        }
         // Remove version string from text itself
         unset( $changelogData[0] );
+        unset( $changelogData[1] );
         return "\n" . trim( implode( '', $changelogData ) ) . "\n";
     }
 
@@ -427,32 +461,46 @@ class ezcPackageManager
     {
         // prepare mess of links and dirs to create
         $installDir = $this->paths['install'];
-        $packageDir = $this->paths['package'] . DIRECTORY_SEPARATOR . 'releases' . DIRECTORY_SEPARATOR . $version;
+        if ( $version == 'trunk' )
+        {
+            $packageDir = $this->paths['package'] . '/trunk';
+        }
+        else
+        {
+            $packageDir = $this->paths['package'] . '/releases/' . $version;
+        }
 
         // directory paths which have to be really created
         $realPaths              = array();
-        $realPaths['ezc']       = $installDir . DIRECTORY_SEPARATOR . 'ezc';
-        $realPaths['autoload']  = $realPaths['ezc'] . DIRECTORY_SEPARATOR . 'autoload';
+        $realPaths['ezc']       = $installDir . '/ezc';
+        $realPaths['autoload']  = $realPaths['ezc'] . '/autoload';
 
         // paths which have to be linked from their original source
         $linkPaths = array(
-            $realPaths['ezc'] . DIRECTORY_SEPARATOR . $this->input->getOption( 'p' )->value 
-            => $packageDir . DIRECTORY_SEPARATOR . 'src',
+            $realPaths['ezc'] . '/' . $this->input->getOption( 'p' )->value 
+            => $packageDir . '/src',
         );
-        if ( is_dir( $packageDir . DIRECTORY_SEPARATOR . 'docs' ) )
+        if ( is_dir( $packageDir . '/docs' ) )
         {
-            $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs'] = $packageDir . DIRECTORY_SEPARATOR . 'docs';
+            $linkPaths[$installDir . '/docs'] = $packageDir . '/docs';
         }
 
         // autoload files must be linked
-        foreach( glob( $packageDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . '*autoload*' ) as $autoloadFile ) 
+        foreach( glob( $packageDir . '/src/*autoload*' ) as $autoloadFile ) 
         {
-            $linkPaths[$realPaths['autoload'] . DIRECTORY_SEPARATOR . basename( $autoloadFile )] = $autoloadFile;
+            $linkPaths[$realPaths['autoload'] . '/' . basename( $autoloadFile )] = $autoloadFile;
         }
 
         // add license and CREDITS files
-        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'LICENSE'] = $packageDir . '/../../../../LICENSE';
-        $linkPaths[$installDir . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'CREDITS'] = $packageDir . '/CREDITS';
+        if ( $version == 'trunk' )
+        {
+            $linkPaths[$installDir . '/docs/LICENSE'] = $packageDir . '/../../../LICENSE';
+        }
+        else
+        {
+            $linkPaths[$installDir . '/docs/LICENSE'] = $packageDir . '/../../../../LICENSE';
+        }
+        $linkPaths[$installDir . '/docs/CREDITS'] = $packageDir . '/CREDITS';
         
         // create real dir structure
         foreach ( $realPaths as $path ) 
@@ -467,7 +515,7 @@ class ezcPackageManager
         }
 
         // clean up autoload links, if necessary
-        foreach( glob( $realPaths['autoload'] . DIRECTORY_SEPARATOR . '*' ) as $autoloadFile ) {
+        foreach( glob( $realPaths['autoload'] . '/*' ) as $autoloadFile ) {
             if (!file_exists( $autoloadFile ) || !is_writeable( $autoloadFile ) || !unlink( $autoloadFile ) ) {
                 $this->raiseError( 'Cannot remove former autoload link: <' . $autoloadFile . '>.' );
             }
@@ -480,7 +528,7 @@ class ezcPackageManager
             {
                 // unfortunately we have to copy here, as we need to modify files sometimes :S
                 `cp -vfR $target $link`;
-                $basePhp = $link . DIRECTORY_SEPARATOR . 'base.php';
+                $basePhp = $link . '/' . 'base.php';
                 if ( file_exists( $basePhp ) )
                 {
                     file_put_contents( "$basePhp", str_replace( "libraryMode = \"devel\"", "libraryMode = \"pear\"", file_get_contents( $basePhp ) ) );
@@ -499,7 +547,7 @@ class ezcPackageManager
 
     private function guessFromVersion( $version )
     {
-        if ( preg_match( '@beta|rc@', $version ) )
+        if ( preg_match( '@beta|rc|trunk@', $version ) )
         {
             return 'beta';
         }
@@ -536,11 +584,12 @@ class ezcPackageManager
         $descShort = $info[0];
         $descLong  = $info[1];
 
-        $changelog = $this->grabChangelog( $packageDir, $version );
+        $changelog = $this->grabChangelog( $packageDir, $version, $preVersion );
+        $dependencies = fetchVersionsFromReleaseFile( $this->paths['package'] . ( $version == 'trunk' ? "/trunk/DEPS" : "/releases/$version/DEPS" ) );
 
-        $installDir = $packageDir . DIRECTORY_SEPARATOR . 'install';
+        $installDir = $packageDir . '/' . 'install';
 
-        $this->generatePackageXml( $packageName, $packageDir, $state, $version, $descShort, $descLong, $changelog, $baseVersion );
+        $this->generatePackageXml( $packageName, $packageDir, $state, $preVersion ? $preVersion : $version, $descShort, $descLong, $changelog, $baseVersion, $dependencies );
     }
 
     // }}}
@@ -557,11 +606,11 @@ class ezcPackageManager
      * @param string $long      Long description.
      * @param string $changelog Changelog information 
      */
-    protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog, $baseVersion )
+    protected function generatePackageXml( $name, $path, $state, $version, $short, $long, $changelog, $baseVersion, $dependencies )
     {
         $version = str_replace( 'rc', 'RC', $version );
         $baseVersion = str_replace( 'rc', 'RC', $baseVersion );
-        $autoloadDir = $this->paths['install'] . DIRECTORY_SEPARATOR . 'ezc' . DIRECTORY_SEPARATOR . 'autoload';
+        $autoloadDir = $this->paths['install'] . '/ezc/autoload';
         if ( !is_dir( $path ) )
         {
             $this->raiseError( 'Package source directory <'.$path.'> invalid.' );
@@ -630,6 +679,12 @@ class ezcPackageManager
         if ( $name !== 'Base' )
         {
             $e = $pkg->addPackageDepWithChannel( 'required', 'Base', self::CHANNEL, $baseVersion );
+            if ( PEAR::isError( $e ) )
+                $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+        }
+        foreach ( $dependencies as $depComponent => $depVersion )
+        {
+            $e = $pkg->addPackageDepWithChannel( 'required', $depComponent, self::CHANNEL, $depVersion );
             if ( PEAR::isError( $e ) )
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
