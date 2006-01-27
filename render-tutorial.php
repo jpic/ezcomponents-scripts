@@ -61,7 +61,7 @@ file_put_contents( "$targetDir/introduction_$component.html", $output );
 
 // Copying images
 `mkdir -p $targetDir/img`;
-`cp $component/trunk/docs/img/*.* $targetDir/img/ > /dev/null`;
+`cp $component/trunk/docs/img/*.* $targetDir/img/ 2>/dev/null`;
 
 function getRstOutput( $component )
 {

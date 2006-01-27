@@ -91,9 +91,9 @@ EOF
 
 	else
 		echo '<div class="attribute-heading"><h1>'$comp'</h1></div>' > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
-		echo '<b>[ <a href="introduction_'$i'.html" class="menu">Tutorial</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
-		echo '<b>[ <a href="classtrees_'$i'.html" class="menu">Class tree</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
-		echo '<b>[ <a href="elementindex_'$i'.html" class="menu">Element index</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
+		echo '<b>[ <a href="introduction_'$comp'.html" class="menu">Tutorial</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
+		echo '<b>[ <a href="classtrees_'$comp'.html" class="menu">Class tree</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
+		echo '<b>[ <a href="elementindex_'$comp'.html" class="menu">Element index</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 		echo "<h1>No introduction available for $comp</h1>" >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 	fi
 
