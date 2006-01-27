@@ -95,11 +95,12 @@ FOO;
 
 function addLinks( $component, $output, $version )
 {
-    $base = "http://ez.no/doc/components/view/(file)/$version/$component/";
+//    $base = "http://ez.no/doc/components/view/(file)/$version/$component/";
+    $base = "$component/";
 
     $output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
     $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)->([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\3'>\\0</a>", $output );
     $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)\\b@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
     $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
     $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
