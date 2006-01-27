@@ -43,7 +43,7 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl 
 <h2>Getting Started</h2>
 <ul>
 <li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$i/tutorials.html')}">Tutorials</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/(file)/$1/tutorials.html')}">Tutorials</a></li>
 </ul>
 
 <h2>Components</h2>
@@ -59,7 +59,7 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html
 <h2>Getting Started</h2>
 <ul>
 <li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
-<li><a href="/components/phpdoc_gen/ezcomponents/$i/tutorials.html')}">Tutorials</a></li>
+<li><a href="/components/phpdoc_gen/ezcomponents/$1/tutorials.html">Tutorials</a></li>
 </ul>
 
 <h2>Packages</h2>
@@ -67,6 +67,15 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html
 EOF
 
 echo "Generating Tutorials:"
+echo "* Tutorials overview page start"
+
+cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.tpl <<EOF
+<div class="attribute-heading"><h1>Tutorials</h1></div>
+<ul>
+EOF
+
+cp /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.tpl /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.html
+
 for i in $j; do
 	comp=`echo $i | cut -d / -f 1`
 	if test -f $i/docs/tutorial.txt; then
@@ -121,6 +130,14 @@ cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.htm
 </div>
 EOF
 
+echo "* Tutorials overview page end"
+
+cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.tpl << EOF
+</ul>
+EOF
+cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.html << EOF
+</ul>
+EOF
 
 cd ..
 cd /home/httpd/html/components || exit 10
