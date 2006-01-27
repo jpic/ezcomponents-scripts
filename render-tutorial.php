@@ -61,8 +61,7 @@ file_put_contents( "$targetDir/introduction_$component.html", $output );
 
 // Copying images
 `mkdir -p $targetDir/img`;
-`cp $component/trunk/docs/img/*.png $targetDir/img/ > /dev/null`;
-`cp $component/trunk/docs/img/*.jpg $targetDir/img/ > /dev/null`;
+`cp $component/trunk/docs/img/*.* $targetDir/img/ > /dev/null`;
 
 function getRstOutput( $component )
 {
@@ -85,10 +84,10 @@ function addNewHeader( $component, $output )
 <div class="attribute-heading"><h1>$component</h1></div>
 
 
-<b>[ <a href="introduction_$component.html" class="menu">Introduction</a> ]</b>
+<b>[ <a href="introduction_$component.html" class="menu">Tutorial</a> ]</b>
 <b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
 <b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
-<h2>Introduction for Component $component</h2>
+<h2>Tutorial for Component $component</h2>
 <hr class="separator" />
 FOO;
     return $outputHeader . $output;

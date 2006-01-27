@@ -40,7 +40,13 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl 
 <div class="boxcontent">
 <div id="quicklinks">
 {let \$indexDir = ezsys( 'indexdir' )}
-<h2>Packages</h2>
+<h2>Getting Started</h2>
+<ul>
+<li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/(file)/$i/tutorials.html')}">Tutorials</a></li>
+</ul>
+
+<h2>Components</h2>
 <ul>
 EOF
 cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html << EOF
@@ -50,6 +56,12 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html
 
 <div class="boxcontent">
 <div id="quicklinks">
+<h2>Getting Started</h2>
+<ul>
+<li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
+<li><a href="/components/phpdoc_gen/ezcomponents/$i/tutorials.html')}">Tutorials</a></li>
+</ul>
+
 <h2>Packages</h2>
 <ul>
 EOF
@@ -61,25 +73,28 @@ for i in $j; do
 		echo "* $comp"
 		php ../scripts/render-tutorial.php -c $comp -t /home/httpd/html/components/phpdoc_gen/ezcomponents/$1 -v $1
 
-cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl << EOF
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$1/introduction_$comp.html')}">$comp</a></li>
+		cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.tpl << EOF
+<li><a href="introduction_$comp.html')}">$comp</a></li>
 EOF
-cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html << EOF
-<li><a href="/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html">$comp</a></li>
+		cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.html << EOF
+<li><a href="introduction_$comp.html">$comp</a></li>
 EOF
+done
+
 	else
 		echo '<div class="attribute-heading"><h1>'$comp'</h1></div>' > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
-		echo '<b>[ <a href="introduction_'$i'.html" class="menu">Introduction</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
+		echo '<b>[ <a href="introduction_'$i'.html" class="menu">Tutorial</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 		echo '<b>[ <a href="classtrees_'$i'.html" class="menu">Class tree</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 		echo '<b>[ <a href="elementindex_'$i'.html" class="menu">Element index</a> ]</b>' >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
 		echo "<h1>No introduction available for $comp</h1>" >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
-cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl << EOF
+	fi
+
+	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl << EOF
 <li><a href="{concat(\$indexDir, '/components/view/(file)/$1/classtrees_$comp.html')}">$comp</a></li>
 EOF
-cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html << EOF
+	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.html << EOF
 <li><a href="/components/phpdoc_gen/ezcomponents/$1/classtrees_$comp.html">$comp</a></li>
 EOF
-	fi
 done
 
 cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl << EOF
