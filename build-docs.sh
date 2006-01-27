@@ -79,7 +79,6 @@ EOF
 		cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/tutorials.html << EOF
 <li><a href="introduction_$comp.html">$comp</a></li>
 EOF
-done
 
 	else
 		echo '<div class="attribute-heading"><h1>'$comp'</h1></div>' > /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/introduction_$comp.html
