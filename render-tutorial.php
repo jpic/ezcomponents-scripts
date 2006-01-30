@@ -53,7 +53,7 @@ $version = $params->getOption( 'version' )->value;
 
 if ( $version == 'trunk' )
 {
-    $componentDir = "$component/trunk"
+    $componentDir = "$component/trunk";
 }
 else
 {
