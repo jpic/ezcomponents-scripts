@@ -50,7 +50,17 @@ catch ( ezcConsoleOptionException $e )
 
 $component = $params->getOption( 'component' )->value;
 $version = $params->getOption( 'version' )->value;
-$output = getRstOutput( $component );
+
+if ( $version == 'trunk' )
+{
+    $componentDir = "$component/trunk"
+}
+else
+{
+    $componentDir = "$component/releases/$version";
+}
+
+$output = getRstOutput( $componentDir );
 $output = removeHeaderFooter( $output );
 $output = addNewHeader( $component, $output );
 $output = addExampleLineNumbers( $output );
@@ -58,14 +68,13 @@ $output = addLinks( $component, $output, $version );
 
 $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
-
 // Copying images
 `mkdir -p $targetDir/img`;
-`cp $component/trunk/docs/img/*.* $targetDir/img/ 2>/dev/null`;
+`cp $componentDir/trunk/docs/img/*.* $targetDir/img/ 2>/dev/null`;
 
-function getRstOutput( $component )
+function getRstOutput( $componentDir )
 {
-    $fileName = "$component/trunk/docs/tutorial.txt";
+    $fileName = "$componentDir/docs/tutorial.txt";
     $output = shell_exec( "rst2html $fileName" );
     return $output;
 }
