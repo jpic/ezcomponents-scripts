@@ -110,6 +110,7 @@ cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.tpl
 <hr/>
 
 <ul>
+<li><a href="{concat(\$indexDir, '/components/view/(file)/$1/allclassesindex.html')}">All Classes</a></li>
 <li><a href="{concat(\$indexDir, '/components/view/(file)/$1/elementindex.html')}">All Elements</a></li>
 </ul>
 {/let}
@@ -123,6 +124,7 @@ cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$1/left_menu_comp.htm
 <hr/>
 
 <ul>
+<li><a href="/components/phpdoc_gen/ezcomponents/$1/allclassesindex.html">All Classes</a></li>
 <li><a href="/components/phpdoc_gen/ezcomponents/$1/elementindex.html">All Elements</a></li>
 </ul>
 

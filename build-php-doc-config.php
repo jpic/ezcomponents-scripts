@@ -43,7 +43,7 @@ target = /home/httpd/html/components/phpdoc_gen/ezcomponents/$version
 directory = $directories
 
 ignore = autoload/,*autoload.php,tests/,docs/
-output=HTML:Smarty:ezdocs
+output=HTML:ezComp:ezdocs
 sourcecode = on
 
 ECHOEND;
