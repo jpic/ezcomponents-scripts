@@ -138,16 +138,39 @@ function addExampleLineNumbers( $output )
     return preg_replace_callback( '@<pre class=\"literal-block\">(.+?)<\/pre>@ms', 'callbackAddLineNumbers', $output );
 }
 
+$lineNr = 0;
+
+function callbackAddLineNr( $args )
+{
+    global $lineNr;
+
+    $nrString = str_replace( ' ', '&nbsp;', sprintf( '%3d', $lineNr ) );
+    if ( $lineNr == 0 )
+    {
+        $val = '';
+    }
+    else
+    {
+        $val = $nrString . ". {$args[1]}<br />";
+    }
+    $lineNr++;
+    return $val;
+}
+
 function callbackAddLineNumbers( $args )
 {
+    global $lineNr;
+
+    $lineNr = 0;
+    
     if ( strstr( $args[1], '&lt;?php' ) !== false )
     {
-        $listing = '<div class="listing"><pre><ol>';
+        $listing = '<pre class="listing">';
         $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
-        $highlighted = preg_replace( '@^<code><span style="color: #000000">.<br />@ms', '<code>', $highlighted );
-        $highlighted = preg_replace( '@<br /></span>.</code>$@ms', "</code>", $highlighted );
-        $listing .= preg_replace( '@(.*?)<br />@ms', "<li>\\1</li>\n", $highlighted );
-        $listing .= '</ol></pre></div>';
+        $highlighted = preg_replace( '@^<code><span style="color: #000000">.<br />@ms', '<code><span><br />', $highlighted );
+        $highlighted = preg_replace( '@<br /></span>.</code>$@ms', "</span></code>", $highlighted );
+        $listing .= preg_replace_callback( '@(.*?)<br />@', "callbackAddLineNr", $highlighted );
+        $listing .= '</pre>';
         return $listing;
     } else {
         return $args[0];
