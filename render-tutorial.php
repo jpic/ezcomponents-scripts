@@ -70,7 +70,7 @@ $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
 // Copying images
 `mkdir -p $targetDir/img`;
-`cp $componentDir/trunk/docs/img/*.* $targetDir/img/ 2>/dev/null`;
+`cp $componentDir/docs/img/*.* $targetDir/img/ 2>/dev/null`;
 
 function getRstOutput( $componentDir )
 {
