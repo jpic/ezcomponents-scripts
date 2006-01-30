@@ -28,14 +28,17 @@ ini_set( 'highlight.comment', '#007700' );
 $params = new ezcConsoleInput();
 $componentOption = new ezcConsoleOption( 'c', 'component', ezcConsoleInput::TYPE_STRING );
 $componentOption->mandatory = true;
+$componentOption->shorthelp = "The name of the component.";
 $params->registerOption( $componentOption );
 
 $targetOption = new ezcConsoleOption( 't', 'target', ezcConsoleInput::TYPE_STRING );
 $targetOption->mandatory = true;
+$targetOption->shorthelp = "The directory to where the generated documentation should be written.";
 $params->registerOption( $targetOption );
 
 $versionOption = new ezcConsoleOption( 'v', 'version', ezcConsoleInput::TYPE_STRING );
 $versionOption->mandatory = true;
+$versionOption->shorthelp = "The version of the component that should be read. E.g. trunk, 1.0rc1, etc.";
 $params->registerOption( $versionOption );
 
 // Process console parameters
@@ -45,7 +48,17 @@ try
 }
 catch ( ezcConsoleOptionException $e )
 {
-    die( $e->getMessage(). "\n" );
+    print( $e->getMessage(). "\n" );
+    print( "\n" );
+
+    echo $params->getSynopsis() . "\n";
+    foreach ( $params->getOptions() as $option )
+    {
+        echo "-{$option->short}, --{$option->long}\t    {$option->shorthelp}\n";
+    }
+
+    echo "\n";
+    exit();
 }
 
 $component = $params->getOption( 'component' )->value;
