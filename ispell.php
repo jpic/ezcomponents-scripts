@@ -16,6 +16,11 @@ $file->shorthelp = "File that should be checked with ispell.";
 $file->mandatory = true;
 $params->registerOption( $file );
 
+$noBackup = new ezcConsoleOption( 'B', 'nobackup', ezcConsoleInput::TYPE_NONE );
+$noBackup->shorthelp = "Set this flag if no backup should be created.";
+$params->registerOption( $noBackup );
+
+
 try
 {
     $params->process();
@@ -34,7 +39,6 @@ catch ( ezcConsoleOptionException $e )
     exit();
 }
 
-
 // We should have a file name.
 $file = $params->getOption( "file" )->value;
 
@@ -43,7 +47,6 @@ if( $fp === false )
 {
     exit( "Couldn't open the file: $file" );
 }
-
 
 $ispell = new ISpell();
 $i = 0;
@@ -91,9 +94,11 @@ while( $sentence = fgets( $fp ) )
 
 fclose( $fp );
 
-
 // Backup
-copy( $file, $file.".bak" );
+if ( !$params->getOption( "nobackup" )->value )
+{
+    copy( $file, $file.".bak" );
+}
 
 $fp = fopen( "$file", "w" );
 
