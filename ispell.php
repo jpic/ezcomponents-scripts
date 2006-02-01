@@ -148,8 +148,6 @@ class ISpell
         {
             die ("Cannot open Ispell\n");
         }
-
-        fread( $this->pipes[1] , 1024); // read introduction, or anything and ignore.
     }
 
     public function __destruct()
@@ -167,6 +165,7 @@ class ISpell
     {
         $newSentence = "";
 
+        $read = fread( $this->pipes[1] , 1024); // read introduction, or anything and ignore.
         fwrite( $this->pipes[0], "$sentence\n" ); // write the sentence to ispell.
 
         $prefPos = 0;
