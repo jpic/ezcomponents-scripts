@@ -20,6 +20,10 @@ $noBackup = new ezcConsoleOption( 'B', 'nobackup', ezcConsoleInput::TYPE_NONE );
 $noBackup->shorthelp = "Set this flag if no backup should be created.";
 $params->registerOption( $noBackup );
 
+$skipComponent = new ezcConsoleOption( 'c', 'check_component_words', ezcConsoleInput::TYPE_NONE );
+$skipComponent->shorthelp = "Set this flag if the component words (like ezcArchive, ezcConsoleTools, etc) should be checked.";
+$params->registerOption( $skipComponent );
+
 
 try
 {
@@ -41,6 +45,7 @@ catch ( ezcConsoleOptionException $e )
 
 // We should have a file name.
 $file = $params->getOption( "file" )->value;
+$checkComponentWords = $params->getOption( "check_component_words" )->value;
 
 $fp = fopen( $file, "r" );
 if( $fp === false )
@@ -82,7 +87,7 @@ while( $sentence = fgets( $fp ) )
             $pos = strpos( $sentence, "*" ) + 1;
 
             $testForSpelling = substr( $sentence, $pos );
-            $correct = $ispell->check( $testForSpelling ); 
+            $correct = $ispell->check( $testForSpelling, !$checkComponentWords ); 
 
             $sentence = substr( $sentence, 0, $pos ) . $correct;
         }
@@ -143,6 +148,8 @@ class ISpell
         {
             die ("Cannot open Ispell\n");
         }
+
+        fread( $this->pipes[1] , 1024); // read introduction, or anything and ignore.
     }
 
     public function __destruct()
@@ -156,11 +163,10 @@ class ISpell
      * 
      * This function requires input from the user.
      */
-    public function check( $sentence )
+    public function check( $sentence, $skipComponentWords = true )
     {
         $newSentence = "";
 
-        fread( $this->pipes[1] , 1024); // read introduction, or anything and ignore.
         fwrite( $this->pipes[0], "$sentence\n" ); // write the sentence to ispell.
 
         $prefPos = 0;
@@ -173,14 +179,17 @@ class ISpell
             {
                 list( $word, $position, $suggestions ) = $this->parseResult( $result );
 
-                $this->showHelp( $sentence, $word, $position, $suggestions );
-                $line = $this->getCorrection();
-
-                // Update the word, if something is filled in.
-                if( $line != "" )
+                if( !( $skipComponentWords && preg_match( "@^ezc[A-Z]@", $word ) ) )
                 {
-                    $newSentence .= substr( $sentence, $prefPos, $position - $prefPos ) .  $line;
-                    $prefPos = $position + strlen( $word );
+                    $this->showHelp( $sentence, $word, $position, $suggestions );
+                    $line = $this->getCorrection();
+
+                    // Update the word, if something is filled in.
+                    if( $line != "" )
+                    {
+                        $newSentence .= substr( $sentence, $prefPos, $position - $prefPos ) .  $line;
+                        $prefPos = $position + strlen( $word );
+                    }
                 }
             }
         }
