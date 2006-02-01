@@ -20,9 +20,13 @@ $noBackup = new ezcConsoleOption( 'B', 'nobackup', ezcConsoleInput::TYPE_NONE );
 $noBackup->shorthelp = "Set this flag if no backup should be created.";
 $params->registerOption( $noBackup );
 
-$skipComponent = new ezcConsoleOption( 'c', 'check_component_words', ezcConsoleInput::TYPE_NONE );
-$skipComponent->shorthelp = "Set this flag if the component words (like ezcArchive, ezcConsoleTools, etc) should be checked.";
-$params->registerOption( $skipComponent );
+$checkComponentWords = new ezcConsoleOption( 'c', 'check_component_words', ezcConsoleInput::TYPE_NONE );
+$checkComponentWords->shorthelp = "Set this flag if the component words (like ezcArchive, ezcConsoleTools, etc) should be checked.";
+$params->registerOption( $checkComponentWords );
+
+$personalDictionary = new ezcConsoleOption( 'p', 'personal_dictionary', ezcConsoleInput::TYPE_STRING );
+$personalDictionary->shorthelp = "Set a personal dictionary";
+$params->registerOption( $personalDictionary );
 
 
 try
@@ -46,6 +50,8 @@ catch ( ezcConsoleOptionException $e )
 // We should have a file name.
 $file = $params->getOption( "file" )->value;
 $checkComponentWords = $params->getOption( "check_component_words" )->value;
+$personalDictionary = $params->getOption( "personal_dictionary" )->value;
+if( $personalDictionary == false ) $personalDictionary = null;
 
 $fp = fopen( $file, "r" );
 if( $fp === false )
@@ -53,7 +59,7 @@ if( $fp === false )
     exit( "Couldn't open the file: $file" );
 }
 
-$ispell = new ISpell();
+$ispell = new ISpell( $personalDictionary );
 $i = 0;
 
 $inDocBlock = false;
@@ -132,7 +138,7 @@ class ISpell
     private $ispell;
 
 
-    public function __construct()
+    public function __construct( $personalDictionary = null )
     {
         $this->stdin = fopen("php://stdin","r");
 
@@ -140,9 +146,11 @@ class ISpell
             0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
             1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
             2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
-         );
+        );
 
-        $this->ispell = proc_open( '/usr/bin/ispell -a', $descriptorspec, $this->pipes ); 
+        $personalDictionary = ( $personalDictionary === null ? "" : "-p $personalDictionary" ); 
+
+        $this->ispell = proc_open( "/usr/bin/ispell -a $personalDictionary", $descriptorspec, $this->pipes ); 
 
         if ( !is_resource( $this->ispell ) ) 
         {
@@ -186,8 +194,17 @@ class ISpell
                     // Update the word, if something is filled in.
                     if( $line != "" )
                     {
-                        $newSentence .= substr( $sentence, $prefPos, $position - $prefPos ) .  $line;
-                        $prefPos = $position + strlen( $word );
+                        // Add to the private dictionary
+                        if( $line == "*" )
+                        {
+                            fwrite( $this->pipes[0], "*$word\n" ); // write the sentence to ispell.
+                            echo ("WORD APPENDED");
+                        }
+                        else
+                        {
+                            $newSentence .= substr( $sentence, $prefPos, $position - $prefPos ) .  $line;
+                            $prefPos = $position + strlen( $word );
+                        }
                     }
                 }
             }
