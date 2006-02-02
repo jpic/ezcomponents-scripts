@@ -1,4 +1,12 @@
 <?php
+/*
+ * TODO:
+ * - To check a sentence in the spell checker, it should not start with @*-+&, etc Insert a space there. 
+ * - @package, @return, etc can be checked because either: @ is ignored, or @package can be inserted in the personal dictionary.
+ * - A star (*) saves the word in the personal dictionary. This behavior is not documented. (Update the user interface)
+ * - If <code> or <pre> is used, is should search for the closing tag, not until the end of the docblock.
+ * - Sometimes the script hangs (after the first sentence).
+ */ 
 
 include ( "packages/Base/trunk/src/base.php" );
 function __autoload( $class_name )
