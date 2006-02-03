@@ -167,17 +167,12 @@ function callbackAddLineNumbers( $args )
     {
         $listing = '<pre class="listing">';
         $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
-        echo "\n\n";
         $highlighted = preg_replace( '@^<code><span style="color: #000000">.<br />@ms', '<code><br />', $highlighted );
-//        $highlighted = preg_replace( '@<span style="color: #([0-9A-F]+)">(.+?)((<br\ />)+)</span>@ms', '<span style="color: #\1">\2</span>\3', $highlighted );
         $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.*?)((<br />)+)(.*?)(</span>)@ms', '\1\2\6\3\1\5\6', $highlighted );
-        var_dump( str_replace( '<br />', "<br />\n", $highlighted ) );
         $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.+?)(<br />)(</span>)@ms', '\1\2\4\3', $highlighted );
-        var_dump( str_replace( '<br />', "<br />\n", $highlighted ) );
         $highlighted = preg_replace( '@<span style="color: #[0-9A-F]+"></span>@', '', $highlighted );
         $highlighted = preg_replace( '@<br /></span>.</code>$@ms', "</code>", $highlighted );
         $highlighted = preg_replace_callback( '@(.*?)<br />@', "callbackAddLineNr", $highlighted );
-//        die();
         $listing .= $highlighted . '</pre>';
         return $listing;
     } else {
