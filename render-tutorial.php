@@ -78,6 +78,7 @@ $output = removeHeaderFooter( $output );
 $output = addNewHeader( $component, $output );
 $output = addExampleLineNumbers( $output );
 $output = addLinks( $component, $output, $version );
+$output = addNewFooter( $output );
 
 $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
@@ -98,6 +99,11 @@ function removeHeaderFooter( $output )
     $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@', '', $output );
     $output = preg_replace( '@<\/body>.*@ms', '', $output );
     return $output;
+}
+
+function addNewFooter( $output )
+{
+    return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div>";
 }
 
 function addNewHeader( $component, $output )

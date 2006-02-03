@@ -1,13 +1,17 @@
 <?php
 include 'scripts/get-packages-for-version.php';
 
-if ( $argc != 2 )
+if ( $argc < 2 )
 {
-    echo "Usage:\n\tscripts/package.php <version>\n\tscripts/package.php 1.0beta1\n\n";
+    echo "Usage:\n\tscripts/build-php-doc-config.php <targetversion> <releaseversion>\n\tscripts/package.php 1.0beta1 trunk\n\n";
     die();
 }
-$version = $argv[1];
-$fileName = "releases/$version";
+$targetversion = $releaseversion = $argv[1];
+if ( $argc == 3 )
+{
+    $releaseversion = $argv[2];
+}
+$fileName = "releases/$releaseversion";
 if ( !file_exists( "$fileName" ) )
 {
     echo "The releases file <$fileName> does not exist!\n\n";
@@ -39,7 +43,7 @@ javadocdesc = off
 defaultcategoryname = NoCategoryName
 defaultpackagename = NoPackageName
 
-target = /home/httpd/html/components/phpdoc_gen/ezcomponents/$version
+target = /home/httpd/html/components/phpdoc_gen/ezcomponents/$targetversion
 directory = $directories
 
 ignore = autoload/,*autoload.php,tests/,docs/

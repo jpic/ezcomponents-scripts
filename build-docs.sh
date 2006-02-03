@@ -18,7 +18,7 @@ fi
 j=`php scripts/list-export-dirs.php $release`
 
 echo "Writing config file"
-php scripts/build-php-doc-config.php $release > /tmp/doc-components.ini || exit 1
+php scripts/build-php-doc-config.php $writeas $release > /tmp/doc-components.ini || exit 1
 
 rm -rf /home/httpd/ezcomponents.docfix || exit 1
 cd /home/httpd || exit 2
