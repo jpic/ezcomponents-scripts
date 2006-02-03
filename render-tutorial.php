@@ -177,7 +177,7 @@ function callbackAddLineNumbers( $args )
         $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.*?)((<br />)+)(.*?)(</span>)@ms', '\1\2\6\3\1\5\6', $highlighted );
         $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.+?)(<br />)(</span>)@ms', '\1\2\4\3', $highlighted );
         $highlighted = preg_replace( '@<span style="color: #[0-9A-F]+"></span>@', '', $highlighted );
-        $highlighted = preg_replace( '@<br /></span>.</code>$@ms', "</code>", $highlighted );
+        $highlighted = preg_replace( '@</span><br />.</code>$@ms', "</code>", $highlighted );
         $highlighted = preg_replace_callback( '@(.*?)<br />@', "callbackAddLineNr", $highlighted );
         $listing .= $highlighted . '</pre>';
         return $listing;
