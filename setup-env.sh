@@ -9,7 +9,7 @@ else
 	mkdir autoload
 fi
 
-for i in `find . -name \*_autoload.php`; do
+for i in `find . -name \*_autoload.php | grep -v tutorial_autoload.php`; do
 	p=`echo $i | cut -d / -f 2`;
 	r=`echo $i | cut -d / -f 3`;
 
