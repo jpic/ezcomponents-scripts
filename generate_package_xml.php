@@ -150,7 +150,7 @@ class ezcPackageManager
                 break;
             default:
                 $version = $this->input->getOption( 'v' )->value;
-                if ( !preg_match( '/([0-9]+\.[0-9]+(\.|beta|rc)[0-9]+)|trunk/', $version ) )
+                if ( !preg_match( '/([0-9]+\.[0-9]+(\.|beta|rc)[0-9]+)?|trunk/', $version ) )
                 {
                     $this->raiseError( "Invalid version number <{$version}>, must be in format <x.y[state[z]]> or <trunk>." );
                 }
@@ -717,8 +717,9 @@ class ezcPackageManager
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         }
 
+        `cd /tmp; pear package {$path}/package.xml; cd -`;
         $this->output->outputLine();
-        $this->output->outputLine( "Finished processing. You can now do <$ cd /tmp; pear package {$path}/package.xml; cd - >.", 'success' );
+        $this->output->outputLine( "Finished processing. You can find the release in /tmp.", 'success' );
         $this->output->outputLine();
         $this->output->outputLine();
     }
