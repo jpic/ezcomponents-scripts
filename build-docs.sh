@@ -29,6 +29,7 @@ for i in $j; do
 done
 echo "Checking out scripts"
 svn co -q http://svn.ez.no/svn/ezcomponents/scripts ezcomponents.docfix/scripts || exit 3
+svn co -q http://svn.ez.no/svn/ezcomponents/docs ezcomponents.docfix/docs || exit 3
 
 cd ezcomponents.docfix || exit 4
 echo "Removing 'array' keyword because of a bug in phpdoc"
@@ -37,13 +38,16 @@ rm -rf /home/httpd/html/components/phpdoc_gen || exit 6
 rm -rf /home/httpd/html/components/cdocs.tgz || exit 7
 mkdir -p /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas || exit 8
 
+echo "Copying overview"
+cp docs/overview.tpl /home/httpd/html/components/phpdoc_gen/ezcomponents || 12
+
 echo "Running php documentor"
 /usr/local/bin/phpdoc -q -c /tmp/doc-components.ini | grep -v Ignored || exit 8
 ./scripts/setup-env.sh
 cd packages
 
 echo "Writing left_menu_comp.tpl"
-cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/left_menu_comp.tpl << EOF
+cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << EOF
 <div class="attribute-heading">
 <h2 class="bullet">eZ components</h2>
 </div>
@@ -109,7 +113,7 @@ EOF
 		echo "<h1>No introduction available for $comp</h1>" >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/introduction_$comp.html
 	fi
 
-	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/left_menu_comp.tpl << EOF
+	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << EOF
 <li><a href="{concat(\$indexDir, '/components/view/(file)/$writeas/classtrees_$comp.html')}">$comp</a></li>
 EOF
 	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/left_menu_comp.html << EOF
@@ -117,7 +121,7 @@ EOF
 EOF
 done
 
-cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/left_menu_comp.tpl << EOF
+cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << EOF
 </ul>
 <hr/>
 
