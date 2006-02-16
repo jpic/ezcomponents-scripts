@@ -7,7 +7,7 @@ if ( $argc != 2 )
     die();
 }
 $version = $argv[1];
-$fileName = "releases/$version";
+$fileName = "release-info/$version";
 if ( !file_exists( "$fileName" ) )
 {
     echo "The releases file <$fileName> does not exist!\n\n";
@@ -22,9 +22,12 @@ foreach ( $elements as $component => $componentVersion )
 {
     if ( $componentVersion != 'trunk' )
     {
-        $componentVersion = "releases/$componentVersion";
+        echo "releases/$component/$componentVersion\n";
     }
-    echo "$component/$componentVersion\n";
+    else
+    {
+        echo "trunk/$component\n";
+    }
 }
 
 ?>

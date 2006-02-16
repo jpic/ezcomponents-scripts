@@ -11,7 +11,7 @@ if ( $argc == 3 )
 {
     $releaseversion = $argv[2];
 }
-$fileName = "releases/$releaseversion";
+$fileName = "release-info/$releaseversion";
 if ( !file_exists( "$fileName" ) )
 {
     echo "The releases file <$fileName> does not exist!\n\n";
@@ -26,9 +26,13 @@ foreach ( $elements as $component => $componentVersion )
 {
     if ( $componentVersion != 'trunk' )
     {
-        $componentVersion = "releases/$componentVersion";
+        $componentVersion = "releases/$component/$componentVersion";
     }
-    $directories .= "/home/httpd/ezcomponents.docfix/packages/$component/$componentVersion,";
+    else
+    {
+        $componentVersion = "trunk/$component";
+    }
+    $directories .= "/home/httpd/ezcomponents.docfix/$componentVersion,";
 }
 
 // strip last ,

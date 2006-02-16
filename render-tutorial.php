@@ -2,7 +2,7 @@
 /**
  * Load the base package to boot strap the autoloading
  */
-require_once 'Base/trunk/src/base.php';
+require_once 'trunk/Base/src/base.php';
 
 // {{{ __autoload()
 
@@ -66,11 +66,11 @@ $version = $params->getOption( 'version' )->value;
 
 if ( $version == 'trunk' )
 {
-    $componentDir = "$component/trunk";
+    $componentDir = "trunk/$component";
 }
 else
 {
-    $componentDir = "$component/releases/$version";
+    $componentDir = "releases/$component/$version";
 }
 
 $output = getRstOutput( $componentDir );

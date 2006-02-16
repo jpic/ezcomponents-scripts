@@ -22,10 +22,11 @@ php scripts/build-php-doc-config.php $writeas $release > /tmp/doc-components.ini
 
 rm -rf /home/httpd/ezcomponents.docfix || exit 1
 cd /home/httpd || exit 2
+
 for i in $j; do
 	echo "Checking out $i"
-	svn co -q http://svn.ez.no/svn/ezcomponents/packages/$i/src ezcomponents.docfix/packages/$i/src || exit 3
-	svn co -q http://svn.ez.no/svn/ezcomponents/packages/$i/docs ezcomponents.docfix/packages/$i/docs || exit 3
+	svn co -q http://svn.ez.no/svn/ezcomponents/$i/src ezcomponents.docfix/$i/src || exit 3
+	svn co -q http://svn.ez.no/svn/ezcomponents/$i/docs ezcomponents.docfix/$i/docs || exit 3
 done
 echo "Checking out scripts"
 svn co -q http://svn.ez.no/svn/ezcomponents/scripts ezcomponents.docfix/scripts || exit 3
@@ -44,7 +45,6 @@ cp docs/overview.tpl /home/httpd/html/components/phpdoc_gen/ezcomponents || 12
 echo "Running php documentor"
 /usr/local/bin/phpdoc -q -c /tmp/doc-components.ini | grep -v Ignored || exit 8
 ./scripts/setup-env.sh
-cd packages
 
 echo "Writing left_menu_comp.tpl"
 cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << EOF
@@ -92,11 +92,11 @@ EOF
 cp /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/tutorials.tpl /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/tutorials.html
 
 for i in $j; do
-	comp=`echo $i | cut -d / -f 1`
+	comp=`echo $i | cut -d / -f 2`
 	if test -f $i/docs/tutorial.txt; then
-		version=`echo "$i" | php -r '$f =file_get_contents("php://stdin"); echo join ("", array_slice( explode( "/", $f ), -1 ) );'`
+		version=`echo "$i" | sed "s/\/$comp//"`
 		echo "* $comp ($version)"
-		php ../scripts/render-tutorial.php -c $comp -t /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas -v $version
+		php scripts/render-tutorial.php -c $comp -t /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas -v $version
 
 		cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/$writeas/tutorials.tpl << EOF
 <li><a href="introduction_$comp.html')}">$comp</a></li>
