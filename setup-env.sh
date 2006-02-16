@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd packages
+cd trunk
 
 if test -d autoload; then
 	echo "Autoload directory exists."
