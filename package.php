@@ -8,7 +8,7 @@ if ( $argc != 2 )
     die();
 }
 $version = $argv[1];
-$fileName = "releases/$version";
+$fileName = "release-info/$version";
 if ( !file_exists( "$fileName" ) )
 {
     echo "The releases file <$fileName> does not exist!\n\n";
@@ -65,7 +65,7 @@ function addPackage( $packageDir, $name, $version )
 {
     echo sprintf( '* %-20s %-8s: ', $name, $version );
     
-    $dirName = "packages/$name/releases/$version";
+    $dirName = "releases/$name/$version";
     if ( !is_dir( $dirName ) )
     {
         echo "release directory not found\n";
@@ -75,7 +75,7 @@ function addPackage( $packageDir, $name, $version )
 
     /* exporting */
     echo "E ";
-    `svn export http://svn.ez.no/svn/ezcomponents/packages/$name/releases/$version $packageDir/$name`;
+    `svn export http://svn.ez.no/svn/ezcomponents/releases/$name/$version $packageDir/$name`;
 
     /* remove crappy files */
     echo "RR ";
