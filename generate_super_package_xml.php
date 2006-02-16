@@ -7,7 +7,7 @@ define( 'PACKAGE_SUMMARY',      'Super package to install a complete release of 
 define( 'PACKAGE_DESCRIPTION',  'This super package provides dependencies to every other eZ Enterprise Component to install those all at once. To perform this, simply do <$ pear install -a ' . PACKAGE_NAME . '>.');
 define( 'PACKAGE_LICENSE',      'New BSD');
 
-$releasesPath = realpath( '.' . DIRECTORY_SEPARATOR . 'releases' );
+$releasesPath = realpath( '.' . DIRECTORY_SEPARATOR . 'release-info' );
 
 /**
  * Package file manager for package.xml 2.
@@ -21,7 +21,8 @@ require_once 'PEAR/PackageFileManager2.php';
  */
 function __autoload( $class_name )
 {
-    require_once("packages/Base/trunk/src/base.php");
+    require_once("trunk/Base/src/base.php");
+    /*
     if ( strpos( $class_name, "_" ) !== false )
     {
         $file = str_replace( "_", "/", $class_name ) . ".php";
@@ -30,6 +31,7 @@ function __autoload( $class_name )
             return true;
         return false;
     }
+    */
     ezcBase::autoload( $class_name );
 }
 

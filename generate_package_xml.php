@@ -21,12 +21,12 @@ require_once 'PEAR/PackageFileManager2.php';
 /**
  * Load the base package to boot strap the autoloading
  */
-require_once 'Base/trunk/src/base.php';
+require_once 'trunk/Base/src/base.php';
 
 /**
  * Helper file for revision files
  */
-require_once '../scripts/get-packages-for-version.php';
+require_once 'scripts/get-packages-for-version.php';
 
 // {{{ __autoload()
 
@@ -37,15 +37,7 @@ require_once '../scripts/get-packages-for-version.php';
  */
 function __autoload( $class_name )
 {
-    if ( ezcBase::autoload( $class_name ) )
-    {
-        return;
-    }
-    if ( strpos( $class_name, '_' ) !== false )
-    {
-        $file = str_replace( '_', '/', $class_name ) . '.php';
-        require_once( $file );
-    }
+    ezcBase::autoload( $class_name );
 }
 
 // }}}
@@ -154,7 +146,15 @@ class ezcPackageManager
                 {
                     $this->raiseError( "Invalid version number <{$version}>, must be in format <x.y[state[z]]> or <trunk>." );
                 }
-                $this->paths['package'] = realpath( $this->input->getOption( 'p' )->value );
+                if ( $version == 'trunk' )
+                {
+                    $packageDir = 'trunk';
+                }
+                else
+                {
+                    $packageDir = 'releases';
+                }
+                $this->paths['package'] = realpath( "$packageDir/" . $this->input->getOption( 'p' )->value );
                 $this->paths['install'] = '/tmp/ezc/' . $this->input->getOption( 'p' )->value;
                 if ( is_dir( $this->paths['install'] ) )
                 {
@@ -301,9 +301,9 @@ class ezcPackageManager
      * @param string $path Path to package base directory.
      * @return array Array with package descriptions (0=>short, 1=>long).
      */
-    protected function grabReadme()
+    protected function grabReadme( $version = null )
     {
-        $readmePath = $this->paths['package'] . '/trunk/DESCRIPTION';
+        $readmePath = $this->paths['package'] . "$version/DESCRIPTION";
         if ( !is_file( $readmePath ) || !is_readable( $readmePath ) )
         {
             $this->raiseError( 'Could not find README file <'.$readmePath.'>.' );
@@ -328,12 +328,12 @@ class ezcPackageManager
     {
         if ( $version == 'trunk' )
         {
-            $changelogPath = $this->paths['package'] . '/trunk/ChangeLog';
+            $changelogPath = $this->paths['package'] . '/ChangeLog';
             $versionString = "[012]\.[0-9](.*)";
         }
         else
         {
-            $changelogPath = $this->paths['package'] . '/releases/' . $version . '/ChangeLog';
+            $changelogPath = $this->paths['package'] . "/$version/ChangeLog";
             $versionString = preg_quote( $version );
         }
         if ( !is_file( $changelogPath ) || !is_readable( $changelogPath ) )
@@ -463,11 +463,11 @@ class ezcPackageManager
         $installDir = $this->paths['install'];
         if ( $version == 'trunk' )
         {
-            $packageDir = $this->paths['package'] . '/trunk';
+            $packageDir = $this->paths['package'];
         }
         else
         {
-            $packageDir = $this->paths['package'] . '/releases/' . $version;
+            $packageDir = $this->paths['package'] . "/$version";
         }
 
         // directory paths which have to be really created
@@ -498,7 +498,7 @@ class ezcPackageManager
         }
         else
         {
-            $linkPaths[$installDir . '/docs/LICENSE'] = $packageDir . '/../../../../LICENSE';
+            $linkPaths[$installDir . '/docs/LICENSE'] = $packageDir . '/../../../LICENSE';
         }
         $linkPaths[$installDir . '/docs/CREDITS'] = $packageDir . '/CREDITS';
         
@@ -577,9 +577,11 @@ class ezcPackageManager
         }
         
         if ( !in_array( $state, $this->validStates ) )
+        {
             $this->raiseError( 'Invalid package state: <'.$state.'>.' );
+        }
         
-        $info = $this->grabReadme( $packageDir );
+        $info = $this->grabReadme( $version == 'trunk' ? '' : "/$version" );
 
         $descShort = $info[0];
         $descLong  = $info[1];

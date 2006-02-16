@@ -5,15 +5,15 @@
 
 exec > docs/website/components_descriptions_marketing.txt
 
-for i in packages/*; do
-	packagename=`echo $i | sed 's/packages\///'`
+for i in trunk/*; do
+	packagename=`echo $i | sed 's/trunk\///'`
 	if test $packagename == 'autoload'; then
 		continue;
 	fi
-	if test -f $i/trunk/DESCRIPTION; then
+	if test -f $i/DESCRIPTION; then
 		echo $packagename;
 
-		cat $i/trunk/DESCRIPTION
+		cat $i/DESCRIPTION
 		echo
 	fi
 done
