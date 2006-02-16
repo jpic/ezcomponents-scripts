@@ -15,7 +15,7 @@ for i in `find . -name \*_autoload.php | grep -v tutorial_autoload.php`; do
 
 	if test ! $p == "autoload"; then
 		if test ! $r == "releases"; then
-			b=`echo $i | cut -d / -f 5`
+			b=`echo $i | cut -d / -f 4`
 			if test -L autoload/$b; then
 				echo "Symlink for $b to $i exists."
 			else
