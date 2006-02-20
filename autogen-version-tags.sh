@@ -5,7 +5,7 @@
 #   releases/<packagename>/<version> directory.
 
 version=`pwd | sed 's/.*\///g'`
-comp=`pwd | cut -d / -f 2`
+comp=`pwd | cut -d / -f 6`
 
 echo $version
 
