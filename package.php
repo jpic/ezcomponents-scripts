@@ -21,6 +21,8 @@ $packageDir = $basePackageDir . "/ezcomponents-$version";
 $packageList = array();
 
 mkdir( $packageDir, 0777, true );
+
+grabChangelog( $fileName, $packageDir );
 addPackages( $fileName, $packageDir );
 setupAutoload( $packageDir, $packageList );
 addAditionalFiles( $packageDir, $packageList );
@@ -42,23 +44,29 @@ echo "scp-ing to tequila: ";
 echo "Done\n\n";
 `rm -rf $basePackageDir`;
 
-function addPackages( $fileName, $packageDir )
+function grabChangelog( $fileName, $packageDir )
 {
     // Open ChangeLog file
     $fp = fopen( "$packageDir/ChangeLog", "w" );
+    
+    $cl = file( $fileName );
+    $i = 2;
+    do {
+        fwrite( $fp, $cl[$i] );
+        $i++; 
+    } while ( $cl[$i] != "PACKAGES\n" );
+    fclose( $fp );
+}
+
+function addPackages( $fileName, $packageDir )
+{
     echo "Exporting packages from SVN: \n";
 
     $elements = fetchVersionsFromReleaseFile( $fileName );
     foreach ( $elements as $component => $versionNr )
     {
-        $changeLog = addPackage( $packageDir, $component, $versionNr );
-        $title = "Component: {$component}";
-        $titleHeader = str_repeat( '=', strlen( $title ) );
-        fwrite( $fp, "$titleHeader\n$title\n$titleHeader\n" );
-        fwrite( $fp, $changeLog );
-        fwrite( $fp, "\n\n" );
+        addPackage( $packageDir, $component, $versionNr );
     }
-    fclose( $fp );
 }
 
 function addPackage( $packageDir, $name, $version )
@@ -81,16 +89,11 @@ function addPackage( $packageDir, $name, $version )
     echo "RR ";
     @unlink( "$packageDir/$name/review.txt" );
 
-    /* grab changelog */
-    echo "C ";
-    $changelog = grabChangelog( "$packageDir/$name/ChangeLog", $version );
-
     /* remove design directory */
     echo "RD ";
     `rm -rf "$packageDir/$name/design"`;
     
     echo "Done\n";
-    return $changelog;
 }
 
 function setupAutoload( $packageDir, $packageList )
@@ -140,31 +143,4 @@ function setBaseNonDevel( $packageDir )
     echo "Done\n";
 }
 
-function grabChangelog( $path, $version )
-{
-    $data = array();
-    $data = file( $path );
-    $changelogData = array();
-    $versionFound = false;
-    foreach ( $data as $line )
-    {
-        $versionString = preg_quote( $version );
-        if ( $versionFound && preg_match( "@^[012]\.[0-9](.+)\s-\s([A-Z][a-z]+)|(\[RELEASEDATE\])@", $line ) )
-        {
-            $versionFound = false;
-        }
-        if ( preg_match( "@^$versionString\s-\s@", $line ) )
-        {
-            $versionFound = true;
-        }
-        if ( $versionFound )
-        {
-            $changelogData[] = $line;
-        }
-    }
-    // Remove version string from text itself
-    unset( $changelogData[0] );
-    unset( $changelogData[1] );
-    return "\n" . trim( implode( '', $changelogData ) ) . "\n";
-}
 ?>
