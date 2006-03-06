@@ -52,7 +52,7 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.html <<
 <ul>
 EOF
 
-for release in "trunk latest $@"; do
+for release in trunk latest $@; do
 
 mkdir -p /home/httpd/html/components/phpdoc_gen/ezcomponents/$release
 
