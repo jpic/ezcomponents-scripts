@@ -123,7 +123,7 @@ FOO;
 
 function addLinks( $component, $output, $version )
 {
-//    $base = "http://ez.no/doc/components/view/(file)/$version/$component/";
+//    $base = "http://ez.no/doc/components/view/$version/(file)/$component/";
     $base = "$component/";
 
     $output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
