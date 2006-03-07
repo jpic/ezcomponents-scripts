@@ -230,7 +230,7 @@ cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.html <
 </div>
 EOF
 
-cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/index.php <<
+cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/index.php << EOF
 <?php
 include 'overview.tpl';
 ?>
