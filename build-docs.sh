@@ -29,7 +29,7 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << 
 <h2>Getting Started</h2>
 <ul>
 <li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
-<li><a href="{concat(\$indexDir, '/components/view/(file)/latest/tutorials.html')}">Tutorials</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/latest/(file)/tutorials.html')}">Tutorials</a></li>
 </ul>
 
 <h2>Versions</h2>
@@ -60,7 +60,7 @@ if test ! $release == "trunk";
 then
 	echo "Update main index file"
 	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.tpl << EOF
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$release/')}">eZ components $release</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/')}">eZ components $release</a></li>
 EOF
 	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp.html << EOF
 <li><a href="/components/phpdoc_gen/ezcomponents/$release/">eZ components $release</a></li>
@@ -108,7 +108,7 @@ cat > /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp_$releas
 <h2>Getting Started</h2>
 <ul>
 <li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$release/tutorials.html')}">Tutorials</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/tutorials.html')}">Tutorials</a></li>
 </ul>
 
 <h2>Components</h2>
@@ -172,7 +172,7 @@ EOF
 	fi
 
 	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp_$release.tpl << EOF
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$release/classtrees_$comp.html')}">$comp</a> ($version)</li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/classtrees_$comp.html')}">$comp</a> ($version)</li>
 EOF
 	cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp_$release.html << EOF
 <li><a href="/components/phpdoc_gen/ezcomponents/$release/classtrees_$comp.html">$comp</a> ($version)</li>
@@ -184,8 +184,8 @@ cat >> /home/httpd/html/components/phpdoc_gen/ezcomponents/left_menu_comp_$relea
 <hr/>
 
 <ul>
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$release/allclassesindex.html')}">All Classes</a></li>
-<li><a href="{concat(\$indexDir, '/components/view/(file)/$release/elementindex.html')}">All Elements</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/allclassesindex.html')}">All Classes</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/elementindex.html')}">All Elements</a></li>
 </ul>
 {/let}
 
