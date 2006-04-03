@@ -547,6 +547,10 @@ class ezcPackageManager
 
     private function guessFromVersion( $version )
     {
+        if ( preg_match( '@alpha@', $version ) )
+        {
+            return 'alpha';
+        }
         if ( preg_match( '@beta|rc|trunk@', $version ) )
         {
             return 'beta';
@@ -651,7 +655,7 @@ class ezcPackageManager
         $e = $pkg->setReleaseStability( $state );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
-        $e = $pkg->setAPIStability( 'stable' );
+        $e = $pkg->setAPIStability( $state );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
         $e = $pkg->setReleaseVersion( $version );
