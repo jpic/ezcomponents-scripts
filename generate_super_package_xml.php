@@ -22,7 +22,7 @@ require_once 'PEAR/PackageFileManager2.php';
 function __autoload( $class_name )
 {
     require_once("trunk/Base/src/base.php");
-    /*
+
     if ( strpos( $class_name, "_" ) !== false )
     {
         $file = str_replace( "_", "/", $class_name ) . ".php";
@@ -31,7 +31,7 @@ function __autoload( $class_name )
             return true;
         return false;
     }
-    */
+
     ezcBase::autoload( $class_name );
 }
 
