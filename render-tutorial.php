@@ -126,16 +126,16 @@ function addLinks( $component, $output, $version )
 //    $base = "http://ez.no/doc/components/view/$version/(file)/$component/";
     $base = "$component/";
 
-    $output = preg_replace( '@(ezc[A-Z][a-zA-Z]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\3'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)::([A-Z_]+)\\b@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
+    $output = preg_replace( '@(ezc[A-Z][a-zA-Z0-9]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\3'>\\0</a>", $output );
+    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Z_]+)\\b@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
+    $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z0-9]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
     $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Z_]+)@", "<a href='{$base}\\1.html#const\\3'>\\1::\\3</a>", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</li>)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-Z]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Za-z]+)(</span>)@", "\\1<a href='{$base}\\2.html#\\4'>\\2::\\4</a>\\5", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z]+Exception)(\&nbsp;\\$)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</li>)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-Z]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Za-z]+)(</span>)@", "\\1<a href='{$base}\\2.html#\\4'>\\2::\\4</a>\\5", $output );
+    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+Exception)(\&nbsp;\\$)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
     return $output;
 }
 

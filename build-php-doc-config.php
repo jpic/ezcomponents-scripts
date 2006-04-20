@@ -32,7 +32,7 @@ foreach ( $elements as $component => $componentVersion )
     {
         $componentVersion = "trunk/$component";
     }
-    $directories .= "/home/httpd/ezcomponents.docfix/$componentVersion,";
+    $directories .= "/home/httpd/ezcomponents/$componentVersion,";
 }
 
 // strip last ,
