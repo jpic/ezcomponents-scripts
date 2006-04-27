@@ -154,6 +154,16 @@ EOF
 <li><a href="introduction_$comp.html">$comp</a></li>
 EOF
 
+# Add extra docs for tutorials
+		for t in $i/docs/*.txt; do
+		echo $t
+			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
+			if test $output_name != "tutorial.html"; then
+				echo "- Rendering extra doc '$output_name' to ${DOC_OUTPUT_DIR}/$release/${comp}_${output_name}"
+				rst2html $t > ${DOC_OUTPUT_DIR}/$release/${comp}_${output_name}
+			fi
+		done
+
 	else
 		echo '<div class="attribute-heading"><h1>'$comp'</h1></div>' > ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo '<b>[ <a href="introduction_'$comp'.html" class="menu">Tutorial</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
