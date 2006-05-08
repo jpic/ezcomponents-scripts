@@ -156,11 +156,12 @@ EOF
 
 # Add extra docs for tutorials
 		for t in $i/docs/*.txt; do
-		echo $t
 			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
 			if test $output_name != "tutorial.html"; then
-				echo "- Rendering extra doc '$output_name' to ${DOC_OUTPUT_DIR}/$release/${comp}_${output_name}"
-				rst2html $t > ${DOC_OUTPUT_DIR}/$release/${comp}_${output_name}
+				if test $output_name != "docs"; then
+					echo -n "  - Rendering extra doc '$output_name' to $release/${comp}_${output_name}"
+					php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $t
+				fi
 			fi
 		done
 
@@ -172,7 +173,6 @@ EOF
 		echo "<h1>No introduction available for $comp</h1>" >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 	fi
 
-echo "- Adding $comp $version to left menu."
 	cat >> ${DOC_OUTPUT_DIR}/left_menu_comp_$release.tpl << EOF
 <li><a href="{concat(\$indexDir, '/components/view/$release/(file)/classtrees_$comp.html')}">$comp</a> ($version)</li>
 EOF
