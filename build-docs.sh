@@ -84,7 +84,7 @@ echo "Copying overview for $release"
 cp docs/overview_$release.tpl ${DOC_OUTPUT_DIR} || 12
 
 echo "Running php documentor for $release"
-/usr/local/bin/phpdoc -q -c /tmp/doc-components.ini >/tmp/docbuild-$release.log 2>&1 || exit 8
+/usr/local/bin/phpdoc -q on -c /tmp/doc-components.ini >/tmp/docbuild-$release.log 2>&1 || exit 8
 ./scripts/setup-env.sh
 
 echo "Writing left_menu_comp_$release.tpl"
