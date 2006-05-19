@@ -58,16 +58,13 @@ for release in trunk latest $@; do
 
 mkdir -p ${DOC_OUTPUT_DIR}/$release
 
-if test ! $release == "trunk";
-then
-	echo "Update main index file"
-	cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.tpl << EOF
+echo "Update main index file"
+cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.tpl << EOF
 <li><a href="{concat(\$indexDir, '/components/view/$release/(file)/')}">eZ components $release</a></li>
 EOF
-	cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.html << EOF
+cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.html << EOF
 <li><a href="${HTTP_ROOT_DIR}/$release/">eZ components $release</a></li>
 EOF
-fi
 
 echo "Writing config file for $release"
 cd $wd
@@ -81,7 +78,7 @@ cd ezcomponents || exit 4
 mkdir -p ${DOC_OUTPUT_DIR}/$release || exit 8
 
 echo "Copying overview for $release"
-cp docs/overview_$release.tpl ${DOC_OUTPUT_DIR} || 12
+cp docs/overview_$release.tpl ${DOC_OUTPUT_DIR}
 
 echo "Running php documentor for $release"
 /usr/local/bin/phpdoc -q on -c /tmp/doc-components.ini >/tmp/docbuild-$release.log 2>&1 || exit 8
@@ -154,6 +151,9 @@ EOF
 <li><a href="introduction_$comp.html">$comp</a></li>
 EOF
 
+# Add changelog
+		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $i/ChangeLog -o "changelog_$comp.html"
+
 # Add extra docs for tutorials
 		for t in $i/docs/*.txt; do
 			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
@@ -170,6 +170,7 @@ EOF
 		echo '<b>[ <a href="introduction_'$comp'.html" class="menu">Tutorial</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo '<b>[ <a href="classtrees_'$comp'.html" class="menu">Class tree</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo '<b>[ <a href="elementindex_'$comp'.html" class="menu">Element index</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
+		echo '<b>[ <a href="changelog_'$comp'.html" class="menu">ChangeLog</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo "<h1>No introduction available for $comp</h1>" >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 	fi
 

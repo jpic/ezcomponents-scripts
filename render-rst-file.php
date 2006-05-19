@@ -41,6 +41,10 @@ $versionOption->mandatory = true;
 $versionOption->shorthelp = "The version of the component that should be read. E.g. trunk, 1.0rc1, etc.";
 $params->registerOption( $versionOption );
 
+$outputFilenameOption = new ezcConsoleOption( 'o', 'outputfilename', ezcConsoleInput::TYPE_STRING );
+$outputFilenameOption->shorthelp = "The name of the file to render to.";
+$params->registerOption( $outputFilenameOption );
+
 $filenameOption = new ezcConsoleOption( 'f', 'filename', ezcConsoleInput::TYPE_STRING );
 $filenameOption->mandatory = true;
 $filenameOption->shorthelp = "The name of the file to render.";
@@ -69,6 +73,7 @@ catch ( ezcConsoleOptionException $e )
 $component = $params->getOption( 'component' )->value;
 $filename = $params->getOption( 'filename' )->value;
 $version = $params->getOption( 'version' )->value;
+$outputFilename = $params->getOption( 'outputfilename' )->value;
 
 $output = getRstOutput( $filename );
 if ( $output === false )
@@ -83,10 +88,19 @@ $output = addLinks( $component, $output, $version );
 $output = addNewFooter( $output );
 
 $targetDir = $params->getOption( 'target' )->value;
-$filename = array_splice( explode( '/', $filename ), -1 );
-$filename = basename( $filename[0], '.txt' );
+
+if ( $outputFilename )
+{
+    $filename = $outputFilename;
+}
+else
+{
+    $filename = array_splice( explode( '/', $filename ), -1 );
+    $filename = basename( $filename[0], '.txt' );
+    $filename = "{$component}_$filename.html";
+}
 //echo "$targetDir/{$component}_$filename.html\n";
-file_put_contents( "$targetDir/{$component}_$filename.html", $output );
+file_put_contents( "$targetDir/$filename", $output );
 echo " OK\n";
 
 function getRstOutput( $fileName )
@@ -117,6 +131,7 @@ function addNewHeader( $component, $output )
 <b>[ <a href="introduction_$component.html" class="menu">Tutorial</a> ]</b>
 <b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
 <b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
+<b>[ <a href="changelog_$component.html" class="menu">ChangeLog</a> ]</b>
 <hr class="separator" />
 FOO;
     return $outputHeader . $output;
