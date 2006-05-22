@@ -155,15 +155,33 @@ EOF
 		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $i/ChangeLog -o "changelog_$comp.html"
 
 # Add extra docs for tutorials
+		extra1=""
+		extra2=""
 		for t in $i/docs/*.txt; do
 			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
 			if test $output_name != "tutorial.html"; then
 				if test $output_name != "docs"; then
 					echo -n "  - Rendering extra doc '$output_name' to $release/${comp}_${output_name}"
 					php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $t
+					short_name=`echo $output_name | sed 's/.html//'`
+					short_name=`php -r "echo ucfirst( '$short_name' );"`
+					extra1="$extra1 <b>[ <a href='../${comp}_${output_name}'>$short_name</a> ]</b>"
+					extra2="$extra2 <b>[ <a href='${comp}_${output_name}'>$short_name</a> ]</b>"
 				fi
 			fi
 		done
+		if test "$extra1" != ""; then
+			for w in ${DOC_OUTPUT_DIR}/$release/$comp/*.html; do
+				echo "- Postprocessing $w"
+				cp $w /tmp/file.html
+				php -r "echo str_replace( '<!-- EXTRA DOCS GO HERE! -->', \"$extra1\", file_get_contents( '/tmp/file.html' ) ); " > $w
+			done
+			for w in ${DOC_OUTPUT_DIR}/$release/${comp}_*.html ${DOC_OUTPUT_DIR}/$release/*_${comp}.html; do
+				echo "- Postprocessing $w"
+				cp $w /tmp/file.html
+				php -r "echo str_replace( '<!-- EXTRA DOCS GO HERE! -->', \"$extra2\", file_get_contents( '/tmp/file.html' ) ); " > $w
+			done
+		fi
 
 	else
 		echo '<div class="attribute-heading"><h1>'$comp'</h1></div>' > ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html

@@ -82,7 +82,7 @@ if ( $output === false )
     exit( 1 );
 }
 $output = removeHeaderFooter( $output );
-$output = addNewHeader( $component, $output );
+$output = addNewHeader( $component, $output, $filename );
 $output = addExampleLineNumbers( $output );
 $output = addLinks( $component, $output, $version );
 $output = addNewFooter( $output );
@@ -122,13 +122,17 @@ function addNewFooter( $output )
     return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div>";
 }
 
-function addNewHeader( $component, $output )
+function addNewHeader( $component, $output, $filename )
 {
+    $filename = array_splice( explode( '/', $filename ), -1 );
+    $filename = basename( $filename[0], '.txt' );
+    $title = ucfirst( $filename );
     $outputHeader = <<<FOO
-<div class="attribute-heading"><h1>$component</h1></div>
+<div class="attribute-heading"><h1>$component: $title</h1></div>
 
 
 <b>[ <a href="introduction_$component.html" class="menu">Tutorial</a> ]</b>
+<!-- EXTRA DOCS GO HERE! -->
 <b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
 <b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
 <b>[ <a href="changelog_$component.html" class="menu">ChangeLog</a> ]</b>
