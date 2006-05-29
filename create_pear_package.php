@@ -591,7 +591,7 @@ class ezcPackageManager
         $descLong  = $info[1];
 
         $changelog = $this->grabChangelog( $packageDir, $version, $preVersion );
-        $dependencies = fetchVersionsFromReleaseFile( $this->paths['package'] . ( $version == 'trunk' ? "/trunk/DEPS" : "/releases/$version/DEPS" ) );
+        $dependencies = fetchVersionsFromReleaseFile( $this->paths['package'] . ( $version == 'trunk' ? "/trunk/DEPS" : "/$version/DEPS" ) );
 
         $installDir = $packageDir . '/' . 'install';
 
