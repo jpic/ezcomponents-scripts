@@ -4,7 +4,7 @@ include 'scripts/get-packages-for-version.php';
 
 if ( $argc != 3 )
 {
-    echo "Usage:\n\tscripts/package.php <version>\n\tscripts/package.php 1.0beta1\n\n";
+    echo "Usage:\n\tscripts/package.php <oldversion> <newversion>\n\tscripts/package.php 1.1beta2 1.1rc1\n\n";
     die();
 }
 $oldVersion = $argv[1];
