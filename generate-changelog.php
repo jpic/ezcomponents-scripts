@@ -40,6 +40,7 @@ foreach ( $newPackageVersions as $package => $newVersion )
         continue;
     }
     
+    $output .= "\n";
     $output .= "$package\n". str_repeat( "=", strlen( $package ) ). "\n\n";
     $output .= grabPartialChangelog( $package, $oldVersion, $newVersion );
 }
