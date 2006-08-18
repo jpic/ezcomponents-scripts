@@ -1,16 +1,14 @@
 <?php
 include 'scripts/get-packages-for-version.php';
 
-if ( $argc < 2 )
+if ( $argc < 3 )
 {
-    echo "Usage:\n\tscripts/build-php-doc-config.php <targetversion> <releaseversion>\n\tscripts/package.php 1.0beta1 trunk\n\n";
+    echo "Usage:\n\tscripts/build-php-doc-config.php <targetversion> <releaseversion> <source:on off>\n\tscripts/package.php 1.0beta1 trunk on\n\n";
     die();
 }
-$targetversion = $releaseversion = $argv[1];
-if ( $argc == 3 )
-{
-    $releaseversion = $argv[2];
-}
+$targetversion = $argv[1];
+$releaseversion = $argv[2];
+$source = $argv[3];
 $fileName = "release-info/$releaseversion";
 if ( !file_exists( "$fileName" ) )
 {
@@ -52,7 +50,7 @@ directory = $directories
 
 ignore = autoload/,*autoload.php,tests/,docs/
 output=HTML:ezComp:ezdocs
-sourcecode = on
+sourcecode = $source
 
 ECHOEND;
 

@@ -4,15 +4,9 @@ BASE_OUTPUT_DIR=/home/httpd/html/components
 DOC_OUTPUT_DIR=${BASE_OUTPUT_DIR}/phpdoc_gen/ezcomponents
 HTTP_ROOT_DIR=/components/phpdoc_gen/ezcomponents
 
-if test $# -lt 1; then
-	echo "Usage: scripts/build-docs.sh <version> ..."
-	exit 0;
-fi
-
 wd=`pwd`
 
 rm -rf ${DOC_OUTPUT_DIR} || exit 6
-rm -rf ${BASE_OUTPUT_DIR}/cdocs.tgz || exit 7
 
 mkdir -p ${DOC_OUTPUT_DIR}
 ln -s /home/httpd/html/components/design ${DOC_OUTPUT_DIR}/design
@@ -48,14 +42,14 @@ cat > ${DOC_OUTPUT_DIR}/left_menu_comp.html << EOF
 <h2>Getting Started</h2>
 <ul>
 <li><a href="http://ez.no/community/articles/an_introduction_to_ez_components">Installation</a></li>
-<li><a href="${HTTP_ROOT_DIR}/$1/tutorials.html">Tutorials</a></li>
+<li><a href="${HTTP_ROOT_DIR}/latest/tutorials.html">Tutorials</a></li>
 </ul>
 
 <h2>Versions</h2>
 <ul>
 EOF
 
-for release in trunk latest $@; do
+for release in latest; do
 
 mkdir -p ${DOC_OUTPUT_DIR}/$release
 
@@ -69,7 +63,7 @@ EOF
 
 echo "Writing config file for $release"
 cd $wd
-php scripts/build-php-doc-config.php $release $release on > /tmp/doc-components.ini || exit 1
+php scripts/build-php-doc-config.php $release $release off > /tmp/doc-components.ini || exit 1
 
 j=`php scripts/list-export-dirs.php $release`
 
@@ -258,7 +252,11 @@ include 'overview.tpl';
 ?>
 EOF
 
+cd /tmp
+wget -nH -m -p -np -k http://tequila/components/phpdoc_gen/ezcomponents/
+cd components/phpdoc_gen/ezcomponents
+ln -s /home/httpd/html/components/design .
 cd ..
-cd ${BASE_OUTPUT_DIR} || exit 10
-tar -cf cdocs.tar phpdoc_gen || exit 11
-gzip -c -9 cdocs.tar > cdocs.tgz || exit 12
+tar -chzf /tmp/ezcomponents-docs.tar.gz ezcomponents
+cd ../..
+rm -rf components
