@@ -260,5 +260,8 @@ EOF
 
 cd ..
 cd ${BASE_OUTPUT_DIR} || exit 10
+
+rm `find . | grep %%`
+
 tar -cf cdocs.tar phpdoc_gen || exit 11
 gzip -c -9 cdocs.tar > cdocs.tgz || exit 12
