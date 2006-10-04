@@ -7,18 +7,33 @@ fi
 
 component=$1
 echo
-cd trunk
+
+# figure out if we need to release from a branch or not
+parts=`echo $component | cut -d / -s -f 2`;
+if test "$parts" == ""; then
+	branch='trunk';
+	prefix='../..';
+	unittestcmd='UnitTest/src/runtests.php';
+	logfilename=$component
+else
+	branch='stable';
+	prefix='../../..';
+	unittestcmd='../trunk/UnitTest/src/runtests.php -r stable';
+	logfilename=`echo $component | tr / -`;
+fi
+
+cd $branch
 
 echo "* Checking line endings"
 cd $component
-status=`../../scripts/check-end-of-file-marker.sh`
+status=`$prefix/scripts/check-end-of-file-marker.sh`
 if test "$status" != ""; then
 	echo
 	echo "Aborted: Line ending problems in:"
 	echo $status
 	exit
 fi
-cd ..
+cd - >/dev/null
 
 echo "* Checking for local modifications"
 status=`svn st $component`
@@ -38,8 +53,8 @@ if test $? != 0; then
 fi
 
 echo "* Running tests"
-php UnitTest/src/runtests.php -D "mysql://root:wee123@localhost/ezc" $component |tee /tmp/test-$component.log
-testresult=`cat /tmp/test-$component.log | grep FAILURES`;
+php $unittestcmd -D "mysql://root:wee123@localhost/ezc" $component |tee /tmp/test-$logfilename.log
+testresult=`cat /tmp/test-$logfilename.log | grep FAILURES`;
 if test "$testresult" == "FAILURES!"; then
 	echo
 	echo "Aborted: TESTS FAILED";
