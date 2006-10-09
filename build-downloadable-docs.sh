@@ -63,7 +63,7 @@ EOF
 
 echo "Writing config file for $release"
 cd $wd
-php scripts/build-php-doc-config.php $release $release off > /tmp/doc-components.ini || exit 1
+php-5.1dev scripts/build-php-doc-config.php $release $release off > /tmp/doc-components.ini || exit 1
 
 j=`php scripts/list-export-dirs.php $release`
 
@@ -76,7 +76,7 @@ echo "Copying overview for $release"
 cp docs/overview_$release.tpl ${DOC_OUTPUT_DIR}
 
 echo "Running php documentor for $release"
-/usr/local/bin/phpdoc -q on -c /tmp/doc-components.ini >/tmp/docbuild-$release.log 2>&1 || exit 8
+php-5.1dev /usr/local/bin/phpdoc -q on -c /tmp/doc-components.ini >/tmp/docbuild-$release.log 2>&1 || exit 8
 ./scripts/setup-env.sh
 
 echo "Writing left_menu_comp_$release.tpl"

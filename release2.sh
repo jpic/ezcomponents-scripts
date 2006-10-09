@@ -38,9 +38,9 @@ mv /tmp/release-info release-info/latest
 
 echo "* Committing component to SVN"
 if test $branch == 'trunk'; then
-	echo svn commit -m "- Released $component version $version" trunk/$component releases/$component/$version release-info/latest
+	svn commit -m "- Released $component version $version" trunk/$component releases/$component/$version release-info/latest
 else
-	echo svn commit -m "- Released $component($componentRelease) version $version" trunk/$component stable/$component/$componentRelease releases/$component/$version release-info/latest
+	svn commit -m "- Released $component($componentRelease) version $version" trunk/$component stable/$component/$componentRelease releases/$component/$version release-info/latest
 fi
 
 echo "* Creating PEAR package"
