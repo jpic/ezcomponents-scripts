@@ -71,7 +71,7 @@ function addPackages( $fileName, $packageDir )
 
 function addPackage( $packageDir, $name, $version )
 {
-    echo sprintf( '* %-20s %-8s: ', $name, $version );
+    echo sprintf( '* %-40s %-12s: ', $name, $version );
     
     $dirName = "releases/$name/$version";
     if ( !is_dir( $dirName ) )
