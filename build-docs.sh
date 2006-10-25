@@ -159,7 +159,12 @@ EOF
 		extra1=""
 		extra2=""
 		for t in $i/docs/*.txt; do
-			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
+			branch=`echo $t | cut -d / -f 1`;
+			if test $branch == "trunk"; then
+				output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
+			else
+				output_name=`echo $t | cut -d / -f 5 | sed 's/.txt/.html/'`;
+			fi
 			if test $output_name != "tutorial.html"; then
 				if test $output_name != "docs"; then
 					echo -n "  - Rendering extra doc '$output_name' to $release/${comp}_${output_name}"
@@ -261,7 +266,9 @@ EOF
 cd ..
 cd ${BASE_OUTPUT_DIR} || exit 10
 
-rm `find . | grep %%`
+for i in `find . | grep %%`; do
+	rm $i
+done
 
 tar -cf cdocs.tar phpdoc_gen || exit 11
 gzip -c -9 cdocs.tar > cdocs.tgz || exit 12
