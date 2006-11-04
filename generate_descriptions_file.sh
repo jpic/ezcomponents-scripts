@@ -11,7 +11,7 @@ for i in trunk/*; do
 		continue;
 	fi
 	if test -f $i/DESCRIPTION; then
-		echo $packagename;
+		echo "<b>$packagename</b>";
 
 		cat $i/DESCRIPTION
 		echo
