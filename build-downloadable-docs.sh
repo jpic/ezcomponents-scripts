@@ -153,7 +153,7 @@ EOF
 		extra1=""
 		extra2=""
 		for t in $i/docs/*.txt; do
-			output_name=`echo $t | cut -d / -f 4 | sed 's/.txt/.html/'`;
+			output_name=`echo $t | cut -d / -f 5 | sed 's/.txt/.html/'`;
 			if test $output_name != "tutorial.html"; then
 				if test $output_name != "docs"; then
 					echo -n "  - Rendering extra doc '$output_name' to $release/${comp}_${output_name}"
