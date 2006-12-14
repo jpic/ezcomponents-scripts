@@ -53,7 +53,7 @@ if test $? != 0; then
 fi
 
 echo "* Running tests"
-php $unittestcmd -D "mysql://root:wee123@localhost/ezc" $component |tee /tmp/test-$logfilename.log
+php $unittestcmd --verbose -D "mysql://root:wee123@localhost/ezc" $component |tee /tmp/test-$logfilename.log
 testresult=`cat /tmp/test-$logfilename.log | grep FAILURES`;
 if test "$testresult" == "FAILURES!"; then
 	echo

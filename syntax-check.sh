@@ -22,9 +22,9 @@ echo "Fixing return"
 for i in `find . -name \*.php | grep trunk/src`; do cat $i | sed -e 's/@returns/@return/' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
 
 echo "Checking for wrong braces placement for functions"
-grep -rn "function" * | grep "{" | grep -v svn | grep "\.php:"
-grep -rn "class" * | grep "{" | grep -v svn | grep "\.php:"
-grep -rn "interface" * | grep "{" | grep -v svn | grep "\.php:"
+grep -rn "function" * | grep "{" | grep -v "{@" | grep -v svn | grep "\.php:"
+grep -rn "class" * | grep "{" | grep -v "{@" | grep -v svn | grep "\.php:"
+grep -rn "interface" * | grep "{" | grep -v "{@" | grep -v svn | grep "\.php:"
 
 echo "Checking for wrong if/else + brackets"
 grep -rn "if" * | grep "{" | grep -v svn | grep "\.php:"

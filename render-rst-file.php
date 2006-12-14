@@ -111,7 +111,7 @@ function getRstOutput( $fileName )
 
 function removeHeaderFooter( $output )
 {
-    $output = preg_replace( '@.*?<body>@ms', '', $output );
+    $output = substr( $output, strpos( $output, '<body>' ) + 7 );
     $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@', '', $output );
     $output = preg_replace( '@<\/body>.*@ms', '', $output );
     return $output;
