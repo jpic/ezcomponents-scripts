@@ -37,7 +37,10 @@ require_once 'scripts/get-packages-for-version.php';
  */
 function __autoload( $class_name )
 {
-    ezcBase::autoload( $class_name );
+    if ( substr( $class_name, 0, 3) == 'ezc' )
+    {
+        ezcBase::autoload( $class_name );
+    }
 }
 
 // }}}

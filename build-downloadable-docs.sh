@@ -148,6 +148,7 @@ EOF
 
 # Add changelog
 		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $i/ChangeLog -o "changelog_$comp.html"
+		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}/$release" -f $i/CREDITS -o "credits_$comp.html"
 
 # Add extra docs for tutorials
 		extra1=""
@@ -184,6 +185,7 @@ EOF
 		echo '<b>[ <a href="classtrees_'$comp'.html" class="menu">Class tree</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo '<b>[ <a href="elementindex_'$comp'.html" class="menu">Element index</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo '<b>[ <a href="changelog_'$comp'.html" class="menu">ChangeLog</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
+		echo '<b>[ <a href="credits_'$comp'.html" class="menu">Credits</a> ]</b>' >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 		echo "<h1>No introduction available for $comp</h1>" >> ${DOC_OUTPUT_DIR}/$release/introduction_$comp.html
 	fi
 
