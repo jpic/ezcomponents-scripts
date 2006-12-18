@@ -117,6 +117,7 @@ function addNewHeader( $component, $output )
 <b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
 <b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
 <b>[ <a href="changelog_$component.html" class="menu">ChangeLog</a> ]</b>
+<b>[ <a href="credits_$component.html" class="menu">Credits</a> ]</b>
 <h2>Tutorial for Component $component</h2>
 <hr class="separator" />
 FOO;
