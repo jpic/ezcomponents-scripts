@@ -7,7 +7,7 @@
 
 function __autoload( $className )
 {
-	require_once("packages/Base/trunk/src/base.php");
+	require_once("trunk/Base/src/base.php");
 	if ( strpos( $className, "_" ) !== false )
 	{
 		$file = str_replace( "_", "/", $className ) . ".php";
@@ -42,8 +42,8 @@ function fetchDirectoryName()
 		echo $e->getMessage(), "\n";
 	}
 
-	$directory = $parameters->getParam( '-d' );
-*/
+    $directory = $parameters->getParam( '-d' ); */ 
+/*
     echo "\n";
     echo <<<AAA
 Update this description when the console tools are finished.
@@ -54,10 +54,15 @@ To let this script work, you should have performed the following steps:
 - Make sure that autoconf (preferable version 2.13) is installed.
 - pecl install docblock-alpha
 AAA;
+ */
+
+    $directory = '/tmp/ezc-clone';
+    /*
 	if ( !$directory )
 	{
 		$directory = '/tmp/ezc-clone';
 	}
+     */
 
 	return $directory;
 }
@@ -417,7 +422,7 @@ function getThrowsString(  $tags )
 $targetDir = fetchDirectoryName();
 
 // Fetch all files ending in *.php and in the "trunk/src" directories
-$files = findRecursive( 'packages', array( '/\.php$/', '/trunk\/src/' ) );
+$files = findRecursive( 'trunk/Template', array( '/\.php$/', '/src/' ) );
 
 foreach ( $files as $file )
 {
