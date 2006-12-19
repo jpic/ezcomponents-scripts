@@ -114,6 +114,118 @@ function findRecursive( $sourceDir, $filters )
 	return $elements;
 }
 
+function processDocComment( $rc, $type, $class = null )
+{
+    $comment = $rc->getDocComment(); 
+
+    if( $type == "class" )
+    {
+        $n = substr( $comment, 0, -4);
+        $n .= "\n *\n * @class $class\n *";
+        $n .= substr( $comment, -4);
+        $comment = $n;
+    }
+
+    $tokens = docblock_tokenize( $comment );
+
+    $new = ""; 
+
+    /*
+    for( $i = 0; $i < 100; $i++)
+    {
+        echo docblock_token_name( $i ) . "\n";
+    }
+    exit();
+     */
+ 
+
+    for ( $i = 0; $i < sizeof( $tokens ); $i++ )
+    {
+
+        if ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_CODEOPEN' )
+        {
+            $tokens[$i][1] = "@code"; 
+        } 
+        elseif ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_CODECLOSE' )
+        {
+            $tokens[$i][1] = "@endcode";
+        }
+        elseif( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_TAG' )
+        {
+            if( $tokens[$i][1] == "@param" || $tokens[$i][1] == "@return")
+            {
+                $pos = strpos( $tokens[$i + 1][1], " ", 1 );
+                if( $pos )
+                {
+                    // Remove the dollar sign.
+                    if( $tokens[$i][1] == "@param" && $tokens[$i + 1][1][$pos + 1] == '$')
+                    {
+                        $tokens[$i + 1][1] = " " . substr( $tokens[$i + 1][1], $pos + 2 );
+                    }
+                    else
+                    {
+                        $tokens[$i + 1][1] = substr( $tokens[$i + 1][1], $pos );
+                    }
+                }
+                else
+                {
+                    // XXX: check Skip the crap + tab.
+                    $i += 3;
+                    continue;
+                }
+            }
+            elseif( $tokens[$i][1] == "@var" || $tokens[$i][1] == "@access" )
+            {
+                // Skip the @var, <type>, tab
+                $i += 3;
+                //echo "SKIP: <".$tokens[$i + 2][1].">";
+                continue;
+            }
+            else
+            {
+            }
+  
+
+            //$tokens[$i + 1][1] = substr( $tokens[$i + 1][1], );
+
+            //echo "SKIPPING: <" . $tokens[$i][1]   . ">";
+            //continue;
+/*
+            $tokens[$i][1]
+            if( $tokens[$i][1] == "@param" )
+            {
+                echo "next token: " . $tokens[$i][1];
+            }
+ */
+        }
+
+        //$new .= str_replace( '$', '\a ', $tokens[$i][1] );
+        $new .= $tokens[$i][1];
+    }
+    
+
+    return $new;
+
+
+/*
+        // Found a tag?
+        if ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_TAG' )
+        {
+            var_dump( $tokens[$i] );
+
+           //$result[$tokens[$i][1]][] = trim( $tokens[$i + 1][1] );
+
+        }
+ */
+
+
+//    var_dump( $new );
+
+
+
+
+} 
+
 function cloneFile( $file, $targetDir )
 {
 	$dir = dirname( $file );
@@ -156,8 +268,8 @@ function cloneFile( $file, $targetDir )
     // Create the namespace
     echo "package ".( isset( $classTags["@package"] ) ? $classTags["@package"][0] : "PACKAGE_NOT_SET" ).";\n\n";
 
-    echo $rc->getDocComment();
-    echo "\n";
+    echo processDocComment($rc, "class", $class );
+    echo ("\n");
 
     // Set the access type of the class.
     echo ( isset( $classTags[ "@access" ] ) ? $classTags["@access"][0] : "public" ) ." ";
@@ -185,8 +297,8 @@ function cloneFile( $file, $targetDir )
         {
             echo "";
 
-    echo "    ".$property->getDocComment();
-    echo "\n\t";
+            echo processDocComment($property, "property");
+            echo ("\n");
 
             $propertyTags = getTags( $property );
 
@@ -227,8 +339,9 @@ function cloneFile( $file, $targetDir )
         // Don't show the parent class methods.
         if( $method->getDeclaringClass()->getName() ==  $class )
         {
-            echo "    ".$method->getDocComment();
-            echo "\n\t";
+
+            echo processDocComment($method, "method");
+            echo ("\n\t");
 
             $methodTags = getTags( $method );
             echo
@@ -461,7 +574,14 @@ if( !is_array( $source->value ) )
 $files = array();
 foreach( $source->value as $s )
 {
-    $files = array_merge( $files, findRecursive( $s, array( '/\.php$/', '/src/' ) ) );
+    if( is_file( $s ) )
+    {
+        $files = array_merge( $files, array($s));
+    }
+    else
+    {
+        $files = array_merge( $files, findRecursive( $s, array( '/\.php$/', '/src/' ) ) );
+    }
 }
 
 if( count( $files ) == 0 )
