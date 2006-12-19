@@ -20,19 +20,34 @@ function __autoload( $className )
 }
 
 // Parse options
-function fetchDirectoryName()
+function getInputOptions()
 {
-/*
-	$parameters = new ezcConsoleParameter();
-	$parameters->registerParam( new ezcConsoleParameterStruct( 
-		'd', 'directory', 
-		array(
-			'type'      => ezcConsoleParameter::TYPE_STRING,
-			'shorthelp' => 'Output directory.',
-			'longhelp'  => 'Name of the directory where the cloned copy should be saved to. (defaults to /tmp/ezc-clone)',
-			'default'   => '/tmp/ezc-clone',
-		) )
-	);
+	$parameters = new ezcConsoleInput();
+   
+    $parameters->registerOption( $helpOption = new ezcConsoleOption( 'h', 'help' ) );
+    $helpOption->shorthelp = "This help.";
+    $helpOption->longhelp = "This help.";
+
+	$parameters->registerOption( new ezcConsoleOption( 
+        't', 
+        'target', 
+		ezcConsoleInput::TYPE_STRING,
+        'java_classes',
+        false,
+        'Target directory.',
+        'Target directory where the to java converted classes should be stored. Default is \'java_classes\'.'
+	) );
+
+	$parameters->registerOption( new ezcConsoleOption( 
+        's', 
+        'source', 
+		ezcConsoleInput::TYPE_STRING,
+        "trunk",
+        true,
+        'Source directory.',
+        'Source component directory. By default it will process \'trunk\'.'
+	) );
+
 	try 
 	{
 		$parameters->process();
@@ -42,7 +57,19 @@ function fetchDirectoryName()
 		echo $e->getMessage(), "\n";
 	}
 
-    $directory = $parameters->getParam( '-d' ); */ 
+    if( $helpOption->value )
+    {
+          echo $parameters->getSynopsis() . "\n";
+          foreach ( $parameters->getOptions() as $option )
+          {
+              echo "-{$option->short}/{$option->long}: \t\t\t {$option->longhelp}\n";
+          }
+
+          exit();
+    }
+
+    return $parameters;
+
 /*
     echo "\n";
     echo <<<AAA
@@ -55,18 +82,7 @@ To let this script work, you should have performed the following steps:
 - pecl install docblock-alpha
 AAA;
  */
-
-    $directory = '/tmp/ezc-clone';
-    /*
-	if ( !$directory )
-	{
-		$directory = '/tmp/ezc-clone';
-	}
-     */
-
-	return $directory;
-}
-
+} 
 function findRecursive( $sourceDir, $filters )
 {
 	$elements = array();
@@ -100,7 +116,6 @@ function findRecursive( $sourceDir, $filters )
 
 function cloneFile( $file, $targetDir )
 {
-	echo $file, "\n";
 	$dir = dirname( $file );
 	if ( !is_dir( $targetDir . "/" . $dir ) )
 	{
@@ -419,13 +434,38 @@ function getThrowsString(  $tags )
         return false;
 }
 
-$targetDir = fetchDirectoryName();
+function status( $str )
+{
+    echo $str . "\n";
+}
 
-// Fetch all files ending in *.php and in the "trunk/src" directories
-$files = findRecursive( 'trunk/Template', array( '/\.php$/', '/src/' ) );
+$consoleInput = getInputOptions();
+$directory = $consoleInput->getOption("target");
+$source = $consoleInput->getOption("source");
 
+// If source is not set, read all the components.
+
+if( !is_array( $source->value ) ) 
+{
+    $source->value = array( $source->value );
+}
+
+$files = array();
+foreach( $source->value as $s )
+{
+    $files = array_merge( $files, findRecursive( $s, array( '/\.php$/', '/src/' ) ) );
+}
+
+if( count( $files ) == 0 )
+{
+    status("Could not find any source files");
+    exit( -1 );
+}
+
+status( "Processing files ");
 foreach ( $files as $file )
 {
-	cloneFile( $file, $targetDir );
+    echo (".");
+	cloneFile( $file, $directory->value );
 }
 ?>
