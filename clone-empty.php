@@ -156,6 +156,9 @@ function cloneFile( $file, $targetDir )
     // Create the namespace
     echo "package ".( isset( $classTags["@package"] ) ? $classTags["@package"][0] : "PACKAGE_NOT_SET" ).";\n\n";
 
+    echo $rc->getDocComment();
+    echo "\n";
+
     // Set the access type of the class.
     echo ( isset( $classTags[ "@access" ] ) ? $classTags["@access"][0] : "public" ) ." ";
 
@@ -180,7 +183,10 @@ function cloneFile( $file, $targetDir )
         // Don't show the parent property methods.
         if( $property->getDeclaringClass()->getName() ==  $class )
         {
-            echo "\t";
+            echo "";
+
+    echo "    ".$property->getDocComment();
+    echo "\n\t";
 
             $propertyTags = getTags( $property );
 
@@ -221,7 +227,9 @@ function cloneFile( $file, $targetDir )
         // Don't show the parent class methods.
         if( $method->getDeclaringClass()->getName() ==  $class )
         {
-            echo "\t";
+            echo "    ".$method->getDocComment();
+            echo "\n\t";
+
             $methodTags = getTags( $method );
             echo
                 $method->isAbstract() ? 'abstract ' : '',
