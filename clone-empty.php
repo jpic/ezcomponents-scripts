@@ -135,14 +135,12 @@ function processDocComment( $rc, $type, $class = null )
 
     $new = ""; 
 
-    /*
-    for( $i = 0; $i < 100; $i++)
+/*    for( $i = 0; $i < 100; $i++)
     {
         echo docblock_token_name( $i ) . "\n";
     }
     exit();
-     */
- 
+*/
 
     $insideCode = false;
     for ( $i = 0; $i < sizeof( $tokens ); $i++ )
@@ -197,6 +195,7 @@ function processDocComment( $rc, $type, $class = null )
             }
             else
             {
+//                    echo "Token:", docblock_token_name( $tokens[$i][0] ), $tokens[$i][1], "\n";
             }
   
 
@@ -215,7 +214,8 @@ function processDocComment( $rc, $type, $class = null )
 
         if( !$insideCode )
         {
-            $new .= str_replace( '$', '\a ', $tokens[$i][1] );
+//            $new .= str_replace( '$', '\a ', $tokens[$i][1] );
+            $new .= $tokens[$i][1];
         }
         else
         {
@@ -288,7 +288,8 @@ function cloneFile( $file, $targetDir )
     // Create the namespace
     echo "package ".( isset( $classTags["@package"] ) ? $classTags["@package"][0] : "PACKAGE_NOT_SET" ).";\n\n";
 
-    echo processDocComment($rc, "class", $class );
+    $classBlock = processDocComment($rc, "class", $class );
+    echo $classBlock;
     echo ("\n");
 
     // Set the access type of the class.
@@ -353,6 +354,39 @@ function cloneFile( $file, $targetDir )
         }
 	}
 	echo "\n";
+
+    $o = 0;
+    while ( true )
+    {
+        $text = substr( $classBlock, $o );
+        if ( preg_match( "#[@]property(-read|-write|)[ \t\r\n*]+([a-zA-Z][a-zA-Z0-9_]*)[ \t\r\n*]+(?:[$]?([a-zA-Z][a-zA-Z0-9_]*))[ \t\r\n*]+([^@]+)#s",
+                         $text, $matches, PREG_OFFSET_CAPTURE ) )
+        {
+            $propType = $matches[1][0];
+            $type = $matches[2][0];
+            $name = $matches[3][0];
+            $desc = $matches[4][0];
+            $desc = preg_replace( "#^[ \t]+[*]#m", " ", $desc );
+            $desc = preg_replace( "#[\r\n]#s", " ", $desc );
+            //echo "Got property ", $type, ":", $name, ":", $desc, "\n";
+            $extra = "";
+            if ( $propType == "-read" )
+            {
+                $extra = "\n * @note Read only.";
+            }
+            elseif ( $propType == "-write" )
+            {
+                $extra = "\n * @note Write only.";
+            }
+            echo "/**\n * $desc$extra\n */\n";
+            echo "public $type $name;\n";
+            $o += $matches[0][1] + strlen( $matches[0][0] );
+        }
+        else
+        {
+            break;
+        }
+    }
 
 	foreach ( $rc->getMethods() as $method )
 	{
