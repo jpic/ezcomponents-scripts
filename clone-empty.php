@@ -118,13 +118,19 @@ function processDocComment( $rc, $type, $class = null )
 {
     $comment = $rc->getDocComment(); 
 
+    // Add the @class <CLASSNAME> to the docblock.
     if( $type == "class" )
     {
-        $n = substr( $comment, 0, -4);
-        $n .= "\n *\n * @class $class\n *";
-        $n .= substr( $comment, -4);
+        $n = substr( $comment, 0, 4);
+        $n .= " * @class $class\n *\n";
+        $n .= substr( $comment, 4);
         $comment = $n;
     }
+
+    // Replace <note:> with <@note >
+
+    $comment = str_ireplace( "note:", "@note ", $comment );
+
 
     $tokens = docblock_tokenize( $comment );
 
@@ -139,16 +145,19 @@ function processDocComment( $rc, $type, $class = null )
      */
  
 
+    $insideCode = false;
     for ( $i = 0; $i < sizeof( $tokens ); $i++ )
     {
 
         if ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_CODEOPEN' )
         {
             $tokens[$i][1] = "@code"; 
+            $insideCode = true;
         } 
         elseif ( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_CODECLOSE' )
         {
             $tokens[$i][1] = "@endcode";
+            $insideCode = false;
         }
         elseif( docblock_token_name( $tokens[$i][0] ) == 'DOCBLOCK_TAG' )
         {
@@ -199,8 +208,14 @@ function processDocComment( $rc, $type, $class = null )
  */
         }
 
-        //$new .= str_replace( '$', '\a ', $tokens[$i][1] );
-        $new .= $tokens[$i][1];
+        if( !$insideCode )
+        {
+            $new .= str_replace( '$', '\a ', $tokens[$i][1] );
+        }
+        else
+        {
+            $new .= $tokens[$i][1];
+        }
     }
     
 
