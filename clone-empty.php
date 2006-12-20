@@ -314,6 +314,29 @@ function cloneFile( $file, $targetDir )
 
     echo "\n{\n";
 
+	foreach ( $rc->getConstants() as $constantName => $constant )
+	{
+        $constantType = "UNKNOWN";
+        if ( is_float( $constant ) )
+        {
+            $constantType = "float";
+        }
+        elseif ( is_int( $constant ) )
+        {
+            $constantType = "int";
+        }
+        elseif ( is_bool( $constant ) )
+        {
+            $constantType = "bool";
+        }
+        elseif ( is_string( $constant ) )
+        {
+            $constantType = "string";
+        }
+        echo "public static final $constantType $constantName = $constant;\n";
+	}
+	echo "\n";
+
 	foreach ( $rc->getProperties() as $property )
 	{
         // Don't show the parent property methods.
