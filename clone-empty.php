@@ -222,7 +222,9 @@ function processDocComment( $rc, $type, $class = null )
             $new .= $tokens[$i][1];
         }
     }
-    
+
+
+    $new = preg_replace( "#[*]([ \t]+[*])+#", "*", $new );
 
     return $new;
 
