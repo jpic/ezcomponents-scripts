@@ -171,7 +171,8 @@ function processDocComment( $rc, $type, $class = null )
                 }
                 else
                 {
-                    if( $a[1][0] == '$' )
+                    if( strlen( $a[1] ) > 0 &&
+                        $a[1][0] == '$' )
                     {
                         $a[1] = substr( $a[1], 1 );
                     }
