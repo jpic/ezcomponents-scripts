@@ -128,7 +128,6 @@ function processDocComment( $rc, $type, $class = null )
     }
 
     // Replace <note:> with <@note >
-
     $comment = str_ireplace( "note:", "@note ", $comment );
 
 
@@ -163,25 +162,31 @@ function processDocComment( $rc, $type, $class = null )
         {
             if( $tokens[$i][1] == "@param" || $tokens[$i][1] == "@return")
             {
-                $pos = strpos( $tokens[$i + 1][1], " ", 1 );
-                if( $pos )
+                $tokens[$i + 1][1] = ltrim( $tokens[$i + 1][1] );
+                $a = explode( " ", $tokens[$i + 1][1] );
+
+
+                if( sizeof( $a ) <= 2)
                 {
-                    // Remove the dollar sign.
-                    if( $tokens[$i][1] == "@param" && $tokens[$i + 1][1][$pos + 1] == '$')
-                    {
-                        $tokens[$i + 1][1] = " " . substr( $tokens[$i + 1][1], $pos + 2 );
-                    }
-                    else
-                    {
-                        $tokens[$i + 1][1] = substr( $tokens[$i + 1][1], $pos );
-                    }
-                }
-                else
-                {
-                    // XXX: check Skip the crap + tab.
                     $i += 3;
                     continue;
                 }
+                else
+                {
+                    if( $a[1][0] == '$' )
+                    {
+                        $a[1] = substr( $a[1], 1 );
+                    }
+                    
+                    unset ($a[0] );
+                    $tokens[$i + 1][1] = " " . implode( " ", $a );
+ 
+                    $new .= $tokens[$i++][1];
+                    $new .= $tokens[$i][1];
+                    continue;
+                }
+
+
             }
             elseif( $tokens[$i][1] == "@var" || $tokens[$i][1] == "@access" )
             {
