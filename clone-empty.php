@@ -346,25 +346,39 @@ function cloneFile( $file, $targetDir )
 	}
 	echo "\n";
 
+    $xrc = new Reflectionclass( "Exception" );
+    $isException = $rc->isSubclassOf( $xrc );
+    $ignoreProps = array();
+    foreach ( $xrc->getProperties() as $prop )
+    {
+        $ignoreProps[] = $prop->getName();
+    }
+
 	foreach ( $rc->getProperties() as $property )
 	{
+        // Skip properties of Exception, PHP 5.1.x bug
+        if ( $isException &&
+             in_array( $property->getName(), $ignoreProps ) )
+        {
+            continue;
+        }
         // Don't show the parent property methods.
         if( $property->getDeclaringClass()->getName() ==  $class )
         {
             echo "";
 
-            echo processDocComment($property, "property");
+            echo "    ", processDocComment($property, "property");
             echo ("\n");
 
             $propertyTags = getTags( $property );
 
             if ( isset( $propertyTag["@access"] ) )
             {
-                echo ( $propertyTag["@access"] );
+                echo "    ", $propertyTag["@access"];
             }
             else
             {
-                echo
+                echo "    ",
                     $property->isPublic() ? 'public ' : '',
                     $property->isPrivate() ? 'private ' : '',
                     $property->isProtected() ? 'protected ' : '',
@@ -413,8 +427,8 @@ function cloneFile( $file, $targetDir )
             {
                 $extra = "\n * @note Write only.";
             }
-            echo "/**\n * $desc$extra\n */\n";
-            echo "public $type $name;\n";
+            echo "    /**\n * $desc$extra\n */\n";
+            echo "    public $type $name;\n";
             $o += $matches[0][1] + strlen( $matches[0][0] );
         }
         else
@@ -429,7 +443,7 @@ function cloneFile( $file, $targetDir )
         if( $method->getDeclaringClass()->getName() ==  $class )
         {
 
-            echo processDocComment($method, "method");
+            echo "    ", processDocComment($method, "method");
             echo ("\n\t");
 
             $methodTags = getTags( $method );
