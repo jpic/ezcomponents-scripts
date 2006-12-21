@@ -298,10 +298,19 @@ function cloneFile( $file, $targetDir )
     // Set the access type of the class.
     echo ( isset( $classTags[ "@access" ] ) ? $classTags["@access"][0] : "public" ) ." ";
 
-	echo
-		$rc->isAbstract() ? 'abstract ' : '',
-		$rc->isFinal() ? 'final ' : '',
-		$rc->isInterface() ? 'interface ' : 'class ';
+    if ( $rc->isInterface() )
+    {
+        echo
+            $rc->isFinal() ? 'final ' : '',
+            'interface ';
+    }
+    else
+    {
+        echo
+            $rc->isAbstract() ? 'abstract ' : '',
+            $rc->isFinal() ? 'final ' : '',
+            'class ';
+    }
 	echo "$class";
 
     $c = $rc->getParentClass();
@@ -333,7 +342,7 @@ function cloneFile( $file, $targetDir )
         {
             $constantType = "string";
         }
-        echo "public static final $constantType $constantName = $constant;\n";
+        echo "    public static final $constantType $constantName = ", var_export( $constant, true ), ";\n";
 	}
 	echo "\n";
 
@@ -385,7 +394,7 @@ function cloneFile( $file, $targetDir )
     while ( true )
     {
         $text = substr( $classBlock, $o );
-        if ( preg_match( "#[@]property(-read|-write|)[ \t\r\n*]+([a-zA-Z][a-zA-Z0-9_]*)[ \t\r\n*]+(?:[$]?([a-zA-Z][a-zA-Z0-9_]*))[ \t\r\n*]+([^@]+)#s",
+        if ( preg_match( "#[@]property(-read|-write|)[ \t\r\n*]+([^ \t\r\n]*)[ \t\r\n*]+(?:[$]?([^ \t\r\n]*))[ \t\r\n*]+([^@]+)#s",
                          $text, $matches, PREG_OFFSET_CAPTURE ) )
         {
             $propType = $matches[1][0];
@@ -424,13 +433,24 @@ function cloneFile( $file, $targetDir )
             echo ("\n\t");
 
             $methodTags = getTags( $method );
-            echo
-                $method->isAbstract() ? 'abstract ' : '',
-                $method->isFinal() ? 'final ' : '',
-                $method->isPublic() ? 'public ' : '',
-                $method->isPrivate() ? 'private ' : '',
-                $method->isProtected() ? 'protected ' : '',
-                $method->isStatic() ? 'static ' : '';
+            if ( $rc->isInterface() )
+            {
+                echo
+                    $method->isFinal() ? 'final ' : '',
+                    $method->isPublic() ? 'public ' : '',
+                    $method->isPrivate() ? 'private ' : '',
+                    $method->isProtected() ? 'protected ' : '';
+            }
+            else
+            {
+                echo
+                    $method->isAbstract() ? 'abstract ' : '',
+                    $method->isFinal() ? 'final ' : '',
+                    $method->isPublic() ? 'public ' : '',
+                    $method->isPrivate() ? 'private ' : '',
+                    $method->isProtected() ? 'protected ' : '',
+                    $method->isStatic() ? 'static ' : '';
+            }
             
             $returnType = getReturnValue( $method );
 
@@ -454,7 +474,12 @@ function cloneFile( $file, $targetDir )
                 {
                     echo ", ";
                 }
-                if ( isset( $parameterTypes[$param->getName()] ) )
+                $paramClass = $param->getClass();
+                if ( $paramClass )
+                {
+                    echo $paramClass->getName(), " ";
+                }
+                elseif ( isset( $parameterTypes[$param->getName()] ) )
                 { 
                     echo fixType( $parameterTypes[$param->getName()] ), " ";
                 }
@@ -463,6 +488,10 @@ function cloneFile( $file, $targetDir )
                     echo "PARAM_TYPE_MISSING ";
                 }
                 echo $param->getName();
+                if ( $param->isDefaultValueAvailable() )
+                {
+                    echo " = ", var_export( $param->getDefaultValue(), true );
+                }
                 /*
                 if ( $param->isDefaultValueAvailable() )
                 {
@@ -569,7 +598,13 @@ function fixType( $type )
     // Pick the first type if it can have multiple values: int|bool.
     if ( ( $pos = strpos( $type, "|" ) ) !== false )
     {
-        $type = substr( $type, 0, $pos );
+//        $type = substr( $type, 0, $pos );
+        $type = "RETURN_TYPE_MIXED";
+    }
+    elseif ( ( $pos = strpos( $type, "/" ) ) !== false )
+    {
+//        $type = substr( $type, 0, $pos );
+        $type = "RETURN_TYPE_MIXED";
     }
 
     if ( strncmp( $type, "array(", 6 ) == 0 )
