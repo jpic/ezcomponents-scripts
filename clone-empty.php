@@ -488,6 +488,12 @@ function cloneFile( $file, $targetDir )
                 // Replace the method name.
                 echo "$class ( ";
             }
+            else if ( strcmp( $method->name, "__destruct" ) == 0 )
+            {
+                // Destructor has no return type.
+                // Replace the method name.
+                echo "~$class( ";
+            }
             else
             {
                 echo $returnType ? fixType( $returnType ) . ' ' : 'RETURN_TYPE_MISSING ';
