@@ -323,8 +323,31 @@ function cloneFile( $file, $targetDir )
 
     echo "\n{\n";
 
+    $ignoreProps = array();
+    $ignoreConsts = array();
+    $prc = $rc->getParentClass();
+    while ( $prc )
+    {
+        foreach ( $prc->getProperties() as $property )
+        {
+            $ignoreProps[] = $property->getName();
+        }
+        foreach ( $prc->getConstants() as $constantName => $constant )
+        {
+            $ignoreConsts[] = $constantName;
+        }
+        $prc = $prc->getParentClass();
+    }
+    $ignoreProps = array_unique( $ignoreProps );
+    $ignoreConsts = array_unique( $ignoreConsts );
+
 	foreach ( $rc->getConstants() as $constantName => $constant )
 	{
+        // Skip constants of parents, PHP 5.1.x bug
+        if ( in_array( $constantName, $ignoreConsts ) )
+        {
+            continue;
+        }
         $constantType = "UNKNOWN";
         if ( is_float( $constant ) )
         {
@@ -346,19 +369,10 @@ function cloneFile( $file, $targetDir )
 	}
 	echo "\n";
 
-    $xrc = new Reflectionclass( "Exception" );
-    $isException = $rc->isSubclassOf( $xrc );
-    $ignoreProps = array();
-    foreach ( $xrc->getProperties() as $prop )
-    {
-        $ignoreProps[] = $prop->getName();
-    }
-
-	foreach ( $rc->getProperties() as $property )
+    foreach ( $rc->getProperties() as $property )
 	{
-        // Skip properties of Exception, PHP 5.1.x bug
-        if ( $isException &&
-             in_array( $property->getName(), $ignoreProps ) )
+        // Skip properties of parents, PHP 5.1.x bug
+        if ( in_array( $property->getName(), $ignoreProps ) )
         {
             continue;
         }
