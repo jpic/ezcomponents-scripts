@@ -124,7 +124,8 @@ function addNewFooter( $output )
 
 function addNewHeader( $component, $output, $filename )
 {
-    $filename = array_splice( explode( '/', $filename ), -1 );
+    $exploded = explode( '/', $filename );
+    $filename = array_splice( $exploded, -1 );
     $filename = basename( $filename[0], '.txt' );
     $title = ucfirst( $filename );
     $outputHeader = <<<FOO
