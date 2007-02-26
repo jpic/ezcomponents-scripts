@@ -95,7 +95,8 @@ if ( $outputFilename )
 }
 else
 {
-    $filename = array_splice( explode( '/', $filename ), -1 );
+    $filenameParts = explode( '/', $filename );
+    $filename = array_splice( $filenameParts, -1 );
     $filename = basename( $filename[0], '.txt' );
     $filename = "{$component}_$filename.html";
 }
