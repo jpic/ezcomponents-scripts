@@ -108,6 +108,7 @@ function setupAutoload( $packageDir, $packageList )
         {
             $targetName = basename( $fileName );
             copy( $fileName, "$packageDir/autoload/$targetName" );
+            unlink( $fileName );
         }
     }
     echo "\n";
