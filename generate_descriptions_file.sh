@@ -11,9 +11,20 @@ for i in trunk/*; do
 		continue;
 	fi
 	if test -f $i/DESCRIPTION; then
-		echo "<b>$packagename</b>";
+		echo $packagename
+		php -r "echo str_repeat('-', strlen('$packagename'));"
+		echo
 
 		cat $i/DESCRIPTION
 		echo
+		echo Documentation__
+		echo
+		echo __ 'http://ez.no/doc/components/view/latest/(file)/introduction_'$packagename.html
+
+		echo
 	fi
 done
+
+rst2xml docs/website/components_descriptions_marketing.txt > /tmp/desc.xml
+xsltproc docs/rstxml2ezxml.xsl /tmp/desc.xml > docs/website/components_descriptions_marketing.ezxml
+rm -rf /tmp/desc.xml
