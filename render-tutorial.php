@@ -19,6 +19,29 @@ function __autoload( $class_name )
     }
 }
 
+class ezctutBase extends ezcBase
+{
+    public static function getClassLocation( $class )
+    {
+        class_exists( $class, true );
+        return ezcBase::$autoloadArray[$class];
+    }
+
+    public static function getClassComponent( $class )
+    {
+        try
+        {
+            $location = self::getClassLocation( $class );
+            return substr( $location, 0, strpos( $location, '/' ) );
+        }
+        catch ( Exception $e)
+        {
+            echo "Wrong class '{$class}', using current component: {$GLOBALS['component']}\n";
+            return $GLOBALS['component'];
+        }
+    }
+}
+
 ini_set( 'highlight.string', '#335533' );
 ini_set( 'highlight.keyword', '#0000FF' );
 ini_set( 'highlight.default', '#000000' );
@@ -129,17 +152,77 @@ function addLinks( $component, $output, $version )
 //    $base = "http://ez.no/doc/components/view/$version/(file)/$component/";
     $base = "$component/";
 
-    $output = preg_replace( '@(ezc[A-Z][a-zA-Z0-9]+)::\$([A-Za-z0-9]+)@', "<a href='{$base}\\1.html#\$\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", "<a href='{$base}\\1.html#\\3'>\\0</a>", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Z_]+)\\b@", "<a href='{$base}\\1.html#const\\2'>\\0</a>", $output );
-    $output = preg_replace( "@(?<![/>])(ezc[A-Z][a-zA-Z0-9]+)@", "<a href='{$base}\\1.html'>\\0</a>", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
-    $output = preg_replace( "@(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Z_]+)@", "<a href='{$base}\\1.html#const\\3'>\\1::\\3</a>", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</li>)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-Z]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Za-z]+)(</span>)@", "\\1<a href='{$base}\\2.html#\\4'>\\2::\\4</a>\\5", $output );
-    $output = preg_replace( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+Exception)(\&nbsp;\\$)@", "\\1<a href='{$base}\\2.html'>\\2</a>\\3", $output );
+    $output = preg_replace_callback( '@(ezc[A-Z][a-zA-Z0-9]+)::\$([A-Za-z0-9]+)@', 'callBackFormatClassVarLink', $output );
+    $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Za-z0-9_]+)(?=\()@", 'callBackFormatClassStaticMethodLink', $output );
+    $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", 'callBackFormatClassDynamicMethodLink', $output );
+    $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Z_]+)\\b@", 'callBackFormatClassConstantLink', $output );
+    $output = preg_replace_callback( "@(?<![/>])(ezc[A-Z][a-zA-Z0-9]+)@", 'callBackFormatClassLink', $output );
+    $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", 'callbackFormatClassDynamicMethodCodeLink', $output );
+    $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Z_]+)@", 'callBackFormatClassConstantCodeLink', $output );
+    $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</li>)@", 'callBackFormatClassCodeLink', $output );
+    $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-Z]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Za-z]+)(</span>)@", 'callBackFormatClassStaticMethodCodeLink', $output );
+    $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+Exception)(\&nbsp;\\$)@", 'callBackFormatExceptionClassCodeLink', $output );
     return $output;
+}
+
+function callBackFormatExceptionClassCodeLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[2] );
+    return "{$args[1]}<a href='{$component}/{$args[2]}.html'>{$args[2]}</a>{$args[3]}";
+}
+
+function callBackFormatClassStaticMethodCodeLink( $args)
+{
+    $component = ezctutBase::getClassComponent( $args[2] );
+    return "{$args[1]}<a href='{$component}/{$args[2]}.html#{$args[4]}'>{$args[2]}::{$args[4]}</a>{$args[5]}";
+}
+
+function callBackFormatClassCodeLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[2] );
+    return "{$args[1]}<a href='{$component}/{$args[2]}.html'>{$args[2]}</a>{$args[3]}";
+}
+
+function callBackFormatClassConstantCodeLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html#const{$args[3]}'>{$args[1]}::{$args[3]}</a>";
+}
+
+function callbackFormatClassDynamicMethodCodeLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[2] );
+    return "{$args[1]}<a href='{$component}/{$args[2]}.html'>{$args[2]}</a>{$args[3]}";
+}
+
+function callBackFormatClassVarLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html#\${$args[2]}'>{$args[0]}</a>";
+}
+
+function callBackFormatClassStaticMethodLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html#{$args[2]}'>{$args[0]}</a>";
+}
+
+function callBackFormatClassDynamicMethodLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html#{$args[3]}'>{$args[0]}</a>";
+}
+
+function callBackFormatClassConstantLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html#const{$args[2]}'>{$args[0]}</a>";
+}
+
+function callBackFormatClassLink( $args )
+{
+    $component = ezctutBase::getClassComponent( $args[1] );
+    return "<a href='{$component}/{$args[1]}.html'>{$args[0]}</a>";
 }
 
 function addExampleLineNumbers( $output )
