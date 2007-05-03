@@ -1,5 +1,23 @@
 <?php
 /**
+ * Script to automatically generate autoload files.
+ *
+ * To run this for one specific component, go to the parent directory of
+ * scripts/ and trunk/ and run the following the lines below. Make sure you
+ * install the PEAR package "Structures_Graph" and the graphviz binaries first.
+ * 
+ * php -derror_reporting=E_ALL scripts/generate-autoload-file.php
+ *  -c $componentname -t trunk/$componentname
+ *
+ * Substitute $componentname with the name of your component (two times). This
+ * creates the correct autoload file(s) in trunk/component/src and also a new
+ * class diagram in trunk/component/design (with graphviz's 'neato').
+ *
+ * In order to re-generate autoload files for all components, run the
+ * scripts/generate-autoload-files.sh script instead.
+ */
+
+/**
  * Load the base package to boot strap the autoloading
  */
 require_once 'trunk/Base/src/base.php';
