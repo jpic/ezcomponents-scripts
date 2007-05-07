@@ -22,6 +22,11 @@ else
 fi
 
 echo "* Copying to release branch"
+if test -d releases/$component/$version; then
+	echo "  - Directory already exists, aborting."
+	exit;
+fi
+
 if test $branch == 'trunk'; then
 	svn cp trunk/$component releases/$component/$version
 else

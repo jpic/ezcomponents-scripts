@@ -3,8 +3,8 @@
 
 define( 'CHANNEL_URI',          'components.ez.no' );
 define( 'PACKAGE_NAME',         'eZComponents' );
-define( 'PACKAGE_SUMMARY',      'Super package to install a complete release of eZ Enterprise Components.' );
-define( 'PACKAGE_DESCRIPTION',  'This super package provides dependencies to every other eZ Enterprise Component to install those all at once. To perform this, simply do <$ pear install -a ' . PACKAGE_NAME . '>.');
+define( 'PACKAGE_SUMMARY',      'Super package to install a complete release of eZ Components.' );
+define( 'PACKAGE_DESCRIPTION',  'This super package provides dependencies to every other eZ Component to install those all at once. To perform this, simply do <$ pear install -a ' . PACKAGE_NAME . '>.');
 define( 'PACKAGE_LICENSE',      'New BSD');
 
 $releasesPath = realpath( '.' . DIRECTORY_SEPARATOR . 'release-info' );
@@ -43,7 +43,7 @@ $output->formats->version->color = 'red';
 
 // Standard text
 $output->outputLine();
-$output->outputLine( "eZ Enterprise Components super-package creator", 'info' );
+$output->outputLine( "eZ Components super-package creator", 'info' );
 $output->outputText( "Version: ", 'info' );
 $output->outputLine( "0.1.0\n", 'version' );
 $output->outputLine();

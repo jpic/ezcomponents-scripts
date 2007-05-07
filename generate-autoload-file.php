@@ -414,7 +414,7 @@ function figureOutPrefix( $className, $component )
     }
     if ( preg_match( "/^([a-z]*)([A-Z][a-z0-9]*)([A-Z][a-z0-9]*)?/", $className, $matches ) !== false )
     {
-        if ( in_array( $component, array( 'DatabaseSchema',
+        if ( in_array( $component, array( 'AuthenticationDatabaseTiein', 'DatabaseSchema',
                         'EventLogDatabaseTiein', 'GraphDatabaseTiein', 'ImageAnalysis',
                         'PersistentObjectDatabaseSchemaTiein', 'PhpGenerator',
                         'TranslationCacheTiein', 'WorkflowDatabaseTiein', 'WorkflowEventLogTiein' ) ) )

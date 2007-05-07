@@ -28,7 +28,7 @@ if test "$component" == "Database" \
 	-o "$component" == "EventLogDatabaseTiein" \
 	-o "$component" == "PersistentObject" \
 	-o "$component" == "PersistentObjectDatabaseSchemaTiein"; then
-	dsns="mysql://root:wee123@localhost/ezc sqlite://:memory: sqlite:///tmp/test.sqlite pgsql://ezc:ezc@localhost/ezc"
+	dsns="mysql://root@localhost/ezc sqlite://:memory: sqlite:///tmp/test.sqlite pgsql://ezc:ezc@localhost/ezc"
 else
 	dsns="sqlite://:memory:";
 fi
