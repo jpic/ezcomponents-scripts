@@ -58,7 +58,7 @@ $params->registerOption( $componentOption );
 
 $targetOption = new ezcConsoleOption( 't', 'target', ezcConsoleInput::TYPE_STRING );
 $targetOption->mandatory = true;
-$targetOption->shorthelp = "The directory to where the generated documentation should be written.";
+$targetOption->shorthelp = "The directory to where the generated autoload file should be written.";
 $params->registerOption( $targetOption );
 
 // Process console parameters
