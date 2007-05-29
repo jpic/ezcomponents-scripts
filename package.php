@@ -88,10 +88,6 @@ function addPackage( $packageDir, $name, $version )
     /* remove crappy files */
     echo "RR ";
     @unlink( "$packageDir/$name/review.txt" );
-
-    /* remove design directory */
-    echo "RD ";
-    `rm -rf "$packageDir/$name/design"`;
     
     echo "Done\n";
 }

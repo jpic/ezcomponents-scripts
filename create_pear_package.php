@@ -487,6 +487,10 @@ class ezcPackageManager
         {
             $linkPaths[$installDir . '/docs'] = $packageDir . '/docs';
         }
+        if ( is_dir( $packageDir . '/design' ) )
+        {
+            $linkPaths[$installDir . '/design'] = $packageDir . '/design';
+        }
 
         // autoload files must be linked
         foreach( glob( $packageDir . '/src/*autoload*' ) as $autoloadFile ) 
