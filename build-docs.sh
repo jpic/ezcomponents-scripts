@@ -73,7 +73,7 @@ php scripts/build-php-doc-config.php $release $release on > /tmp/doc-components.
 
 j=`php scripts/list-export-dirs.php $release`
 
-cd /home/httpd || exit 2
+cd /home/derick/dev || exit 2
 
 cd ezcomponents || exit 4
 mkdir -p ${DOC_OUTPUT_DIR}/$release || exit 8

@@ -6,7 +6,7 @@
 
 fullVersion=`pwd | sed 's/.*\///g'`
 minorVersion=`pwd | sed 's/.*\///g' | sed 's/^\([0-9]\+\.[0-9]\+\).*/\1/'`
-comp=`pwd | cut -d / -f 6`
+comp=`pwd | cut -d / -f 7`
 
 for i in `find . -name \*.php`; do perl -p -i -e "s/\/\/autogentag\/\//$fullVersion/g" $i; done
 for i in `find . -name \*.php`; do perl -p -i -e "s/\/\/autogen\/\//$fullVersion/g" $i; done
