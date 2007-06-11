@@ -118,6 +118,7 @@ function getRstOutput( $componentDir )
 
 function removeHeaderFooter( $output )
 {
+    ini_set( 'pcre.backtrack_limit', 10000000 );
     $output = preg_replace( '@.*?<body>@ms', '', $output );
     $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@', '', $output );
     $output = preg_replace( '@<\/body>.*@ms', '', $output );
