@@ -4,6 +4,11 @@
 // For help, please run 
 // $ scripts/docanalysis.php --help
 
+ini_set(
+    'include_path',
+    dirname( __FILE__ ) . '/../trunk' . PATH_SEPARATOR . ini_get( 'include_path' )
+);
+
 require_once dirname( __FILE__ ) . '/../trunk/Base/src/base.php';
 
 ezcBase::addClassRepository(
