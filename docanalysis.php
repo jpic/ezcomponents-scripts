@@ -34,6 +34,18 @@ $input->registerOption(
         true
     )
 );
+$input->registerOption( 
+    new ezcConsoleOption(
+        'c',
+        'color',
+        ezcConsoleInput::TYPE_NONE,
+        null,
+        false,
+        'Activate color output.',
+        'If this option is activated, the output messages are colorized.'
+    )
+);
+
 $input->argumentDefinition = new ezcConsoleArguments();
 $input->argumentDefinition[] = new ezcConsoleArgument(
     "component",
@@ -82,6 +94,8 @@ $check->addRule(
 
 $check->check( $analysis );
 
-ezcDocAnalysisPlainReporter::output( $analysis );
+$reporter = new ezcDocAnalysisPlainReporter();
+$reporter->options->useColors = $input->getOption( 'color' )->value;
+$reporter->output( $analysis );
 
 ?>
