@@ -1,6 +1,6 @@
 <?php
 
-class ezcDocFileAnalysisGenerator implements ezcDocAnalysisElementGenerator
+class ezcDocFileAnalysisGenerator extends ezcDocAnalysisElementGenerator
 {
     protected $class;
 

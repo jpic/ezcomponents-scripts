@@ -1,6 +1,6 @@
 <?php
 
-class ezcDocComponentAnalysisGenerator implements ezcDocAnalysisElementGenerator
+class ezcDocComponentAnalysisGenerator extends ezcDocAnalysisElementGenerator
 {
     protected $files = array();
 

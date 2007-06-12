@@ -1,6 +1,6 @@
 <?php
 
-class ezcDocClassAnalysisGenerator implements ezcDocAnalysisElementGenerator
+class ezcDocClassAnalysisGenerator extends ezcDocAnalysisElementGenerator
 {
 
     private $properties = array();
@@ -23,19 +23,7 @@ class ezcDocClassAnalysisGenerator implements ezcDocAnalysisElementGenerator
     public function generate()
     {
         $analysis = ezcDocAnalysisElement::get( $this->class );
-        try 
-        {
-            $analysis->docBlock = ezcDocBlockParser::parse( $this->class->getDocComment() );
-        }
-        catch ( ezcDocInvalidDocBlockException $e )
-        {
-            $analysis->addMessage( new ezcDocAnalysisMessage( $e->getMessage() ) );
-            $analysis->docBlockValid = false;
-        }
-        catch ( ezcDocException $e )
-        {
-            $analysis->addMessage( new ezcDocAnalysisMessage( $e->getMessage() ) );
-        }
+        $this->parseDocBlock( $analysis, $this->class->getDocComment() );
         foreach ( $this->properties as $property )
         {
             if ( $property->getDeclaringClass()->isUserDefined() )

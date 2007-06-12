@@ -1,6 +1,6 @@
 <?php
 
-class ezcDocMethodAnalysisGenerator implements ezcDocAnalysisElementGenerator
+class ezcDocMethodAnalysisGenerator extends ezcDocAnalysisElementGenerator
 {
     private $methdod;
 
@@ -16,14 +16,7 @@ class ezcDocMethodAnalysisGenerator implements ezcDocAnalysisElementGenerator
     public function generate()
     {
         $analysis = ezcDocAnalysisElement::get( $this->method );
-        try
-        {
-            $analysis->docBlock = ezcDocBlockParser::parse( $this->method->getDocComment() );
-        }
-        catch ( ezcDocException $e )
-        {
-            $analysis->addMessage( new ezcDocAnalysisMessage( $e->getMessage() ) );
-        }
+        $this->parseDocBlock( $analysis, $this->method->getDocComment() );
         return $analysis;
     }
 }
