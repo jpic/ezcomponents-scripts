@@ -9,7 +9,7 @@ class ezcDocBlockLinkTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@link\s+\([^ ]+)\s+$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@link\s+([^ ]+)\s+$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "link", $docLine );
         }
