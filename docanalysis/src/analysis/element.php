@@ -3,10 +3,11 @@
 class ezcDocAnalysisElement
 {
     protected $properties = array(
-        "element"  => null,
-        "docBlock" => null,
-        "messages" => array(),
-        "children" => array(),
+        "element"       => null,
+        "docBlock"      => null,
+        "messages"      => array(),
+        "children"      => array(),
+        "docBlockValid" => true,
     );
 
     public function __construct( Reflector $element )
@@ -36,7 +37,7 @@ class ezcDocAnalysisElement
 
     public function __get( $propertyName )
     {
-        if ( isset( $this->$propertyName ) )
+        if ( $this->__isset( $propertyName ) )
         {
             return $this->properties[$propertyName];
         }
@@ -57,6 +58,16 @@ class ezcDocAnalysisElement
                     throw new ezcBaseValueException( $propertyName, $propertyValue, 'ezcDocBlock' );
                 }
                 break;
+            case 'docBlockValid':
+                if ( is_bool( $propertyValue ) === false )
+                {
+                    throw new ezcBaseValueException( $propertyName, $propertyValue, 'bool' );
+                }
+                break;
+            case 'element':
+            case 'messages':
+            case 'children':
+                throw new ezcBasePropertyPermissionException( $propertyName, ezcBasePropertyPermissionException::READ );
             default:
                 throw new ezcBasePropertyNotFoundException( $propertyName );
         }

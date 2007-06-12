@@ -27,6 +27,11 @@ class ezcDocClassAnalysisGenerator implements ezcDocAnalysisElementGenerator
         {
             $analysis->docBlock = ezcDocBlockParser::parse( $this->class->getDocComment() );
         }
+        catch ( ezcDocInvalidDocBlockException $e )
+        {
+            $analysis->addMessage( new ezcDocAnalysisMessage( $e->getMessage() ) );
+            $analysis->docBlockValid = false;
+        }
         catch ( ezcDocException $e )
         {
             $analysis->addMessage( new ezcDocAnalysisMessage( $e->getMessage() ) );

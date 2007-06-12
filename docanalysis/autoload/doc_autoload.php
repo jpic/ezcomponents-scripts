@@ -18,6 +18,7 @@ return array(
     'ezcDocUnrecognizedDocTagException'      => 'exceptions/unrecognized_tag.php',
     'ezcDocAnalysisElementGenerator'         => 'interfaces/element_analysis_generator.php',
     'ezcDocAnalysisReporter'                 => 'interfaces/analysis_reporter.php',
+    'ezcDocAnalysisReporterOptions'          => 'options/reporter.php',
     'ezcDocAnalysisRule'                     => 'interfaces/analysis_rule.php',
     'ezcDocBlockBaseTag'                     => 'interfaces/doc_base_tag.php',
     'ezcDocBlockTag'                         => 'interfaces/doc_tag.php',

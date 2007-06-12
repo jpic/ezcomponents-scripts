@@ -20,9 +20,12 @@ class ezcDocAnalysisCheck
 
     public function check( ezcDocAnalysisElement $analysisElement )
     {
-        foreach ( $this->rules[get_class( $analysisElement->element )] as $rule )
+        if ( $analysisElement->docBlockValid === true )
         {
-            $rule->check( $analysisElement );
+            foreach ( $this->rules[get_class( $analysisElement->element )] as $rule )
+            {
+                $rule->check( $analysisElement );
+            }
         }
         foreach ( $analysisElement->children as $child )
         {
