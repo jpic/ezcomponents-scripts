@@ -9,7 +9,7 @@ class ezcDocBlockThrowsTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@throws\s+([^ ]+)\s*(.*)\s*$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@throws\s+(\S+)\s*(.*)\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "return", $docLine );
         }

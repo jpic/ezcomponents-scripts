@@ -9,7 +9,7 @@ class ezcDocBlockPropertyTag extends ezcDocBlockBaseTag implements ezcDocBlockTa
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@property(-read|-write|)\s+([^ ]+)\s+(\$[^ ]+)\s*(.*)$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@property(-read|-write|)\s+(\S+)\s+(\$\S+)\s*(.*)$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "property", $docLine );
         }

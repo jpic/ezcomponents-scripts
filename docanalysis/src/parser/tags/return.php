@@ -9,7 +9,7 @@ class ezcDocBlockReturnTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@return\s+([^ ]+)\s*(.*)\s*$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@return\s+(\S+)\s*(.*)\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "return", $docLine );
         }

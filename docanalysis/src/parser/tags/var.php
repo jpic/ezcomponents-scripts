@@ -9,7 +9,7 @@ class ezcDocBlockVarTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@var\s+([^ ]+)\s*(.*)$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@var\s+(\S+)\s*(.*)$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "var", $docLine );
         }

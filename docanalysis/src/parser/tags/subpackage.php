@@ -9,7 +9,7 @@ class ezcDocBlockSubsubpackageTag extends ezcDocBlockBaseTag implements ezcDocBl
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@subpackage\s+([^ ]+)\s*$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@subpackage\s+(\S+)\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "subpackage", $docLine );
         }

@@ -9,7 +9,7 @@ class ezcDocBlockPackageTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@package\s+([^ ]+)\s*$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@package\s+(\S+)\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "package", $docLine );
         }

@@ -9,7 +9,7 @@ class ezcDocBlockSeeTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@see\s+([^ ]+)\s*$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@see\s+(\S+)\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "see", $docLine );
         }
