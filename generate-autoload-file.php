@@ -20,7 +20,7 @@
 /**
  * Load the base package to boot strap the autoloading
  */
-require_once 'trunk/Base/src/base.php';
+require_once dirname( __FILE__ ) . '/../trunk/Base/src/base.php';
 
 /**
  * Pear classes
@@ -43,6 +43,8 @@ function __autoload( $class_name )
         return;
     }
 }
+
+// }}}
 
 ini_set( 'highlight.string', '#335533' );
 ini_set( 'highlight.keyword', '#0000FF' );
@@ -378,12 +380,12 @@ function sortDependencyData( $depDataArray )
 
 function fetchExceptionFiles( $component )
 {
-    return ezcFile::findRecursive( "trunk/{$component}/src", array( '@\.php$@', '@/exceptions/@' ) );
+    return ezcFile::findRecursive( dirname( __FILE__ ) . "/../trunk/{$component}/src", array( '@\.php$@', '@/exceptions/@' ) );
 }
 
 function fetchNormalFiles( $component )
 {
-    return ezcFile::findRecursive( "trunk/{$component}/src", array( '@\.php$@' ), array ( '@/exceptions/@' ) );
+    return ezcFile::findRecursive( dirname( __FILE__ ) . "/../trunk/{$component}/src", array( '@\.php$@' ), array ( '@/exceptions/@' ) );
 }
 
 function generateDependencyData( $files, $component )
