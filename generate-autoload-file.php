@@ -73,11 +73,7 @@ catch ( ezcConsoleOptionException $e )
     print( $e->getMessage(). "\n" );
     print( "\n" );
 
-    echo $params->getSynopsis() . "\n";
-    foreach ( $params->getOptions() as $option )
-    {
-        echo "-{$option->short}, --{$option->long}\t    {$option->shorthelp}\n";
-    }
+    echo $params->getHelpText( 'Autoload file generator.' ) . "\n";
 
     echo "\n";
     exit();
