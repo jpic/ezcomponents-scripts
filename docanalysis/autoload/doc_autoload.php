@@ -34,6 +34,7 @@ return array(
     'ezcDocAnalysisRuleTagsAvailable'        => 'check/rules/tags_available.php',
     'ezcDocBlock'                            => 'parser/block.php',
     'ezcDocBlockAccessTag'                   => 'parser/tags/access.php',
+    'ezcDocBlockApichangeTag'                => 'parser/tags/apichange.php',
     'ezcDocBlockAuthorTag'                   => 'parser/tags/author.php',
     'ezcDocBlockCopyrightTag'                => 'parser/tags/copyright.php',
     'ezcDocBlockFilesourceTag'               => 'parser/tags/filesource.php',
