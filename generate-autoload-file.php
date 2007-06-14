@@ -218,9 +218,9 @@ function dumpSortedArray( $sorted, $length )
 //                require $data['file'];
             }
 
-            $fileParts = explode( '/', $data['file'] );
-            unset($fileParts[2]);
-            unset($fileParts[0]);
+            $file = preg_replace( '@.*trunk/@', '', $data['file'] );
+            $fileParts = explode( '/', $file );
+            unset($fileParts[1]);
             $file = implode( '/', $fileParts );
 
             $ret .= sprintf( "    %-{$length}s => '%s',\n", "'{$data['class']}'", $file );
