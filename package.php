@@ -29,7 +29,7 @@ addAditionalFiles( $packageDir, $packageList );
 setBaseNonDevel( $packageDir );
 
 echo "Creating Archives: ";
-`cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version.tar.bz2 .`;
+`cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version.tar.bz2 ezcomponents-$version`;
 echo "tar.bz2 ";
 `cd $basePackageDir; zip -r /tmp/ezcomponents-$version.zip ezcomponents-$version`;
 echo "zip ";
