@@ -10,7 +10,7 @@ class ezcDocBlockParser
 
         if ( count( $docLines ) < 3 )
         {
-            throw new ezcDocInvalidDocBlockException( "Docblock is missig." );
+            throw new ezcDocInvalidDocBlockException( "Docblock is missing." );
         }
         
         self::$docBlock = new ezcDocBlock();
