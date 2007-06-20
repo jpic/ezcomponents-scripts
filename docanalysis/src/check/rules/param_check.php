@@ -33,6 +33,7 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
             $realParamName = '$' . $realParam->getName();
             foreach ( $docParams as $docParamPos => $docParam )
             {
+                $docTypes = explode( '|', $docParam->type );
                 if ( $realParamName == $docParam->name )
                 {
                     // Found parameter documentation, now checking different stuff
@@ -49,7 +50,7 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                     }
                     if ( ( $class = $realParam->getClass() ) !== null ) 
                     {
-                        // Has a type hint
+                        // Has class type hint
                         if ( $class->getName() != $docParam->type )
                         {
                             $analysisElement->addMessage(
@@ -62,6 +63,7 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                     }
                     if ( $realParam->isArray() && substr( $docParam->type, 0, 5 ) !== 'array' )
                     {
+                        // Has array type hint
                         $analysisElement->addMessage(
                             new ezcDocAnalysisMessage(
                                 "Parameter '$realParamName' documented to be of type {$docParam->type} but is an array.",
@@ -78,7 +80,7 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                                 // Mixed is ok everywhere
                                 break;
                             case ( is_object( $defaultValue ) ):
-                                if ( $docParam->type != get_class( $defaultValue ) )
+                                if ( !in_array( get_class( $defaultValue ), $docTypes ) )
                                 {
                                     $analysisElement->addMessage(
                                         new ezcDocAnalysisMessage(
@@ -123,17 +125,14 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                                         $typeName = 'float';
                                         break;
                                 }
-                                if ( $docParam->type !== $typeName )
+                                if ( !in_array( $typeName, $docTypes ) )
                                 {
-                                    if ( substr( $docParam->type, 0, 8 ) !== "resource" )
-                                    {
-                                        $analysisElement->addMessage(
-                                            new ezcDocAnalysisMessage(
-                                                "Parameter '$realParamName' documented to be of type {$docParam->type} but is '$typeName' or mixed.",
-                                                self::$level
-                                            )
-                                        );
-                                    }
+                                    $analysisElement->addMessage(
+                                        new ezcDocAnalysisMessage(
+                                            "Parameter '$realParamName' documented to be of type {$docParam->type} but is '$typeName' or mixed.",
+                                            self::$level
+                                        )
+                                    );
                                 }
                                 break;
                         }
