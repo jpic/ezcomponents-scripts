@@ -26,7 +26,8 @@ class ezcDocClassAnalysisGenerator extends ezcDocAnalysisElementGenerator
         $this->parseDocBlock( $analysis, $this->class->getDocComment() );
         foreach ( $this->properties as $property )
         {
-            if ( $property->getDeclaringClass()->isUserDefined() )
+            $declaringClass = $property->getDeclaringClass();
+            if ( $declaringClass->isUserDefined() && $declaringClass == $this->class )
             {
                 $analyser = new ezcDocPropertyAnalysisGenerator( $property );
                 $analysis->addChild( $analyser->generate() );
@@ -34,7 +35,7 @@ class ezcDocClassAnalysisGenerator extends ezcDocAnalysisElementGenerator
         }
         foreach ( $this->methods as $method )
         {
-            if ( $method->isUserDefined() )
+            if ( $method->isUserDefined() && $method->getDeclaringClass() == $this->class )
             {
                 $analyser = new ezcDocMethodAnalysisGenerator( $method );
                 $analysis->addChild( $analyser->generate() );
