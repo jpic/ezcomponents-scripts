@@ -9,7 +9,7 @@ class ezcDocBlockFilesourceTag extends ezcDocBlockBaseTag implements ezcDocBlock
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@filesource\s+$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@filesource\s*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "filesource", $docLine );
         }
