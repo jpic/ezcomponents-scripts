@@ -61,7 +61,7 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                             );
                         }
                     }
-                    if ( $realParam->isArray() && substr( $docParam->type, 0, 5 ) !== 'array' )
+                    if ( $realParam->isArray() && substr( $docParam->type, 0, 5 ) !== 'array' && $docParam->type !== 'mixed' )
                     {
                         // Has array type hint
                         $analysisElement->addMessage(
