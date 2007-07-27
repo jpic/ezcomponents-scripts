@@ -32,6 +32,13 @@ cd -
 if test -d stable; then
 	echo "Setting up environment for 'stable'"
 
+	if test -d stable/autoload; then
+		echo "Autoload directory exists."
+	else
+		echo "Creating missing 'autoload' directory."
+		mkdir stable/autoload
+	fi
+
 	if ! test -L stable/autoload/base_autoload.php; then
 		ln -s ../../trunk/Base/src/base_autoload.php stable/autoload/base_autoload.php
 	fi
