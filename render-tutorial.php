@@ -29,12 +29,12 @@ class ezctutBase extends ezcBase
 
     public static function getClassComponent( $class )
     {
-        try
+        $location = self::getClassLocation( $class );
+        if ( $location )
         {
-            $location = self::getClassLocation( $class );
             return substr( $location, 0, strpos( $location, '/' ) );
         }
-        catch ( Exception $e)
+        else
         {
             echo "Wrong class '{$class}', using current component: {$GLOBALS['component']}\n";
             return $GLOBALS['component'];
@@ -105,9 +105,11 @@ $output = addNewFooter( $output );
 
 $targetDir = $params->getOption( 'target' )->value;
 file_put_contents( "$targetDir/introduction_$component.html", $output );
-// Copying images
+// Copying images and files
 `mkdir -p $targetDir/img`;
 `cp $componentDir/docs/img/*.* $targetDir/img/ 2>/dev/null`;
+`mkdir -p $targetDir/files`;
+`cp $componentDir/docs/files/*.* $targetDir/files/ 2>/dev/null`;
 
 function getRstOutput( $componentDir )
 {
@@ -158,6 +160,8 @@ function addLinks( $component, $output, $version )
     $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", 'callBackFormatClassDynamicMethodLink', $output );
     $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Z_]+)\\b@", 'callBackFormatClassConstantLink', $output );
     $output = preg_replace_callback( "@(?<![/>])(ezc[A-Z][a-zA-Z0-9]+)@", 'callBackFormatClassLink', $output );
+    $output = preg_replace_callback( "@(?<=<td>)(ezc[A-Z][a-zA-Z0-9]+)@", 'callBackFormatClassLink', $output );
+    $output = preg_replace_callback( "@(?<=<dt>)(ezc[A-Z][a-zA-Z0-9]+)@", 'callBackFormatClassLink', $output );
     $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</span><span style=\"color: #[0-9A-F]+\">\()@", 'callbackFormatClassDynamicMethodCodeLink', $output );
     $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z]+)(</span><span style=\"color: #[0-9A-F]+\">::</span><span style=\"color: #[0-9A-F]+\">)([A-Z_]+)@", 'callBackFormatClassConstantCodeLink', $output );
     $output = preg_replace_callback( "@(<span style=\"color: #[0-9A-F]+\">)(ezc[A-Z][a-zA-Z0-9]+)(</li>)@", 'callBackFormatClassCodeLink', $output );

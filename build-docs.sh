@@ -23,7 +23,7 @@ cp docs/overview.tpl ${DOC_OUTPUT_DIR} || exit 12
 echo "Preparing top left_menu_comp.tpl"
 cat > ${DOC_OUTPUT_DIR}/left_menu_comp.tpl << EOF
 <div class="attribute-heading">
-<h2 class="bullet">eZ components</h2>
+<h2 class="bullet">eZ Components</h2>
 </div>
 
 <div class="boxcontent">
@@ -40,7 +40,7 @@ cat > ${DOC_OUTPUT_DIR}/left_menu_comp.tpl << EOF
 EOF
 cat > ${DOC_OUTPUT_DIR}/left_menu_comp.html << EOF
 <div class="attribute-heading">
-<h2 class="bullet">eZ components</h2>
+<h2 class="bullet">eZ Components</h2>
 </div>
 
 <div class="boxcontent">
@@ -61,10 +61,10 @@ mkdir -p ${DOC_OUTPUT_DIR}/$release
 
 echo "Update main index file"
 cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.tpl << EOF
-<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/')}">eZ components $release</a></li>
+<li><a href="{concat(\$indexDir, '/components/view/$release/(file)/')}">eZ Components $release</a></li>
 EOF
 cat >> ${DOC_OUTPUT_DIR}/left_menu_comp.html << EOF
-<li><a href="${HTTP_ROOT_DIR}/$release/">eZ components $release</a></li>
+<li><a href="${HTTP_ROOT_DIR}/$release/">eZ Components $release</a></li>
 EOF
 
 echo "Writing config file for $release"
@@ -88,7 +88,7 @@ php-5.1dev /usr/local/bin/phpdoc -q on -c /tmp/doc-components.ini >/tmp/docbuild
 echo "Writing left_menu_comp_$release.tpl"
 cat > ${DOC_OUTPUT_DIR}/left_menu_comp_$release.tpl << EOF
 <div class="attribute-heading">
-<h2 class="bullet">eZ components</h2>
+<h2 class="bullet">eZ Components</h2>
 </div>
 
 <div class="boxcontent">
@@ -105,7 +105,7 @@ cat > ${DOC_OUTPUT_DIR}/left_menu_comp_$release.tpl << EOF
 EOF
 cat > ${DOC_OUTPUT_DIR}/left_menu_comp_$release.html << EOF
 <div class="attribute-heading">
-<h2 class="bullet">eZ components</h2>
+<h2 class="bullet">eZ Components</h2>
 </div>
 
 <div class="boxcontent">
