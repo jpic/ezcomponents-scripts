@@ -415,7 +415,8 @@ function figureOutPrefix( $className, $component )
         if ( in_array( $component, array( 'AuthenticationDatabaseTiein', 'DatabaseSchema',
                         'EventLogDatabaseTiein', 'GraphDatabaseTiein', 'ImageAnalysis',
                         'PersistentObjectDatabaseSchemaTiein', 'PhpGenerator',
-                        'TranslationCacheTiein', 'WorkflowDatabaseTiein', 'WorkflowEventLogTiein' ) ) )
+                        'TranslationCacheTiein', 'TreeDatabaseTiein', 'TreePersistentObjectTiein',
+                        'WorkflowDatabaseTiein', 'WorkflowEventLogTiein' ) ) )
         {
             return strtolower( "{$matches[2]}_{$matches[3]}" );
         }
