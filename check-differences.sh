@@ -8,4 +8,4 @@
 comp=`echo $1 | cut -d / -f 2`
 version=`echo $1 | cut -d / -f 3`
 
-diff -N -I @version -x .svn -ru6p releases/$comp/$version trunk/$comp | less
+diff -N -I @version -x .svn -rup -U 6 releases/$comp/$version trunk/$comp | less
