@@ -38,14 +38,14 @@ $directories = substr( $directories, 0, -1 );
 
 echo <<<ECHOEND
 [Parse Data]
-title = eZ components Manual
+title = eZ Components Manual
 hidden = false
 parseprivate = off
 javadocdesc = off
 defaultcategoryname = NoCategoryName
 defaultpackagename = NoPackageName
 
-target = /home/httpd/html/components/phpdoc_gen/ezcomponents/$targetversion
+target = /home/httpd/html/components/phpdoc_gen/ezcomponents-$targetversion
 directory = $directories
 
 ignore = autoload/,*autoload.php,tests/,docs/

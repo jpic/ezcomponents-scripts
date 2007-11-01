@@ -98,7 +98,7 @@ else
 
 $output = getRstOutput( $componentDir );
 $output = removeHeaderFooter( $output );
-$output = addNewHeader( $component, $output );
+$output = addNewHeader( $component, $output, $version );
 $output = addExampleLineNumbers( $output );
 $output = addLinks( $component, $output, $version );
 $output = addNewFooter( $output );
@@ -122,7 +122,7 @@ function removeHeaderFooter( $output )
 {
     ini_set( 'pcre.backtrack_limit', 10000000 );
     $output = preg_replace( '@.*?<body>@ms', '', $output );
-    $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@', '', $output );
+    $output = preg_replace( '@<h1 class="title">eZ components - [A-Za-z]+</h1>@i', '', $output );
     $output = preg_replace( '@<\/body>.*@ms', '', $output );
     return $output;
 }
@@ -132,19 +132,16 @@ function addNewFooter( $output )
     return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div>";
 }
 
-function addNewHeader( $component, $output )
+function addNewHeader( $component, $output, $version )
 {
     $outputHeader = <<<FOO
-<div class="attribute-heading"><h1>$component</h1></div>
-
-
-<b>[ <a href="introduction_$component.html" class="menu">Tutorial</a> ]</b>
+<h1>$component</h1>
+<b>[ <a href="/docs/api/$version/introduction_$component.html" class="menu">Tutorial</a> ]</b>
 <!-- EXTRA DOCS GO HERE! -->
-<b>[ <a href="classtrees_$component.html" class="menu">Class tree</a> ]</b>
-<b>[ <a href="elementindex_$component.html" class="menu">Element index</a> ]</b>
-<b>[ <a href="changelog_$component.html" class="menu">ChangeLog</a> ]</b>
-<b>[ <a href="credits_$component.html" class="menu">Credits</a> ]</b>
-<h2>Tutorial for Component $component</h2>
+<b>[ <a href="/docs/api/$version/classtrees_$component.html" class="menu">Class tree</a> ]</b>
+<b>[ <a href="/docs/api/$version/elementindex_$component.html" class="menu">Element index</a> ]</b>
+<b>[ <a href="/docs/api/$version/changelog_$component.html" class="menu">ChangeLog</a> ]</b>
+<b>[ <a href="/docs/api/$version/credits_$component.html" class="menu">Credits</a> ]</b>
 <hr class="separator" />
 FOO;
     return $outputHeader . $output;
