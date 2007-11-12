@@ -129,12 +129,16 @@ function removeHeaderFooter( $output )
 
 function addNewFooter( $output )
 {
-    return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div>";
+    return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div></body></html>";
 }
 
 function addNewHeader( $component, $output, $version )
 {
     $outputHeader = <<<FOO
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<body>
 <h1>$component</h1>
 <b>[ <a href="/docs/api/$version/introduction_$component.html" class="menu">Tutorial</a> ]</b>
 <!-- EXTRA DOCS GO HERE! -->
