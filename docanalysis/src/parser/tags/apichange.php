@@ -9,13 +9,13 @@ class ezcDocBlockApichangeTag extends ezcDocBlockBaseTag implements ezcDocBlockT
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@apichange\s+(\S+\s*)+$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@apichange\s*(\S+\s*)*$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "apichange", $docLine );
         }
         parent::__construct(
             array(
-                "ref"  => $matches[1],
+                "ref"  => ( isset( $matches[1] ) ? $matches[1] : 'none' ),
             )
         );
     }
