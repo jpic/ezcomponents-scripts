@@ -683,9 +683,17 @@ class ezcPackageManager
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
 
-        $e = $pkg->setPhpDep( '5.1.1' );
+        if ( isset( $dependencies['php'] ) )
+        {
+            $e = $pkg->setPhpDep( $dependencies['php'] );
+        }
+        else
+        {
+            $e = $pkg->setPhpDep( '5.1.1' );
+        }
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
+
         $e = $pkg->setPearinstallerDep( '1.4.2' );
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
@@ -697,6 +705,10 @@ class ezcPackageManager
         }
         foreach ( $dependencies as $depComponent => $depVersion )
         {
+            if ( $depComponent == 'php' )
+            {
+                continue;
+            }
             $e = $pkg->addPackageDepWithChannel( 'required', $depComponent, self::CHANNEL, $depVersion );
             if ( PEAR::isError( $e ) )
                 $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
