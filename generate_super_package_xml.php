@@ -194,7 +194,18 @@ if ( PEAR::isError( $e ) )
 
 $version   = $input->getOption( 'v' )->value;
 $version   = str_replace( 'rc', 'RC', $version );
-$stability = ( strpos( $version, 'beta' ) !== false || strpos( $version, 'RC' ) !== false ) ? 'beta' : 'stable';
+if ( strpos( $version, 'alpha' ) !== false )
+{
+    $stability = 'alpha';
+}
+else if ( strpos( $version, 'beta' ) !== false || strpos( $version, 'RC' ) !== false )
+{
+    $stability = 'beta';
+}
+else
+{
+    $stability = 'stable';
+}
 
 $e = $pkg->setReleaseStability( $stability );
 if ( PEAR::isError( $e ) )
