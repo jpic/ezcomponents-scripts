@@ -149,12 +149,13 @@ foreach( $preloadData as $prefix => $preloadLines )
 */
 function dumpLicense( $component )
 {
+    $year = date( "Y" );
     return <<<ENDL
 <?php
 /**
  * Autoloader definition for the $component component.
  *
- * @copyright Copyright (C) 2005-2008 eZ systems as. All rights reserved.
+ * @copyright Copyright (C) 2005-$year eZ systems as. All rights reserved.
  * @license http://ez.no/licenses/new_bsd New BSD License
  * @version //autogentag//
  * @filesource
