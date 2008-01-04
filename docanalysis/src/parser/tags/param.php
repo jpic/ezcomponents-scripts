@@ -9,7 +9,7 @@ class ezcDocBlockParamTag extends ezcDocBlockBaseTag implements ezcDocBlockTag
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@param\s+(\S+)\s+(\$\S+)\s*(.*)$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@param\s+(\S+)\s+(&?\$\S+)\s*(.*)$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "param", $docLine );
         }
