@@ -39,6 +39,7 @@ return array(
     'ezcDocBlockCopyrightTag'                => 'parser/tags/copyright.php',
     'ezcDocBlockFilesourceTag'               => 'parser/tags/filesource.php',
     'ezcDocBlockIgnoreTag'                   => 'parser/tags/ignore.php',
+    'ezcDocBlockInternalTag'                 => 'parser/tags/internal.php',
     'ezcDocBlockLicenseTag'                  => 'parser/tags/license.php',
     'ezcDocBlockLinkTag'                     => 'parser/tags/link.php',
     'ezcDocBlockMainclassTag'                => 'parser/tags/mainclass.php',

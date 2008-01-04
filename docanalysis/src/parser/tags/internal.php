@@ -9,7 +9,7 @@ class ezcDocBlockInternalTag extends ezcDocBlockBaseTag implements ezcDocBlockTa
 
     public function __construct( $docLine )
     {
-        if ( preg_match( '/^@internal\s*(.*)?$/', $docLine, $matches ) !== 1 )
+        if ( preg_match( '/^@internal\s*(.*)$/', $docLine, $matches ) !== 1 )
         {
             throw new ezcDocInvalidDocTagException( "internal", $docLine );
         }
