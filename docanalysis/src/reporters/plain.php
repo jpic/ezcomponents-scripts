@@ -28,7 +28,7 @@ class ezcDocAnalysisPlainReporter extends ezcDocAnalysisReporter
         
         if ( count( $analysisElement->messages ) !== 0 )
         {
-            $this->output->outputLine( $this->indent( "{$analysisElement->name} (" . count( $analysisElement->messages ) . " messages)", $level ) );
+            $this->output->outputLine( $this->indent( "{$analysisElement->name} (" . count( $analysisElement->messages ) . " messages), file: {$analysisElement->file}, line: {$analysisElement->line}", $level ) );
         }
         foreach( $analysisElement->messages as $message )
         {

@@ -45,6 +45,14 @@ class ezcDocAnalysisElement
         {
             return $this->getName();
         }
+        if ( $propertyName === 'line' )
+        {
+            return $this->getLine();
+        }
+        if ( $propertyName === 'file' )
+        {
+            return $this->getFile();
+        }
         throw new ezcBasePropertyNotFoundException( $propertyName );
     }
 
@@ -93,6 +101,36 @@ class ezcDocAnalysisElement
                 return $this->element->getDeclaringClass()->getName() . "->" . $this->element->getName() . "()";
         }
         return "<<unkown>>";
+    }
+
+    protected function getLine()
+    {
+        switch ( get_class( $this->element ) )
+        {
+            case 'ezcDocFileReflection':
+            case 'ezcDocComponentReflection':
+                return 0;
+            case 'ReflectionClass':
+            case 'ReflectionMethod':
+                return $this->element->getStartLine();
+            case 'ReflectionProperty':
+                return $this->element->getDeclaringClass()->getStartLine();
+        }
+    }
+
+    protected function getFile()
+    {
+        switch ( get_class( $this->element ) )
+        {
+            case 'ezcDocFileReflection':
+            case 'ezcDocComponentReflection':
+                return $this->element->getName();
+            case 'ReflectionClass':
+            case 'ReflectionMethod':
+                return $this->element->getFileName();
+            case 'ReflectionProperty':
+                return $this->element->getDeclaringClass()->getFileName();
+        }
     }
 }
 
