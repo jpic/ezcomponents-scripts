@@ -105,7 +105,7 @@ for i in $j; do
 	version=`echo "$i" | sed "s/\/$comp//" | sed "s/releases\///"`
 	if test -f $i/docs/tutorial.txt; then
 		echo "* $comp ($version)"
-		php scripts/render-tutorial.php -c $comp -t ${DOC_OUTPUT_DIR} -v $version
+		php scripts/render-tutorial.php -c $comp -t ${DOC_OUTPUT_DIR} -v $version -r $release
 
 		cp ${DOC_OUTPUT_DIR}/introduction_$comp.html /tmp/file4.html
 		php -r "echo preg_replace( '@/docs/api/(.*?)/@', '', file_get_contents( '/tmp/file4.html' ) ); " > ${DOC_OUTPUT_DIR}/introduction_$comp.html
@@ -199,3 +199,5 @@ cd ..
 tar -chzf /tmp/ezcomponents-$release-docs.tar.gz ezcomponents-$release
 cd ../..
 rm -rf components
+scp -p /tmp/ezcomponents-$release-docs.tar.gz components.ez.no:/home/httpd/ezcomponents.org/files/downloads
+echo "scp -p /tmp/ezcomponents-$release-docs.tar.gz components.ez.no:/home/httpd/ezcomponents.org/files/downloads"

@@ -64,6 +64,11 @@ $versionOption->mandatory = true;
 $versionOption->shorthelp = "The version of the component that should be read. E.g. trunk, 1.0rc1, etc.";
 $params->registerOption( $versionOption );
 
+$versionOption = new ezcConsoleOption( 'r', 'release', ezcConsoleInput::TYPE_STRING );
+$versionOption->mandatory = true;
+$versionOption->shorthelp = "The release of the components we're building this tutorial for.";
+$params->registerOption( $versionOption );
+
 // Process console parameters
 try
 {
@@ -86,6 +91,7 @@ catch ( ezcConsoleOptionException $e )
 
 $component = $params->getOption( 'component' )->value;
 $version = $params->getOption( 'version' )->value;
+$release = $params->getOption( 'release' )->value;
 
 if ( $version == 'trunk' )
 {
@@ -98,7 +104,7 @@ else
 
 $output = getRstOutput( $componentDir );
 $output = removeHeaderFooter( $output );
-$output = addNewHeader( $component, $output, $version );
+$output = addNewHeader( $component, $output, $release );
 $output = addExampleLineNumbers( $output );
 $output = addLinks( $component, $output, $version );
 $output = addNewFooter( $output );
@@ -129,16 +135,12 @@ function removeHeaderFooter( $output )
 
 function addNewFooter( $output )
 {
-    return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div></body></html>";
+    return $output . "\n". "<div style=\"color: #959fa8; text-align: right; font-size: 0.85em;\">Last updated: ". date( 'D, d M Y' ) . "</div>";
 }
 
 function addNewHeader( $component, $output, $version )
 {
     $outputHeader = <<<FOO
-<html>
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<body>
 <h1>$component</h1>
 <b>[ <a href="/docs/api/$version/introduction_$component.html" class="menu">Tutorial</a> ]</b>
 <!-- EXTRA DOCS GO HERE! -->
@@ -156,6 +158,8 @@ function addLinks( $component, $output, $version )
 //    $base = "http://ez.no/doc/components/view/$version/(file)/$component/";
     $base = "$component/";
 
+    $output = preg_replace_callback( '@<span class="nx">(ezc[A-Z][a-zA-Z0-9]+)</span><span class="o">::</span><span class="na">([A-Za-z0-9_]+)</span>@', 'callBackFormatClassStaticMethodLink', $output );
+    $output = preg_replace_callback( '@(?<!>)<span class="nx">(ezc[A-Z][a-zA-Z0-9]+)</span>@', 'callBackFormatClassLink', $output );
     $output = preg_replace_callback( '@(ezc[A-Z][a-zA-Z0-9]+)::\$([A-Za-z0-9]+)@', 'callBackFormatClassVarLink', $output );
     $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)::([A-Za-z0-9_]+)(?=\()@", 'callBackFormatClassStaticMethodLink', $output );
     $output = preg_replace_callback( "@(ezc[A-Z][a-zA-Z0-9]+)-(>|\&gt;)([A-Za-z0-9_]+)(?=\()@", 'callBackFormatClassDynamicMethodLink', $output );
@@ -263,15 +267,22 @@ function callbackAddLineNumbers( $args )
     
     if ( strstr( $args[1], '&lt;?php' ) !== false )
     {
-        $listing = '<pre class="listing">';
-        $highlighted = highlight_string( html_entity_decode( $args[1] ), true );
-        $highlighted = preg_replace( '@^<code><span style="color: #000000">.<br />@ms', '<code><br />', $highlighted );
-        $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.*?)((<br />)+)(.*?)(</span>)@ms', '\1\2\6\3\1\5\6', $highlighted );
-        $highlighted = preg_replace( '@(<span style="color: #[0-9A-F]+">)(.+?)(<br />)(</span>)@ms', '\1\2\4\3', $highlighted );
-        $highlighted = preg_replace( '@<span style="color: #[0-9A-F]+"></span>@', '', $highlighted );
-        $highlighted = preg_replace( '@</span><br />.</code>$@ms', "</code>", $highlighted );
-        $highlighted = preg_replace_callback( '@(.*?)<br />@', "callbackAddLineNr", $highlighted );
-        $listing .= $highlighted . '</pre>';
+        file_put_contents( "/tmp/foo2.php", trim( html_entity_decode( $args[1] ) ) );
+        `pygmentize -o /tmp/foo3.html /tmp/foo2.php`;
+        $contents = file( "/tmp/foo3.html" );
+        // strip out BS at start and end
+        $contents[0] = str_replace( '<div class="highlight"><pre>', '', $contents[0] );
+        unset( $contents[count( $contents ) - 1] );
+        $listing = <<<ENDT
+<ol class="example">
+ 
+ENDT;
+        foreach ( $contents as $line )
+        {
+            $listing .= "<li>{$line}</li>";
+        }
+
+        $listing .= "</ol>\n";
         return $listing;
     } else {
         return $args[0];

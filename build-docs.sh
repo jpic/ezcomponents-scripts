@@ -83,7 +83,7 @@ for i in $j; do
 	version=`echo "$i" | sed "s/\/$comp//" | sed "s/releases\///"`
 	if test -f $i/docs/tutorial.txt; then
 		echo "* $comp ($version)"
-		php scripts/render-tutorial.php -c $comp -t ${DOC_OUTPUT_DIR} -v $version
+		php scripts/render-tutorial.php -c $comp -t ${DOC_OUTPUT_DIR} -v $version -r $release
 
 		cat >> ${DOC_OUTPUT_DIR}/tutorials.tpl << EOF
 <li><a href="introduction_$comp.html')}">$comp</a></li>
@@ -111,7 +111,7 @@ EOF
 					echo -n "  - Rendering extra doc '$output_name' to $release/${comp}_${output_name}"
 					php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}" -f $t
 					short_name=`echo $output_name | sed 's/.html//'`
-					short_name=`php -r "echo ucfirst( '$short_name' );"`
+					short_name=`php -r "echo strtr( ucfirst( '$short_name' ), '-_', '  ' );"`
 					extra1="$extra1 <b>[ <a href='../${comp}_${output_name}'>$short_name</a> ]</b>"
 					extra2="$extra2 <b>[ <a href='${comp}_${output_name}'>$short_name</a> ]</b>"
 				fi
@@ -188,3 +188,6 @@ tar -cf ../cdocs-${release}.tar ezcomponents-${release} || exit 11
 cd ..
 gzip -c -9 cdocs-${release}.tar > cdocs-${release}.tgz || exit 12
 rm cdocs-${release}.tar
+scp -i /home/derick/.ssh/id_ezdoc_rsa -p cdocs-${release}.tgz components:.
+ssh -i /home/derick/.ssh/id_ezdoc_rsa components ./copy-doc.sh cdocs-${release}.tgz
+echo "scp -p cdocs-${release}.tgz components:."
