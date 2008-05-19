@@ -2,7 +2,7 @@
 
 class ezcDocMethodAnalysisGenerator extends ezcDocAnalysisElementGenerator
 {
-    private $methdod;
+    private $method;
 
     public function __construct( Reflector $method )
     {
