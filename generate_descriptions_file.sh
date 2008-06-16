@@ -8,7 +8,7 @@ exec > docs/website/components_descriptions_marketing.txt
 echo eZ Components Overview
 echo ======================
 echo
-echo eZ Components is an enterprise ready, general purpose PHP components library. It is used independently or together for PHP application development. As a collection of high quality independent building blocks, eZ Components will both speed up development and reduce risks. An application can use one or more components effortlessly as they all adhere to the same naming conventions and follow the same structure. All components require__ atleast PHP 5.1.1.
+echo eZ Components is an enterprise ready, general purpose PHP components library. It is used independently or together for PHP application development. As a collection of high quality independent building blocks, eZ Components will both speed up development and reduce risks. An application can use one or more components effortlessly as they all adhere to the same naming conventions and follow the same structure. All components require__ atleast PHP 5.2.1.
 echo
 echo __ '/overview/requirements'
 echo
@@ -28,7 +28,7 @@ for i in trunk/*; do
 		echo
 		echo Documentation__
 		echo
-		echo __ '/docs/api/latest/classtrees_'$packagename.html
+		echo __ '/docs/api/latest/introduction_'$packagename.html
 
 		echo
 	fi
