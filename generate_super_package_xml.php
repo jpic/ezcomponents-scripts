@@ -165,7 +165,7 @@ foreach ( $releaseDef as $release )
     {
         $releaseData = array_map( 'trim', explode( ': ', $release ) );
         $version = str_replace( 'rc', 'RC', $releaseData[1] );
-        $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $version );
+        $e = $pkg->addPackageDepWithChannel( 'required', $releaseData[0], CHANNEL_URI, $version, $version );
         if ( PEAR::isError( $e ) )
             die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
     }
@@ -232,7 +232,7 @@ $e = $pkg->setPackageType( 'php' );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 
-$e = $pkg->setPhpDep( '5.1.1' );
+$e = $pkg->setPhpDep( '5.2.1' );
 if ( PEAR::isError( $e ) )
     die( $output->formatText( "Error in PackageFileManager2: <" . $e->getMessage() . ">.\n", 'failure' ) );
 $e = $pkg->setPearinstallerDep( '1.4.2' );
