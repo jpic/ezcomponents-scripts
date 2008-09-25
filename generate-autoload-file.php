@@ -63,6 +63,10 @@ $targetOption->mandatory = true;
 $targetOption->shorthelp = "The directory to where the generated autoload file should be written.";
 $params->registerOption( $targetOption );
 
+$noGraphOption = new ezcConsoleOption( 'n', 'no-graph' );
+$noGraphOption->shorthelp = "Do not generate a new class diagram.";
+$params->registerOption( $noGraphOption );
+
 // Process console parameters
 try
 {
@@ -81,6 +85,7 @@ catch ( ezcConsoleOptionException $e )
 
 $component = $params->getOption( 'component' )->value;
 $targetDir = $params->getOption( 'target' )->value;
+$noGraph   = $params->getOption( 'no-graph' )->value;
 
 $files = fetchExceptionFiles( $component, true );
 $depData = generateDependencyData( $files, $component );
@@ -109,7 +114,11 @@ dumpDotFooter();
 $data = ob_get_contents();
 ob_end_clean();
 file_put_contents( '/tmp/dot-gen.dot', $data );
-`neato -Tpng -o $targetDir/design/class_diagram.png /tmp/dot-gen.dot`;
+
+if ( $noGraph !== true )
+{
+    `neato -Tpng -o $targetDir/design/class_diagram.png /tmp/dot-gen.dot`;
+}
 unlink( '/tmp/dot-gen.dot' );
 
 /* Do create autoload files */
