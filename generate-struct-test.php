@@ -2,7 +2,8 @@
 <?php
 if ( $argc < 2 )
 {
-    print 'example usage: scripts/generate-struct-test.php ezcMvcRoutingInformation > trunk/MvcTools/tests/structs/routing_information.php';
+    print 'usage: scripts/generate-struct-test.php struct-class-name component-name > trunk/MvcTools/tests/structs/routing_information.php';
+    print 'example usage: scripts/generate-struct-test.php ezcMvcRoutingInformation MvcTools > trunk/MvcTools/tests/structs/routing_information.php';
     die( "\n" );
 }
 
@@ -49,6 +50,14 @@ $class = $argv[1];
 if ( !class_exists( $class ) )
 {
     die( "not a class: $class" );
+}
+
+
+$component = $argv[2];
+
+if ( !is_dir( 'trunk' . DIRECTORY_SEPARATOR . $component ) )
+{
+    die( "not a component in trunk: $component" );
 }
 
 $structRc = new ReflectionClass( $class );
@@ -120,14 +129,14 @@ for( $i=0; $i < count( $structPropertiesRc ); $i++ )
  * @license http://ez.no/licenses/new_bsd New BSD License
  * @version //autogentag//
  * @filesource
- * @package ChangeMePackage
+ * @package <?php echo $component . "\n"; ?>
  * @subpackage Tests
  */
 
 /**
  * Test the struct <?php echo $class; ?>.
  *
- * @package ChangeMePackage
+ * @package <?php echo $component . "\n"; ?>
  * @subpackage Tests
  */
 class <?php echo $class; ?>Test extends ezcTestCase
