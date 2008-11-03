@@ -48,7 +48,7 @@ defaultpackagename = NoPackageName
 target = /home/httpd/html/components/phpdoc_gen/ezcomponents-$targetversion
 directory = $directories
 
-ignore = autoload/,*autoload.php,tests/,docs/
+ignore = autoload/,*autoload.php,tests/,docs/,design/
 output=HTML:ezComp:ezdocs
 sourcecode = $source
 
