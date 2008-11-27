@@ -32,6 +32,8 @@ return array(
     'ezcDocAnalysisRuleParamCheck'           => 'check/rules/param_check.php',
     'ezcDocAnalysisRuleTagAvailable'         => 'check/rules/tag_available.php',
     'ezcDocAnalysisRuleTagsAvailable'        => 'check/rules/tags_available.php',
+    'ezcDocAnalysisRuleFileHeaderCheck'      => 'check/rules/file_header.php',
+    'ezcDocAnalysisRuleClassHeaderCheck'     => 'check/rules/class_header.php',
     'ezcDocBlock'                            => 'parser/block.php',
     'ezcDocBlockAccessTag'                   => 'parser/tags/access.php',
     'ezcDocBlockApichangeTag'                => 'parser/tags/apichange.php',

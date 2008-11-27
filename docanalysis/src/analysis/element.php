@@ -5,6 +5,7 @@ class ezcDocAnalysisElement
     protected $properties = array(
         "element"       => null,
         "docBlock"      => null,
+        "parent"        => null,
         "messages"      => array(),
         "children"      => array(),
         "docBlockValid" => true,
@@ -28,6 +29,7 @@ class ezcDocAnalysisElement
     public function addChild( ezcDocAnalysisElement $element )
     {
         $this->properties["children"][] = $element;
+        $element->parent                = $this;
     }
 
     public function addMessage( ezcDocAnalysisMessage $message )
@@ -70,6 +72,12 @@ class ezcDocAnalysisElement
                 if ( is_bool( $propertyValue ) === false )
                 {
                     throw new ezcBaseValueException( $propertyName, $propertyValue, 'bool' );
+                }
+                break;
+            case 'parent':
+                if ( !( $propertyValue instanceof ezcDocAnalysisElement ) )
+                {
+                    throw new ezcBaseValueException( $propertyName, $propertyValue, 'ezcDocAnalysisElement' );
                 }
                 break;
             case 'element':

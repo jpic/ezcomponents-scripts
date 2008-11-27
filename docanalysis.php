@@ -96,6 +96,12 @@ $check->addRule(
 $check->addRule(
     new ezcDocAnalysisRuleParamCheck()
 );
+$check->addRule(
+    new ezcDocAnalysisRuleFileHeaderCheck()
+);
+$check->addRule(
+    new ezcDocAnalysisRuleClassHeaderCheck()
+);
 
 $check->check( $analysis );
 
