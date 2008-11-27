@@ -34,6 +34,15 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
             foreach ( $docParams as $docParamPos => $docParam )
             {
                 $docTypes = explode( '|', $docParam->type );
+                // Sanitize types ala array(Something) and ArrayObject(Something)
+                foreach ( $docTypes as $id => $docType )
+                {
+                    if ( preg_match( '/(.+)(\(.*\))/', $docType, $matches ) > 0 )
+                    {
+                        $docTypes[$id] = $matches[1];
+                    }
+                }
+
                 if ( $realParamName == $docParam->name )
                 {
                     // Found parameter documentation, now checking different stuff
@@ -50,8 +59,23 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                     }
                     if ( ( $class = $realParam->getClass() ) !== null ) 
                     {
+                        try
+                        {
+                            $refClass = new ReflectionClass( $docTypes[0] );
+                        }
+                        catch( Exception $e )
+                        {
+                            $analysisElement->addMessage(
+                                new ezcDocAnalysisMessage(
+                                    "Parameter '$realParamName' documented to be of non existent class {$docTypes[0]}.",
+                                    self::$level
+                                )
+                            );
+                            $refClass = false;
+                        }
+
                         // Has class type hint
-                        if ( $class->getName() != $docParam->type )
+                        if ( $class->getName() != $docTypes[0] && ( !$refClass || ( !$class->isSubclassOf( $refClass ) && !$refClass->isSubclassOf( $class ) ) ) )
                         {
                             $analysisElement->addMessage(
                                 new ezcDocAnalysisMessage(
