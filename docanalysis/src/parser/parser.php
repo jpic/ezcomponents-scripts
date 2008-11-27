@@ -18,8 +18,8 @@ class ezcDocBlockParser
 
         self::stripFraming( $docLines );
 
-        self::$docBlock->heading     = self::stripCommentLine( array_shift( $docLines ), true );
-        self::$docBlock->description = self::stripCommentLine( array_shift( $docLines ), true );
+        self::$docBlock->heading     = ( isset( $docLines[0] ) && preg_match( '(\* +@)', $docLines[0] ) === 0 ? self::stripCommentLine( array_shift( $docLines ), true ) : null );
+        self::$docBlock->description = ( isset( $docLines[0] ) && preg_match( '(\* +@)', $docLines[0] ) === 0 ? self::stripCommentLine( array_shift( $docLines ), true ) : null );
 
         while ( ( $line = array_shift( $docLines ) ) !== null )
         {
