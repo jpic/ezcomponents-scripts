@@ -93,12 +93,11 @@ class ezcDocAnalysisRuleFileHeaderCheck implements ezcDocAnalysisRule
             else
             {
                 $version = trim( $versionTag[0]->number );
-                $expected = '//autogentag//';
-                if ( $version !== $expected )
+                if ( $version !== '//autogen//' && $version !== '//autogentag//' )
                 {
                     $analysisElement->addMessage(
                         new ezcDocAnalysisMessage(
-                            "Invalid @version tag. Expected '$expected', got '$version'."
+                            "Invalid @version tag. Expected '//autogen//' or '//autogentag//', got '$version'."
                         ),
                         self::$level
                     );
