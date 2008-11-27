@@ -149,6 +149,11 @@ class ezcDocAnalysisRuleParamCheck implements ezcDocAnalysisRule
                                         $typeName = 'float';
                                         break;
                                 }
+                                if ( $typeName === 'string' && !in_array( substr( $defaultValue, 0, 1 ), array( '"', "'" ) ) )
+                                {
+                                    // Value is a constant, may be any scalar documented, ignore by adding string
+                                    $docTypes[] = 'string';
+                                }
                                 if ( !in_array( $typeName, $docTypes ) )
                                 {
                                     $analysisElement->addMessage(
