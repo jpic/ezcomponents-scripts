@@ -81,6 +81,12 @@ cp ${DOC_OUTPUT_DIR}/tutorials.tpl ${DOC_OUTPUT_DIR}/tutorials.html
 for i in $j; do
 	comp=`echo $i | cut -d / -f 2`
 	version=`echo "$i" | sed "s/\/$comp//" | sed "s/releases\///"`
+
+# Add changelog and CREDITS
+	php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}" -f $i/ChangeLog -o "changelog_$comp.html"
+	php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}" -f $i/CREDITS -o "credits_$comp.html"
+
+# Process tutorial
 	if test -f $i/docs/tutorial.txt; then
 		echo "* $comp ($version)"
 		php scripts/render-tutorial.php -c $comp -t ${DOC_OUTPUT_DIR} -v $version -r $release
@@ -91,10 +97,6 @@ EOF
 		cat >> ${DOC_OUTPUT_DIR}/tutorials.html << EOF
 <li><a href="introduction_$comp.html">$comp</a></li>
 EOF
-
-# Add changelog and CREDITS
-		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}" -f $i/ChangeLog -o "changelog_$comp.html"
-		php scripts/render-rst-file.php -v $release -c $comp -t "${DOC_OUTPUT_DIR}" -f $i/CREDITS -o "credits_$comp.html"
 
 # Add extra docs for tutorials
 		extra1=""
