@@ -195,6 +195,11 @@ cd /tmp
 wget -nH -m -p -np -k http://tequila/components/phpdoc_gen/ezcomponents-$release/
 cd components/phpdoc_gen/ezcomponents-$release
 ln -s /home/httpd/html/components/design .
+
+for i in `egrep -rl "tequila/doc" *`; do perl -p -i -e 's/<link rel="Home" href="http:\/\/tequila\/doc" title="Doc front page" \/>//' $i; done
+for i in `egrep -rl "tequila" *`; do perl -p -i -e "s/<a.*?href='http:\/\/tequila\/(.*?)>(.*?)<\/a>/\\2/g" $i; done
+for i in `egrep -rl "tequila" *`; do perl -p -i -e 's/<a.*?href="http:\/\/tequila\/(.*?)>(.*?)<\/a>/\\2/g' $i; done
+
 cd ..
 tar -chzf /tmp/ezcomponents-$release-docs.tar.gz ezcomponents-$release
 cd ../..
