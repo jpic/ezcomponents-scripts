@@ -424,7 +424,9 @@ function figureOutPrefix( $className, $component )
     {
         if ( in_array( $component, array( 'AuthenticationDatabaseTiein', 'DatabaseSchema',
                         'EventLogDatabaseTiein', 'GraphDatabaseTiein', 'ImageAnalysis',
+                        'MvcFeedTiein', 'MvcMailTiein', 'MvcTemplateTiein',
                         'PersistentObjectDatabaseSchemaTiein', 'PhpGenerator',
+                        'TemplateTranslationTiein', 
                         'TranslationCacheTiein', 'TreeDatabaseTiein', 'TreePersistentObjectTiein',
                         'WorkflowDatabaseTiein', 'WorkflowEventLogTiein' ) ) )
         {
