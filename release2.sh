@@ -33,6 +33,13 @@ else
 	svn cp stable/$component/$componentRelease releases/$component/$version
 fi
 
+echo "* Committing component to SVN"
+if test $branch == 'trunk'; then
+	svn commit -m "- Copying $component to version $version" releases/$component/$version
+else
+	svn commit -m "- Copying $component($componentRelease) to version $version" releases/$component/$version
+fi
+
 cd releases/$component/$version
 ../../../scripts/autogen-version-tags.sh
 cd ../../..
@@ -49,7 +56,7 @@ else
 fi
 
 echo "* Creating PEAR package"
-scripts/create_pear_package.php -v $version -b $baseversion -p $component
+php -derror_reporting=0 scripts/create_pear_package.php -v $version -b $baseversion -p $component
 
 echo
 echo "All clear"
