@@ -23,14 +23,17 @@ else
 fi
 
 # figure out the DSNs to use
-if test "$component" == "Database" \
+if test "$component" == "AuthenticationDatabaseTiein" \
+	-o "$component" == "Database" \
 	-o "$component" == "DatabaseSchema" \
 	-o "$component" == "EventLogDatabaseTiein" \
 	-o "$component" == "PersistentObject" \
-	-o "$component" == "PersistentObjectDatabaseSchemaTiein"; then
+	-o "$component" == "PersistentObjectDatabaseSchemaTiein" \
+	-o "$component" == "TreePersistentObjectTiein" \
+	-o "$component" == "TreeDatabaseTiein"; then
 	dsns="mysql://root@localhost/ezc sqlite://:memory: sqlite:///tmp/test.sqlite pgsql://ezc:ezc@localhost/ezc"
 else
-	dsns="sqlite://:memory:";
+	dsns="sqlite:///tmp/test.sqlite:";
 fi
 
 cd $branch
