@@ -640,6 +640,12 @@ class ezcPackageManager
                 'dir_roles' => array( 
                     'docs'   => 'doc',
                 ),
+                'roles' => array(
+                    'php'    => 'php',
+                    'css'    => 'php',
+                    'xsd'    => 'php',
+                    'rng'    => 'php',
+                ),
             )
         );
 
@@ -689,7 +695,7 @@ class ezcPackageManager
         }
         else
         {
-            $e = $pkg->setPhpDep( '5.1.1' );
+            $e = $pkg->setPhpDep( '5.2.1' );
         }
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
