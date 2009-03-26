@@ -1,6 +1,14 @@
 <?php
 
-define( 'CC_PATH', '/opt/cruisecontrol' );
+require_once dirname( __FILE__ ) . '/../../trunk/Base/src/ezc_bootstrap.php';
+
+$debug = !( isset( $argv[1] ) && $argv[1] === 'go' );
+
+define( 'BASE_PATH', '/local/ezctest' );
+
+define( 'PHP_BASE_PATH', BASE_PATH . '/php' );
+
+define( 'CC_PATH', BASE_PATH . '/opt/cruisecontrol' );
 define( 'CC_PROJECT_PATH', CC_PATH . '/projects' );
 
 define( 'PHP_CC_VERSION', '5.3-dev' );
@@ -9,6 +17,7 @@ $ignoreComponents = array(
     'UnitTest',
 );
 
+// Dependencies not reflected in DEPS files (mainly test deps)
 $additionalDependenecies = array(
     'Base' => array(
         'File',
@@ -37,9 +46,16 @@ $additionalDependenecies = array(
     ),
 );
 
-// Generate list of PHP binaries
-$phps = glob( '/home/dotxp/php/*', GLOB_ONLYDIR );
-unset( $phps[array_search( '/home/dotxp/php/pear', $phps )] );
+// Data source names
+$dsns = array(
+    'mysql'  => 'mysql://ezctest@localhost/ezctest',
+    // @TODO: An SQLite on disc DB should also be provided!
+    // 'sqlite' => 'sqlite://$\{$basedir}/build/tmp/test.sqlite',
+    'sqlite' => 'sqlite://:memory:',
+);
+
+// Generate list of PHP installations (5.* ensures to not grab the pear/ dir)
+$phps = glob( PHP_BASE_PATH . '/5.*', GLOB_ONLYDIR );
 
 array_walk(
     $phps,
@@ -47,13 +63,6 @@ array_walk(
     {
         $value = basename( $value );
     }
-);
-
-// Data source names
-$dsns = array(
-    'mysql'  => 'mysql://ezc:ezctest@localhost/ezc',
-    // 'sqlite' => 'sqlite://$\{$basedir}/build/tmp/test.sqlite',
-    'sqlite' => 'sqlite://:memory:',
 );
 
 /*
@@ -83,8 +92,6 @@ $dirsToCreate = array(
     '/build/logs',
     '/build/tmp',
 );
-
-require_once 'Base/src/ezc_bootstrap.php';
 
 $config               = ezcTemplateConfiguration::getInstance();
 $config->templatePath = dirname( __FILE__ ) . '/templates';
@@ -187,12 +194,19 @@ foreach ( $componentPaths as $componentPath )
     $tpl->send->componentDeps = $componentDeps;
     $tpl->send->needsDatabase = in_array( 'Database', $componentDeps ) || strpos( $componentName, 'Database' );
     $tpl->send->phps          = $phps;
+    $tpl->send->phpBasePath   = PHP_BASE_PATH;
     $tpl->send->dsns          = $dsns;
     $tpl->send->phpCcVersion  = PHP_CC_VERSION;
-    
-    file_put_contents( $ccComponentPath . '/build.xml', $tpl->process( 'build.xml.tpl' ) ) || die( "Could not write build.xml for component $componentName.\n" );
-    // echo " Would put the following to $ccComponentPath/build.xml:\n";
-    // echo $tpl->process( 'build.xml.tpl' ) . "\n\n";
+   
+    if ( $debug )
+    { 
+        echo " Would put the following to $ccComponentPath/build.xml:\n";
+        echo $tpl->process( 'build.xml.tpl' ) . "\n\n";
+    }
+    else
+    {
+        file_put_contents( $ccComponentPath . '/build.xml', $tpl->process( 'build.xml.tpl' ) ) || die( "Could not write build.xml for component $componentName.\n" );
+    }
 
     $componentsDeps[$componentName] = $componentDeps;
 }
@@ -201,8 +215,14 @@ $tpl = new ezcTemplate();
 $tpl->send->components = $componentNames;
 $tpl->send->deps = $componentsDeps;
 
-file_put_contents( CC_PATH  . '/config.xml', $tpl->process( 'config.xml.tpl' ) ) || die( "Could not write config.xml\n" );
-// echo CC_PATH  . '/config.xml' . "\n";
-// echo $tpl->process( 'config.xml.tpl' ) . "\n\n";
+if ( $debug )
+{
+    echo CC_PATH  . '/config.xml' . "\n";
+    echo $tpl->process( 'config.xml.tpl' ) . "\n\n";
+}
+else
+{
+    file_put_contents( CC_PATH  . '/config.xml', $tpl->process( 'config.xml.tpl' ) ) || die( "Could not write config.xml\n" );
+}
 
 ?>
