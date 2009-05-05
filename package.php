@@ -23,6 +23,7 @@ $packageList = array();
 mkdir( $packageDir, 0777, true );
 
 grabChangelog( $fileName, $packageDir );
+createReleaseInfoFile( $packageDir, $fileName, $version );
 addPackages( $fileName, $packageDir );
 setupAutoload( $packageDir, $packageList );
 addAditionalFiles( $packageDir, $packageList );
@@ -58,11 +59,52 @@ function grabChangelog( $fileName, $packageDir )
     fclose( $fp );
 }
 
+function createReleaseInfoFile( $packageDir, $fileName, $versionNr )
+{
+    $elements = fetchVersionsFromReleaseFile( $fileName );
+
+    $xw = new XmlWriter;
+    $xw->openUri( "$packageDir/release-info.xml" );
+    $xw->setIndent( true );
+    $xw->startDocument( '1.0', 'utf-8' );
+    $xw->startElement( 'release-info' );
+    $xw->writeElement( 'version', $versionNr );
+    $xw->startElement( 'deps' );
+    $xw->writeElement( 'php', trim( file_get_contents( 'scripts/php-version' ) ) );
+    $xw->startElement( 'packages' );
+
+    foreach ( $elements as $component => $versionNr )
+    {
+        $dependencies = fetchVersionsFromReleaseFile( $versionNr == 'trunk' ? "trunk/$component/DEPS" : "releases/$component/$versionNr/DEPS" );
+
+        $xw->startElement( 'package' );
+        $xw->writeAttribute( 'version', $versionNr );
+        $xw->writeAttribute( 'name', $component );
+        if ( count( $dependencies ) > 0 )
+        {
+            $xw->startElement( 'deps' );
+            foreach( $dependencies as $dependency => $depVerNr )
+            {
+                $xw->startElement( 'package' );
+                $xw->writeAttribute( 'version', $depVerNr );
+                $xw->writeAttribute( 'name', $dependency );
+                $xw->endElement();
+            }
+            $xw->endElement();
+        }
+        $xw->endElement();
+    }
+    $xw->endElement();
+    $xw->endElement();
+    $xw->endElement();
+    $xw->endDocument();
+}
+
 function addPackages( $fileName, $packageDir )
 {
-    echo "Exporting packages from SVN: \n";
-
     $elements = fetchVersionsFromReleaseFile( $fileName );
+
+    echo "Exporting packages from SVN: \n";
     foreach ( $elements as $component => $versionNr )
     {
         addPackage( $packageDir, $component, $versionNr );
@@ -72,8 +114,16 @@ function addPackages( $fileName, $packageDir )
 function addPackage( $packageDir, $name, $version )
 {
     echo sprintf( '* %-40s %-12s: ', $name, $version );
-    
-    $dirName = "releases/$name/$version";
+
+    if ( $version === 'trunk' )
+    {
+        $dirName = "trunk/$name";
+    }
+    else
+    {
+        $dirName = "releases/$name/$version";
+    }
+
     if ( !is_dir( $dirName ) )
     {
         echo "release directory not found\n";
@@ -83,7 +133,7 @@ function addPackage( $packageDir, $name, $version )
 
     /* exporting */
     echo "E ";
-    `svn export http://svn.ez.no/svn/ezcomponents/releases/$name/$version $packageDir/$name`;
+    `svn export http://svn.ez.no/svn/ezcomponents/$dirName $packageDir/$name`;
 
     /* remove crappy files */
     echo "RR ";
