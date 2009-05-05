@@ -695,7 +695,7 @@ class ezcPackageManager
         }
         else
         {
-            $e = $pkg->setPhpDep( '5.2.1' );
+            $e = $pkg->setPhpDep( trim( file_get_contents( 'scripts/php-version' ) ) );
         }
         if ( PEAR::isError( $e ) )
             $this->raiseError( 'PackageFileManager error <'.$e->getMessage().'>.' );
