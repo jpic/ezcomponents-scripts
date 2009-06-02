@@ -141,7 +141,7 @@ class ezcDocAnalysisRuleFileHeaderCheck implements ezcDocAnalysisRule
             else
             {
                 $copyright = trim( $copyrightTag[0]->text );
-                $expected = 'Copyright (C) 2005-' . date( 'Y' ) .  ' eZ systems as. All rights reserved.';
+                $expected = 'Copyright (C) 2005-' . date( 'Y' ) .  ' eZ Systems AS. All rights reserved.';
                 if ( $copyright !== $expected )
                 {
                     $analysisElement->addMessage(
