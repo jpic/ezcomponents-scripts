@@ -164,7 +164,7 @@ function dumpLicense( $component )
 /**
  * Autoloader definition for the $component component.
  *
- * @copyright Copyright (C) 2005-$year eZ systems as. All rights reserved.
+ * @copyright Copyright (C) 2005-$year eZ Systems AS. All rights reserved.
  * @license http://ez.no/licenses/new_bsd New BSD License
  * @version //autogentag//
  * @filesource
@@ -424,7 +424,7 @@ function figureOutPrefix( $className, $component )
     {
         if ( in_array( $component, array( 'AuthenticationDatabaseTiein', 'DatabaseSchema',
                         'EventLogDatabaseTiein', 'GraphDatabaseTiein', 'ImageAnalysis',
-                        'MvcFeedTiein', 'MvcMailTiein', 'MvcTemplateTiein',
+                        'MvcFeedTiein', 'MvcMailTiein', 'MvcTemplateTiein', 'MvcAuthenticationTiein',
                         'PersistentObjectDatabaseSchemaTiein', 'PhpGenerator',
                         'TemplateTranslationTiein', 
                         'TranslationCacheTiein', 'TreeDatabaseTiein', 'TreePersistentObjectTiein',
