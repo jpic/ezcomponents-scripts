@@ -36,9 +36,17 @@ echo "tar.bz2 ";
 echo "zip ";
 echo "Done\n";
 
+echo "Creating Lite Archives: ";
+`cd $basePackageDir; tar cvjf /tmp/ezcomponents-$version-lite.tar.bz2 --exclude-tag-under=suite.php --exclude-tag-under=class_diagram.png --exclude-tag-all=suite.php --exclude-tag-all=class_diagram.png --exclude=docs ezcomponents-$version`;
+echo "tar.bz2 ";
+`cd $basePackageDir; zip --exclude=\*/docs/\*  --exclude=\*/design/\* --exclude=\*/tests/\* -r /tmp/ezcomponents-$version-lite.zip ezcomponents-$version`;
+echo "zip ";
+echo "Done\n";
+
 echo "Generating HTML version of changelog: ";
 `cd $basePackageDir; rst2html ezcomponents-$version/ChangeLog > /tmp/ezcomponents-$version.changelog.html`;
 echo "Done\n";
+exit;
 
 echo "scp-ing to tequila: ";
 `scp /tmp/ezcomponents-$version* tequila:/home/httpd/html/components/downloads`;
