@@ -6,6 +6,8 @@ for i in `find . -name \*.php`; do
 	cat $i | \
 		sed -e 's/[[:space:]]while(/ while (/' | \
 		sed -e 's/[[:space:]]if(/ if (/' | \
+		sed -e 's/[[:space:]]else(/ else (/' | \
+		sed -e 's/[[:space:]]elseif(/ elseif (/' | \
 		sed -e 's/[[:space:]]catch(/ catch (/' | \
 		sed -e 's/[[:space:]]foreach(/ foreach (/' | \
 		sed -e 's/[[:space:]]switch(/ switch (/' > /tmp/temporary.php
@@ -54,5 +56,8 @@ for i in `find . -name \*.php`; do
 	php -r "\$f = file( '$i' ); \$o = fopen( '/tmp/temp.php', 'w' ); foreach( \$f as \$l ) { if ( preg_match( '@autogen@', \$l ) ) { fwrite( \$o, \$l ); } else { \$l = preg_replace( '@ \/\/([^ ])@', ' // \1', \$l ); fwrite( \$o, \$l ); } }"
     cp /tmp/temp.php $i
 done
+
+echo "Fixing end of line spaces:"
+for i in `find . -name \*.php`; do cat $i | sed -e 's/[[:space:]]\+$//' > /tmp/temporary.php; cp /tmp/temporary.php $i; done
 
 for i in `find . -name \*.php`; do php -l $i | grep -v "No syntax errors"; done
