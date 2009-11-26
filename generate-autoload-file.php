@@ -59,7 +59,7 @@ $componentOption->shorthelp = "The name of the component.";
 $params->registerOption( $componentOption );
 
 $targetOption = new ezcConsoleOption( 't', 'target', ezcConsoleInput::TYPE_STRING );
-$targetOption->mandatory = true;
+$targetOption->mandatory = false;
 $targetOption->shorthelp = "The directory to where the generated autoload file should be written.";
 $params->registerOption( $targetOption );
 
@@ -84,7 +84,15 @@ catch ( ezcConsoleOptionException $e )
 }
 
 $component = $params->getOption( 'component' )->value;
-$targetDir = $params->getOption( 'target' )->value;
+$targetOption = $params->getOption( 'target' )->value;
+if ( $targetOption )
+{
+    $targetDir = $targetOption;
+}
+else
+{
+    $targetDir = "trunk/{$component}";
+}
 $noGraph   = $params->getOption( 'no-graph' )->value;
 
 $files = fetchExceptionFiles( $component, true );
