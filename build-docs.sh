@@ -10,6 +10,7 @@ release=$1
 BASE_OUTPUT_DIR=/home/httpd/html/components
 DOC_OUTPUT_DIR=${BASE_OUTPUT_DIR}/phpdoc_gen/ezcomponents-${release}
 HTTP_ROOT_DIR=/components/phpdoc_gen/ezcomponents-${release}
+SOURCE_DIR=/home/derick/dev/ezcomponents
 
 wd=`pwd`
 
@@ -26,13 +27,12 @@ mkdir -p ${DOC_OUTPUT_DIR}
 
 echo "Writing config file for $release"
 cd $wd
-php scripts/build-php-doc-config.php $release $release on > /tmp/doc-components.ini || exit 1
+php scripts/build-php-doc-config.php ${SOURCE_DIR} $release $release on > /tmp/doc-components.ini || exit 1
 
 j=`php scripts/list-export-dirs.php $release`
 
-cd /home/httpd || exit 2
+cd ${SOURCE_DIR} || exit 2
 
-cd ezcomponents || exit 4
 mkdir -p ${DOC_OUTPUT_DIR} || exit 8
 
 echo "Copying overview for $release"
@@ -178,7 +178,6 @@ include 'overview.tpl';
 ?>
 EOF
 
-cd ..
 cd ${BASE_OUTPUT_DIR} || exit 10
 
 for i in `find . | grep %%`; do

@@ -30,8 +30,9 @@ if test "$component" == "AuthenticationDatabaseTiein" \
 	-o "$component" == "PersistentObject" \
 	-o "$component" == "PersistentObjectDatabaseSchemaTiein" \
 	-o "$component" == "TreePersistentObjectTiein" \
-	-o "$component" == "TreeDatabaseTiein"; then
-	dsns="mysql://root@localhost/ezc sqlite://:memory: sqlite:///tmp/test.sqlite pgsql://ezc:ezc@localhost/ezc"
+	-o "$component" == "TreeDatabaseTiein" \
+	-o "$component" == "WorkflowDatabaseTiein"; then
+	dsns="mysql://root:wee123@localhost/ezc sqlite://:memory: sqlite:///tmp/test.sqlite pgsql://ezc:ezc@localhost/ezc"
 else
 	dsns="sqlite:///tmp/test.sqlite:";
 fi
@@ -50,7 +51,7 @@ fi
 cd - >/dev/null
 
 echo "* Checking for local modifications"
-status=`svn st $component`
+status=`svn st --ignore-externals $component | grep -v 'X'`
 if test "$status" != ""; then
 	echo
 	echo "Aborted: Local modifications:";
@@ -69,7 +70,7 @@ fi
 echo "* Running tests"
 for dsn in $dsns; do
 	echo "  - $dsn"
-	php $unittestcmd --verbose -D $dsn $component |tee /tmp/test-$logfilename.log
+	php $unittestcmd --verbose --dsn=$dsn $component |tee /tmp/test-$logfilename.log
 	testresult=`cat /tmp/test-$logfilename.log | grep FAILURES`;
 	if test "$testresult" == "FAILURES!"; then
 		echo

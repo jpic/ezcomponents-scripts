@@ -1,14 +1,15 @@
 <?php
 include 'scripts/get-packages-for-version.php';
 
-if ( $argc < 3 )
+if ( $argc < 4 )
 {
-    echo "Usage:\n\tscripts/build-php-doc-config.php <targetversion> <releaseversion> <source:on off>\n\tscripts/package.php 1.0beta1 trunk on\n\n";
+    echo "Usage:\n\tscripts/build-php-doc-config.php <sourcedir> <targetversion> <releaseversion> <source:on off>\n\tscripts/package.php /home/derick/dev/ezcomponents 1.0beta1 trunk on\n\n";
     die();
 }
-$targetversion = $argv[1];
-$releaseversion = $argv[2];
-$source = $argv[3];
+$sourcedir = $argv[1];
+$targetversion = $argv[2];
+$releaseversion = $argv[3];
+$source = $argv[4];
 $fileName = "release-info/$releaseversion";
 if ( !file_exists( "$fileName" ) )
 {
@@ -30,7 +31,7 @@ foreach ( $elements as $component => $componentVersion )
     {
         $componentVersion = "trunk/$component";
     }
-    $directories .= "/home/httpd/ezcomponents/$componentVersion,";
+    $directories .= "$sourcedir/$componentVersion,";
 }
 
 // strip last ,
